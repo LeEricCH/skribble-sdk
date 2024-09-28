@@ -69,35 +69,13 @@
       "pages": [
         "documentation/python/error-handling"
       ]
-    },
-    {
-      "group": "Users",
-      "pages": [
-        "api/users/get-user",
-        "api/users/get-all-users",
-        "api/users/search-users",
-        "api/users/create-user"
-      ]
-    },
-    {
-      "group": "Spells",
-      "pages": [
-        "api/spells/get-spell",
-        "api/spells/get-all-spells",
-        "api/spells/search-spells"
-      ]
     }
   ],
-  "api": {
-    "maintainOrder": true,
-    "baseUrl": "https://next-fast-turbo-api.vercel.app"
-  },
-  "openapi": "https://next-fast-turbo-api.vercel.app/openapi.json",
   "feedback": {
     "thumbsRating": true
   },
   "footerSocials": {
-    "github": "https://github.com/cording12/next-fast-turbo",
-    "linkedin": "https://www.linkedin.com/in/jon-cording/"
+    "github": "https://github.com/leericch/skribble-sdk",
+    "linkedin": "https://ch.linkedin.com/in/campos-eric"
   }
 }

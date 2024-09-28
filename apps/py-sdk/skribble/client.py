@@ -20,15 +20,6 @@ class SkribbleClient:
         self.session: requests.Session = requests.Session()
 
     def _authenticate(self) -> str:
-        """
-        Authenticate with the Skribble API and return the access token.
-
-        Returns:
-            str: The access token.
-
-        Raises:
-            SkribbleAuthError: If authentication fails.
-        """
         auth_data = AuthRequest(username=self.username, **{"api-key": self.api_key})
         response = self.session.post(f"{self.BASE_URL}/access/login", json=auth_data.dict(by_alias=True))
 
@@ -38,21 +29,6 @@ class SkribbleClient:
             raise SkribbleAuthError(f"Authentication failed: {response.text}")
 
     def _make_request(self, method: str, endpoint: str, data: Optional[Dict[str, Any]] = None, params: Optional[Dict[str, Any]] = None) -> Any:
-        """
-        Make an authenticated request to the Skribble API.
-
-        Args:
-            method (str): The HTTP method to use.
-            endpoint (str): The API endpoint.
-            data (Optional[Dict[str, Any]]): The request data.
-            params (Optional[Dict[str, Any]]): The request parameters.
-
-        Returns:
-            Any: The JSON response from the API or None for empty responses.
-
-        Raises:
-            SkribbleAPIError: If the API request fails.
-        """
         access_token = self._authenticate()
         headers = {"Authorization": f"Bearer {access_token}"}
 
@@ -70,15 +46,6 @@ class SkribbleClient:
         return self._make_request("GET", f"/signature-requests/{signature_request_id}")
 
     def delete_signature_request(self, signature_request_id: str) -> Dict[str, Any]:
-        """
-        Delete a signature request.
-
-        Args:
-            signature_request_id (str): The ID of the signature request to delete.
-
-        Returns:
-            Dict[str, Any]: A dictionary containing the status and message of the delete operation.
-        """
         try:
             self._make_request("DELETE", f"/signature-requests/{signature_request_id}")
             return {"status": "success", "message": f"Signature request {signature_request_id} deleted successfully"}
@@ -102,16 +69,6 @@ class SkribbleClient:
         self._make_request("POST", f"/signature-requests/{signature_request_id}/remind")
 
     def withdraw_signature_request(self, signature_request_id: str, message: Optional[str] = None) -> Dict[str, Any]:
-        """
-        Withdraw a signature request.
-
-        Args:
-            signature_request_id (str): The ID of the signature request to withdraw.
-            message (Optional[str]): An optional message explaining the reason for withdrawal.
-
-        Returns:
-            Dict[str, Any]: A dictionary containing the status of the withdrawal operation.
-        """
         data = {"message": message} if message else None
         response = self._make_request("POST", f"/signature-requests/{signature_request_id}/withdraw", data=data)
         if response is None:
@@ -125,15 +82,12 @@ class SkribbleClient:
         else:
             raise SkribbleAPIError(f"Failed to get attachment: {response.text}")
 
-    # Add these new methods to the SkribbleClient class
-
-    def add_signature_request_attachment(self, signature_request_id: str, filename: str, content_type: str, content: bytes) -> Dict[str, Any]:
-        data = {
-            "filename": filename,
-            "content_type": content_type,
-            "content": base64.b64encode(content).decode('utf-8')
-        }
-        return self._make_request("POST", f"/signature-requests/{signature_request_id}/attachments", data=data)
+    def add_signature_request_attachments(self, signature_request_id: str, attachments: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        attachment_responses = []
+        for attachment in attachments:
+            response = self._make_request("POST", f"/signature-requests/{signature_request_id}/attachments", data=attachment)
+            attachment_responses.append(response)
+        return attachment_responses
 
     def get_signature_request_attachment(self, signature_request_id: str, attachment_id: str) -> bytes:
         response = self.session.get(f"{self.BASE_URL}/signature-requests/{signature_request_id}/attachments/{attachment_id}/content", headers={"Authorization": f"Bearer {self._authenticate()}"})
@@ -147,21 +101,10 @@ class SkribbleClient:
         if response.status_code not in [204, 200]:
             raise SkribbleAPIError(f"Failed to delete attachment: {response.text}")
 
-    # Add more methods for other API endpoints as needed
-
     def get_document(self, document_id: str) -> Dict[str, Any]:
         return self._make_request("GET", f"/documents/{document_id}")
 
     def delete_document(self, document_id: str) -> Dict[str, Any]:
-        """
-        Delete a document.
-
-        Args:
-            document_id (str): The ID of the document to delete.
-
-        Returns:
-            Dict[str, Any]: A dictionary containing the status and message of the delete operation.
-        """
         try:
             self._make_request("DELETE", f"/documents/{document_id}")
             return {"status": "success", "message": f"Document {document_id} deleted successfully"}
@@ -195,12 +138,8 @@ class SkribbleClient:
         else:
             raise SkribbleAPIError(f"Failed to get document preview: {response.text}")
 
-    # ... (rest of the class remains the same)
-
     def create_seal(self, seal_data: Dict[str, Any]) -> Dict[str, Any]:
         return self._make_request("POST", "/seal", data=seal_data)
 
     def create_specific_seal(self, seal_data: Dict[str, Any]) -> Dict[str, Any]:
         return self._make_request("POST", "/seal", data=seal_data)
-
-    # ... (rest of the class remains the same)

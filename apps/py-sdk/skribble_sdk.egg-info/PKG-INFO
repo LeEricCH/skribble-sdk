@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: skribble-sdk
-Version: 0.4
+Version: 0.3
 Summary: A Python SDK for the Skribble API
 Home-page: https://github.com/LeEricCH/skribble-sdk
 Author: Eric Campos

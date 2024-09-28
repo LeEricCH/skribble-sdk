@@ -111,19 +111,3 @@ signer_to_remove = signature_request['signatures'][0] # This is the first signer
 skribble.signature_request.remove_signer(signature_request_id, signer_to_remove['sid'])
 
 ```
-
-## Adding an Attachment
-
-To add an attachment to an existing signature request:
-
-```python
-
-attachment_response = skribble.attachment.add(
-    signature_request_id,
-    "sample.pdf",
-    "application/pdf",
-    "BASE64_ENCODED_ATTACHMENT"
-)
-print("Attachment added successfully:", attachment_response)
-```
-You can add multiple attachments to a signature request by passing a list of attachments to the `add` function.

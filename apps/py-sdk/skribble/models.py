@@ -154,5 +154,3 @@ class DocumentRequest(BaseModel):
         if values.content and not values.content_type:
             raise ValueError("'content_type' must be provided when 'content' is used")
         return values
-
-# Add more response models as needed

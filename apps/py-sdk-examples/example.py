@@ -56,16 +56,21 @@ try:
 
     signature_request_id = create_response['id']
 
-    # Add an attachment
-    attachment_url = "https://pdfobject.com/pdf/sample.pdf"
-    attachment_content = requests.get(attachment_url).content
-    attachment_response = skribble.attachment.add(
-        signature_request_id,
-        "sample.pdf",
-        "application/pdf",
-        attachment_content
-    )
-    print(colored("Attachment added successfully:", "green"))
+    # Add multiple attachments
+    attachment_urls = [
+        "https://pdfobject.com/pdf/sample.pdf",
+        "https://pdfobject.com/pdf/sample.pdf"
+    ]
+    attachments = []
+    for index, url in enumerate(attachment_urls):
+        attachment_content = requests.get(url).content
+        attachments.append({
+            "filename": f"attachment-{index + 1}.pdf",
+            "content_type": "application/pdf",
+            "content": base64.b64encode(attachment_content).decode('utf-8')
+        })
+    attachment_response = skribble.attachment.add(signature_request_id, attachments)
+    print(colored("Attachments added successfully:", "green"))
     print(colored(attachment_response, "cyan"))
 
     # Add a new signer

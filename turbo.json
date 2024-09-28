@@ -12,9 +12,16 @@
         "^build"
       ],
       "outputs": [
-        ".next/**",
-        "!.next/cache/**",
-        "dist/**"
+        "dist/**",
+        ".next/**"
+      ]
+    },
+    "docs#build": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        ".next/**"
       ]
     },
     "lint": {

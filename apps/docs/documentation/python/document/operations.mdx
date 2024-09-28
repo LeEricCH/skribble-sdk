@@ -1,0 +1,79 @@
+---
+title: Operations
+"og:title": "Document Operations"
+description: All Document operations
+---
+
+
+### Uploading a Document
+
+To upload a document:
+
+```python
+skribble.document.add(document_data)
+```
+
+<ResponseField name="document" type="Document Object">
+  <Expandable title="properties">
+    <ResponseField name="title" type="string" required>
+      The title of the document
+    </ResponseField>
+
+    <ResponseField name="content_type" type="string" required>
+      The content type of the document
+    </ResponseField>
+
+    <ResponseField name="content" type="string" required>
+      The content of the document
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+
+### Getting Document Metadata
+
+To get document metadata:
+
+```python
+skribble.document.get(document_id)
+```
+<ParamField path="document_id" type="string" required>
+  The ID of the document
+</ParamField>
+
+### Downloading a Document
+
+To download a document:
+
+```python
+skribble.document.download(document_id)
+```
+
+<ParamField path="document_id" type="string" required>
+  The ID of the document
+</ParamField>
+
+### Deleting a Document
+
+To delete a document:
+
+```python
+skribble.document.delete(document_id)
+```
+
+<ParamField path="document_id" type="string" required>
+  The ID of the document
+</ParamField>
+
+### Listing Documents
+
+To list all documents with a limit:
+
+```python
+skribble.document.list(limit=5)
+```
+
+<ParamField path="limit" type="int">
+  The number of documents to return
+</ParamField>
+

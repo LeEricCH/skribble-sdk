@@ -1,0 +1,9 @@
+{
+    "name": "skribble-py-sdk",
+    "version": "1.0.0",
+    "description": "Unofficial Python SDK for Skribble API",
+    "scripts": {
+        "install": "pip install -e .",
+        "test": "python tests/run_tests.py"
+    }
+}

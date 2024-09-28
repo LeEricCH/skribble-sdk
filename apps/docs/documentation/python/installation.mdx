@@ -1,0 +1,37 @@
+---
+title: Install the SDK
+"og:title": "Python SDK installation"
+description: How to install the Python SDK
+---
+
+## Introduction
+
+The Python SDK is available on [PyPI](https://pypi.org/project/skribble-python-sdk/).
+
+You can install the SDK using pip:
+
+```bash
+pip install skribble-python-sdk
+```
+
+## Initialize the SDK
+
+```python
+import skribble
+
+# Replace with your actual API credentials
+USERNAME: str = "api_xxxxx"
+API_KEY: str = "xxxxx"
+
+# Initialize the SDK
+skribble.init(USERNAME, API_KEY)
+```
+
+## Next steps
+
+See usage in the next article
+
+<Card title="Usage" icon="python" href="usage">
+    See how to use the Python SDK
+</Card>
+

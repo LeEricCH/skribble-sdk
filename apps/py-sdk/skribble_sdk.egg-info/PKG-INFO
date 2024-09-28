@@ -1,0 +1,27 @@
+Metadata-Version: 2.1
+Name: skribble-sdk
+Version: 0.1
+Summary: A Python SDK for the Skribble API
+Home-page: https://github.com/yourusername/skribble-sdk
+Author: Your Name
+Author-email: your.email@example.com
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+Requires-Dist: requests
+Requires-Dist: pydantic
+Provides-Extra: test
+Requires-Dist: unittest; extra == "test"
+Requires-Dist: coverage; extra == "test"
+
+# Skribble SDK
+
+A Python SDK for interacting with the Skribble API.
+
+## Installation

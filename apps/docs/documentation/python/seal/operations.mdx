@@ -1,0 +1,95 @@
+---
+title: Operations
+"og:title": "Seal Operations"
+description: All Seal operations
+---
+
+### Creating a Seal
+
+To create a seal:
+
+```python
+seal_response = skribble.seal.create(seal)
+```
+
+<ResponseField name="seal" type="Seal Object">
+  <Expandable title="properties">
+    <ResponseField name="content" type="string">
+      The base64 encoded content of the seal
+    </ResponseField>
+
+    <ResponseField name="visual_signature" type="VisualSignature Object">
+      The visual signature of the seal
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="visual_signature" type="VisualSignature Object">
+  <Expandable title="properties">
+    <ResponseField name="position" type="Position Object">
+      The position of the visual signature
+    </ResponseField>
+
+    <ResponseField name="image" type="Image Object">
+      The image of the visual signature
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="position" type="Position Object">
+  <Expandable title="properties">
+    <ResponseField name="x" type="int">
+      The x coordinate of the position
+    </ResponseField>
+
+    <ResponseField name="y" type="int">
+      The y coordinate of the position
+    </ResponseField>    
+
+    <ResponseField name="width" type="int">
+      The width of the position
+    </ResponseField>
+
+    <ResponseField name="height" type="int">
+      The height of the position
+    </ResponseField>
+
+    <ResponseField name="page" type="int">
+      The page of the position
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="image" type="Image Object">
+  <Expandable title="properties">
+    <ResponseField name="content_type" type="string">
+      The content type of the image
+    </ResponseField>
+
+    <ResponseField name="content" type="string">
+      The content of the image
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+
+### Creating a Specific Seal
+
+To create a specific seal:
+
+
+```python
+specific_seal_response = skribble.seal.create_specific(content, account_name)
+```
+
+
+<ResponseField name="content" type="string">
+
+  The base64 encoded content of the seal.
+</ResponseField>
+
+
+<ResponseField name="account_name" type="string" optional="true">
+
+  The name of the account Skribble set up for your organization seal.
+</ResponseField>

@@ -8,14 +8,22 @@ def create(signature_request: Dict[str, Any]) -> Dict[str, Any]:
     """
     Create a new signature request.
 
-    Args:
-        signature_request (Dict[str, Any]): The signature request data.
+    :param signature_request: The signature request data.
+    :type signature_request: Dict[str, Any]
+    :return: The created signature request details.
+    :rtype: Dict[str, Any]
+    :raises SkribbleValidationError: If the input data is invalid.
 
-    Returns:
-        Dict[str, Any]: The created signature request details.
-
-    Raises:
-        SkribbleValidationError: If the input data is invalid.
+    Example:
+        >>> request_data = {
+        ...     "title": "Test Request",
+        ...     "message": "Please sign",
+        ...     "file_url": "https://example.com/document.pdf",
+        ...     "signatures": [{"account_email": "signer@example.com"}]
+        ... }
+        >>> result = skribble.signature_request.create(request_data)
+        >>> print(result['id'])
+        'sig_req_123'
     """
     try:
         # Validate signatures separately
@@ -46,11 +54,15 @@ def get(signature_request_id: str) -> Dict[str, Any]:
     """
     Get details of a specific signature request.
 
-    Args:
-        signature_request_id (str): The ID of the signature request to retrieve.
+    :param signature_request_id: The ID of the signature request to retrieve.
+    :type signature_request_id: str
+    :return: The signature request details.
+    :rtype: Dict[str, Any]
 
-    Returns:
-        Dict[str, Any]: The signature request details.
+    Example:
+        >>> details = skribble.signature_request.get("sig_req_123")
+        >>> print(details['title'])
+        'Test Request'
     """
     return get_client().get_signature_request(signature_request_id)
 
@@ -58,11 +70,15 @@ def delete(signature_request_id: str) -> Dict[str, Any]:
     """
     Delete a specific signature request.
 
-    Args:
-        signature_request_id (str): The ID of the signature request to delete.
+    :param signature_request_id: The ID of the signature request to delete.
+    :type signature_request_id: str
+    :return: A dictionary containing the status and message of the delete operation.
+    :rtype: Dict[str, Any]
 
-    Returns:
-        Dict[str, Any]: A dictionary containing the status and message of the delete operation.
+    Example:
+        >>> result = skribble.signature_request.delete("sig_req_123")
+        >>> print(result['status'])
+        'success'
     """
     return get_client().delete_signature_request(signature_request_id)
 
@@ -70,12 +86,17 @@ def list(limit: int = 20, offset: int = 0) -> List[Dict[str, Any]]:
     """
     List signature requests.
 
-    Args:
-        limit (int): The maximum number of signature requests to return. Default is 20.
-        offset (int): The number of signature requests to skip. Default is 0.
+    :param limit: The maximum number of signature requests to return. Default is 20.
+    :type limit: int
+    :param offset: The number of signature requests to skip. Default is 0.
+    :type offset: int
+    :return: A list of signature request details.
+    :rtype: List[Dict[str, Any]]
 
-    Returns:
-        List[Dict[str, Any]]: A list of signature request details.
+    Example:
+        >>> requests = skribble.signature_request.list(limit=5, offset=0)
+        >>> print(len(requests))
+        5
     """
     return get_client().list_signature_requests(limit, offset)
 
@@ -93,6 +114,30 @@ def update(signature_request_id: str, updated_data: Dict[str, Any]) -> Dict[str,
     return get_client().update_signature_request(signature_request_id, updated_data)
 
 def add_signer(signature_request_id: str, email: str, first_name: Optional[str] = None, last_name: Optional[str] = None, mobile_number: Optional[str] = None, language: Optional[str] = None) -> Dict[str, Any]:
+    """
+    Add a signer to a signature request.
+
+    :param signature_request_id: The ID of the signature request.
+    :type signature_request_id: str
+    :param email: The email address of the signer.
+    :type email: str
+    :param first_name: The first name of the signer (optional).
+    :type first_name: Optional[str]
+    :param last_name: The last name of the signer (optional).
+    :type last_name: Optional[str]
+    :param mobile_number: The mobile number of the signer (optional).
+    :type mobile_number: Optional[str]
+    :param language: The preferred language of the signer (optional).
+    :type language: Optional[str]
+    :return: The response containing the added signer details.
+    :rtype: Dict[str, Any]
+    :raises SkribbleOperationError: If the operation fails.
+
+    Example:
+        >>> result = skribble.signature_request.add_signer("sig_req_123", "new_signer@example.com", first_name="John", last_name="Doe")
+        >>> print(result['sid'])
+        'signer_456'
+    """
     try:
         client = get_client()
 
@@ -126,6 +171,22 @@ def add_signer(signature_request_id: str, email: str, first_name: Optional[str] 
         raise SkribbleOperationError("add_signer", f"Unexpected error: {str(e)}", e)
 
 def remove_signer(signature_request_id: str, signer_id: str) -> Dict[str, Any]:
+    """
+    Remove a signer from a signature request.
+
+    :param signature_request_id: The ID of the signature request.
+    :type signature_request_id: str
+    :param signer_id: The ID of the signer to remove.
+    :type signer_id: str
+    :return: A dictionary containing the status and message of the remove operation.
+    :rtype: Dict[str, Any]
+    :raises SkribbleOperationError: If the operation fails.
+
+    Example:
+        >>> result = skribble.signature_request.remove_signer("sig_req_123", "signer_456")
+        >>> print(result['status'])
+        'success'
+    """
     try:
         client = get_client()
 
@@ -161,12 +222,17 @@ def withdraw(signature_request_id: str, message: Optional[str] = None) -> Dict[s
     """
     Withdraw a signature request.
 
-    Args:
-        signature_request_id (str): The ID of the signature request to withdraw.
-        message (Optional[str]): An optional message explaining the reason for withdrawal.
+    :param signature_request_id: The ID of the signature request to withdraw.
+    :type signature_request_id: str
+    :param message: An optional message explaining the reason for withdrawal.
+    :type message: Optional[str]
+    :return: A dictionary containing the status of the withdrawal operation.
+    :rtype: Dict[str, Any]
 
-    Returns:
-        Dict[str, Any]: A dictionary containing the status of the withdrawal operation.
+    Example:
+        >>> result = skribble.signature_request.withdraw("sig_req_123", message="Document updated")
+        >>> print(result['status'])
+        'success'
     """
     return get_client().withdraw_signature_request(signature_request_id, message)
 

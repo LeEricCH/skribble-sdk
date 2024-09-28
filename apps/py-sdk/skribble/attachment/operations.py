@@ -12,14 +12,13 @@ def add(signature_request_id: str, attachments: List[Dict[str, Any]]) -> List[Di
     :type attachments: List[Dict[str, Any]]
     :return: A list of dictionaries containing the added attachment IDs.
     :rtype: List[Dict[str, Any]]
-
     :raises SkribbleValidationError: If the input data is invalid.
     :raises SkribbleAPIError: If the API request fails.
 
     Example:
         >>> attachments = [
-        ...     {"filename": "doc1.pdf", "content_type": "application/pdf", "content": b"..."},
-        ...     {"filename": "doc2.pdf", "content_type": "application/pdf", "content": b"..."}
+        ...     {"filename": "doc1.pdf", "content_type": "application/pdf", "content": "base64_content"},
+        ...     {"filename": "doc2.pdf", "content_type": "application/pdf", "content": "base64_content"}
         ... ]
         >>> result = skribble.attachment.add("sig_req_123", attachments)
         >>> print(result)

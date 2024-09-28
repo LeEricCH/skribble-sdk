@@ -7,14 +7,23 @@ def create(seal_data: Dict[str, Any]) -> Dict[str, Any]:
     """
     Create a seal for a document.
 
-    Args:
-        seal_data (Dict[str, Any]): The seal data.
+    :param seal_data: The seal data.
+    :type seal_data: Dict[str, Any]
+    :return: The created seal details.
+    :rtype: Dict[str, Any]
+    :raises SkribbleValidationError: If the input data is invalid.
 
-    Returns:
-        Dict[str, Any]: The created seal details.
-
-    Raises:
-        SkribbleValidationError: If the input data is invalid.
+    Example:
+        >>> seal_data = {
+        ...     "content": "base64_encoded_pdf_content",
+        ...     "visual_signature": {
+        ...         "position": {"x": 20, "y": 20, "width": 260, "height": 120, "page": "0"},
+        ...         "image": {"content_type": "image/png", "content": "base64_encoded_image_content"}
+        ...     }
+        ... }
+        >>> result = skribble.seal.create(seal_data)
+        >>> print(result)
+        {'document_id': 'doc_123', 'status': 'success'}
     """
     try:
         validated_seal = Seal(**seal_data)
@@ -27,15 +36,20 @@ def create_specific(content: str, account_name: Optional[str] = None) -> Dict[st
     """
     Create a seal for a document with a specific seal.
 
-    Args:
-        content (str): Base64 encoded PDF file.
-        account_name (Optional[str]): The name of the account Skribble set up for your organization seal.
+    :param content: Base64 encoded PDF file.
+    :type content: str
+    :param account_name: The name of the account Skribble set up for your organization seal.
+    :type account_name: Optional[str]
+    :return: The created seal details.
+    :rtype: Dict[str, Any]
+    :raises SkribbleValidationError: If the input data is invalid.
 
-    Returns:
-        Dict[str, Any]: The created seal details.
-
-    Raises:
-        SkribbleValidationError: If the input data is invalid.
+    Example:
+        >>> content = "base64_encoded_pdf_content"
+        >>> account_name = "company_seal_department_a"
+        >>> result = skribble.seal.create_specific(content, account_name)
+        >>> print(result)
+        {'document_id': 'doc_456', 'status': 'success'}
     """
     seal_data = {
         "content": content,

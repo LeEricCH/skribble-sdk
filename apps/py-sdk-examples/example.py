@@ -56,23 +56,6 @@ try:
 
     signature_request_id = create_response['id']
 
-    # Add multiple attachments
-    attachment_urls = [
-        "https://pdfobject.com/pdf/sample.pdf",
-        "https://pdfobject.com/pdf/sample.pdf"
-    ]
-    attachments = []
-    for index, url in enumerate(attachment_urls):
-        attachment_content = requests.get(url).content
-        attachments.append({
-            "filename": f"attachment-{index + 1}.pdf",
-            "content_type": "application/pdf",
-            "content": base64.b64encode(attachment_content).decode('utf-8')
-        })
-    attachment_response = skribble.attachment.add(signature_request_id, attachments)
-    print(colored("Attachments added successfully:", "green"))
-    print(colored(attachment_response, "cyan"))
-
     # Add a new signer
     new_signer_email = "newsigner@example.com"
     add_signer_response = skribble.signature_request.add_signer(
@@ -104,27 +87,41 @@ try:
     get_response = skribble.signature_request.get(signature_request_id)
     print(colored("Retrieved signature request:", "green"))
     print(colored(get_response, "cyan"))
+    # Add multiple attachments
+    attachment_urls = [
+        "https://pdfobject.com/pdf/sample.pdf",
+        "https://pdfobject.com/pdf/sample.pdf"
+    ]
+    attachments = []
+    for index, url in enumerate(attachment_urls):
+        attachment_content = requests.get(url).content
+        attachments.append({
+            "filename": f"attachment-{index + 1}.pdf",
+            "content_type": "application/pdf",
+            "content": base64.b64encode(attachment_content).decode('utf-8')
+        })
+    attachment_response = skribble.attachment.add(signature_request_id, attachments)
+    print(colored("Attachments added successfully:", "green"))
+    print(colored(attachment_response, "cyan"))
 
-    # Check if there are any attachments
+    # Check if there are any attachments and delete all of them
+    get_response = skribble.signature_request.get(signature_request_id)
     if 'attachments' in get_response and get_response['attachments']:
-        attachment_id = get_response['attachments'][0]['attachment_id']
-        attachment_content = skribble.attachment.get(signature_request_id, attachment_id)
-        print(colored("Retrieved attachment:", "green"))
-        print(colored(f"{len(attachment_content)} bytes", "cyan"))
+        for attachment in get_response['attachments']:
+            attachment_id = attachment['attachment_id']
+            try:
+                # Delete the attachment
+                skribble.attachment.delete(signature_request_id, attachment_id)
+                print(colored(f"Attachment {attachment_id} deleted successfully", "green"))
+            except SkribbleAPIError as e:
+                print(colored(f"Failed to delete attachment {attachment_id}: {str(e)}", "red"))
 
-        try:
-            # Delete the attachment
-            skribble.attachment.delete(signature_request_id, attachment_id)
-            print(colored("Attachment deleted successfully", "green"))
-
-            # Verify the attachment was deleted
-            get_response = skribble.signature_request.get(signature_request_id)
-            if not get_response['attachments']:
-                print(colored("Attachment deletion confirmed", "green"))
-            else:
-                print(colored("Attachment deletion failed: Attachment still present in the signature request", "red"))
-        except SkribbleAPIError as e:
-            print(colored(f"Failed to delete attachment: {str(e)}", "red"))
+        # Verify all attachments were deleted
+        get_response = skribble.signature_request.get(signature_request_id)
+        if not get_response['attachments']:
+            print(colored("All attachments deletion confirmed", "green"))
+        else:
+            print(colored("Attachment deletion failed: Some attachments are still present in the signature request", "red"))
     else:
         print(colored("No attachments found in the signature request", "yellow"))
 

@@ -7,12 +7,17 @@ def list(limit: int = 20, offset: int = 0) -> List[Dict[str, Any]]:
     """
     List all documents with pagination.
 
-    Args:
-        limit (int): The maximum number of documents to return. Default is 20.
-        offset (int): The number of documents to skip. Default is 0.
+    :param limit: The maximum number of documents to return. Default is 20.
+    :type limit: int
+    :param offset: The number of documents to skip. Default is 0.
+    :type offset: int
+    :return: A list of documents.
+    :rtype: List[Dict[str, Any]]
 
-    Returns:
-        List[Dict[str, Any]]: A list of documents.
+    Example:
+        >>> documents = skribble.document.list(limit=5, offset=0)
+        >>> print(len(documents))
+        5
     """
     return get_client().get_documents(limit, offset)
 
@@ -20,11 +25,15 @@ def get(document_id: str) -> Dict[str, Any]:
     """
     Get the document metadata.
 
-    Args:
-        document_id (str): The ID of the document to retrieve.
+    :param document_id: The ID of the document to retrieve.
+    :type document_id: str
+    :return: The document metadata.
+    :rtype: Dict[str, Any]
 
-    Returns:
-        Dict[str, Any]: The document metadata.
+    Example:
+        >>> metadata = skribble.document.get("doc_123")
+        >>> print(metadata['title'])
+        'Sample Document'
     """
     response = get_client().get_document_meta(document_id)
     return Document(**response).model_dump()
@@ -33,11 +42,15 @@ def delete(document_id: str) -> Dict[str, Any]:
     """
     Delete a document.
 
-    Args:
-        document_id (str): The ID of the document to delete.
+    :param document_id: The ID of the document to delete.
+    :type document_id: str
+    :return: A dictionary containing the status and message of the delete operation.
+    :rtype: Dict[str, Any]
 
-    Returns:
-        Dict[str, Any]: A dictionary containing the status and message of the delete operation.
+    Example:
+        >>> result = skribble.document.delete("doc_123")
+        >>> print(result['status'])
+        'success'
     """
     try:
         result = get_client().delete_document(document_id)
@@ -51,11 +64,20 @@ def add(document_data: Dict[str, Any]) -> Dict[str, Any]:
     """
     Add a new document.
 
-    Args:
-        document_data (Dict[str, Any]): The document data.
+    :param document_data: The document data.
+    :type document_data: Dict[str, Any]
+    :return: The created document details.
+    :rtype: Dict[str, Any]
 
-    Returns:
-        Dict[str, Any]: The created document details.
+    Example:
+        >>> document_data = {
+        ...     "title": "New Document",
+        ...     "content_type": "application/pdf",
+        ...     "content": "base64_encoded_pdf_content"
+        ... }
+        >>> result = skribble.document.add(document_data)
+        >>> print(result['id'])
+        'doc_789'
     """
     validated_request = DocumentRequest(**document_data)
     return get_client().add_document(validated_request.model_dump(exclude_none=True))
@@ -64,11 +86,15 @@ def download(document_id: str) -> bytes:
     """
     Download the document content.
 
-    Args:
-        document_id (str): The ID of the document to download.
+    :param document_id: The ID of the document to download.
+    :type document_id: str
+    :return: The document content.
+    :rtype: bytes
 
-    Returns:
-        bytes: The document content.
+    Example:
+        >>> content = skribble.document.download("doc_123")
+        >>> print(len(content))
+        12345
     """
     return get_client().download_document(document_id)
 
@@ -76,12 +102,18 @@ def preview(document_id: str, page_id: int, scale: int = 20) -> bytes:
     """
     Get the document page preview.
 
-    Args:
-        document_id (str): The ID of the document.
-        page_id (int): The page number (starting from 0).
-        scale (int): The scale of the preview (20 for thumbnail, 100 for full size).
+    :param document_id: The ID of the document.
+    :type document_id: str
+    :param page_id: The page number (starting from 0).
+    :type page_id: int
+    :param scale: The scale of the preview (20 for thumbnail, 100 for full size).
+    :type scale: int
+    :return: The preview image content.
+    :rtype: bytes
 
-    Returns:
-        bytes: The preview image content.
+    Example:
+        >>> preview = skribble.document.preview("doc_123", page_id=0, scale=20)
+        >>> print(len(preview))
+        5678
     """
     return get_client().get_document_preview(document_id, page_id, scale)

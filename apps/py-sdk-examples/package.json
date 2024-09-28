@@ -1,0 +1,8 @@
+{
+    "name": "skribble-py-sdk-examples",
+    "version": "1.0.0",
+    "description": "Examples for the Skribble Python SDK",
+    "scripts": {
+        "run-examples": "python example.py"
+    }
+}

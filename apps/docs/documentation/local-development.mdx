@@ -13,6 +13,7 @@ Here's the monorepo structure:
 apps
 ├── docs
 ├── py-sdk
+├── py-sdk-examples
 ├── ts-sdk
 packages
 ├── eslint-config
@@ -22,23 +23,24 @@ packages
 The `apps` directory contains the code for:
 
 - `py-sdk`: The Python SDK
-- `ts-sdk`: The Typescript SDK
-- `docs`: The documentation site
+- `py-sdk-examples`: The Python SDK examples (not part of the SDK, but useful for local development)
+- `ts-sdk`: The Typescript SDK (coming soon)
+- `docs`: The documentation site (deployed on Mintlify)
 
 The `packages` directory contains the code for:
 
-- `eslint-config`: ESLint configurations for the codebase. Boilerplate code included as part of the [create Turbo](https://turbo.build/repo/docs/getting-started/create-new) command
-- `typescript-config`: TypeScript configurations for the codebase. Boilerplate code included as part of the [create Turbo](https://turbo.build/repo/docs/getting-started/create-new) command
+- `eslint-config`: ESLint configurations for the codebase. (Will be used in future SDKs) 
+- `typescript-config`: TypeScript configurations for the codebase. (Will be used in future SDKs) 
 
 ## Running the SDKs
 ### Step 1: Local setup
 
 <Steps>
   <Step title="Clone the repo">
-    Clone the [Skribble SDK repo](https://github.com/TODO.git).
+    Clone the [Skribble SDK repo](https://github.com/LeEricCH/skribble-sdk).
 
     ```bash
-    git clone https://github.com/TODO.git app-name
+    git clone https://github.com/https://github.com/LeEricCH/skribble-sdk.git app-name
     ```    
 
   </Step>
@@ -49,36 +51,27 @@ The `packages` directory contains the code for:
     cd app-name
     pnpm install
     ```      
+    Install also dependencies in editable mode for the SDKs:
+    ```bash
+    # Uninstall the SDK if already installed
+    pip uninstall skribble-sdk
+    # Install the SDK in editable mode
+    pip install -e apps/py-sdk
+    ```
   </Step>    
 
 </Steps>
 
 
-
-### Step 2: Configure Turbo remote caching (optional)
-Turborepo can use a technique known as [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel.
-
-<Steps>
-  <Step title="Login via Turborepo CLI">
-    From the project root, run the command:
-    ```bash    
-    npx turbo login
-    ```
-    This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-  </Step>
-  <Step title="Link your Turborepo to your Remote Cache">
-  Link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-  ```bash
-  npx turbo link
-  ```
-  </Step>
-</Steps>
-
-### Step 3: Test the SDKs
+### Step 2: Test the SDKs
 
 ```bash root
 pnpm run test
+```
+
+### Step 3: Run the examples
+
+```bash root
+pnpm run run-examples
 ```
 

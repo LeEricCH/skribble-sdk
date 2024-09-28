@@ -10,6 +10,7 @@
     "lint": "turbo lint",
     "test": "turbo run test",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "run-examples": "turbo run run-examples",
     "build:sdk": "turbo run build --filter=@skribble/ts-sdk",
     "build:test": "turbo run build --filter=@skribble/ts-sdk-test",
     "test:sdk": "turbo run test --filter=@skribble/ts-sdk-test"

@@ -5,5 +5,5 @@ I have created this SDK to make it easier for you to get started with the Skribb
 
 ## Documentation
 
-[Documentation](https://linktodocumentation)
+[Documentation](https://skribblesdk.mintlify.app/)
 

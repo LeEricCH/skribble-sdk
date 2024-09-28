@@ -1,10 +1,10 @@
 Metadata-Version: 2.1
 Name: skribble-sdk
-Version: 0.1
+Version: 0.4
 Summary: A Python SDK for the Skribble API
-Home-page: https://github.com/yourusername/skribble-sdk
-Author: Your Name
-Author-email: your.email@example.com
+Home-page: https://github.com/LeEricCH/skribble-sdk
+Author: Eric Campos
+Author-email: ec@webix.ch
 Classifier: Development Status :: 3 - Alpha
 Classifier: Intended Audience :: Developers
 Classifier: License :: OSI Approved :: MIT License
@@ -22,37 +22,14 @@ Requires-Dist: coverage; extra == "test"
 
 # Skribble SDK
 
-I have created this SDK to make it easier for you to get started with the Skribble API. I myself used the Skribble API in many projects and had to write the same code again and again. So I decided to create a SDK for the Skribble API.
-
-## Features
-The current version of the SDK includes the following features:
-
-### **Python SDK**
-The Python SDK comes with a fully built SDK that includes:
-
-- Error handling
-- Easy to use methods for the most common operations
-- Pre-configured connection to the Skribble API
-- IntelliSense support for the Skribble API
-- Extended documentation with examples
-
-## Tech stack
-
-Skribble SDK is fully open-source built using the following technologies:
-
-**Python**
-
-- [Pydantic](https://pydantic-docs.helpmanual.io/) - for data validation and settings management
-- [Requests](https://docs.python-requests.org/en/latest/) - for making HTTP requests
-- [Base64](https://docs.python.org/3/library/base64.html) - for encoding and decoding data
-- [Typing](https://docs.python.org/3/library/typing.html) - for type hints
+A Python SDK for interacting with the Skribble API.
 
 ## Installation
 
 You can install the Skribble SDK using pip:
 
-```bash
-pip install skribble
+```
+pip install skribble-sdk
 ```
 
 ## Basic Usage
@@ -85,4 +62,4 @@ create_response = skribble.signature_request.create(signature_request)
 print(create_response)
 ```
 
-For more detailed examples and advanced usage, please refer to the [Examples](../docs/documentation/python/examples.mdx) section in our documentation.
+For more detailed examples and advanced usage, please refer to the [Documentation](https://skribblesdk.mintlify.app/).

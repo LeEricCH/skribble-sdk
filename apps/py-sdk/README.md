@@ -40,4 +40,4 @@ create_response = skribble.signature_request.create(signature_request)
 print(create_response)
 ```
 
-For more detailed examples and advanced usage, please refer to the [Examples](../docs/documentation/python/examples.mdx) section in our documentation.
+For more detailed examples and advanced usage, please refer to the [Documentation](https://skribblesdk.mintlify.app/).

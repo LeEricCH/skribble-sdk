@@ -65,6 +65,12 @@
       ]
     },
     {
+      "group": "Error Handling",
+      "pages": [
+        "documentation/python/error-handling"
+      ]
+    },
+    {
       "group": "Users",
       "pages": [
         "api/users/get-user",

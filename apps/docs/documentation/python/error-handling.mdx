@@ -1,0 +1,81 @@
+---
+title: Error Handling
+"og:title": "Error Handling in the Skribble Python SDK"
+description: How to handle errors in the Skribble Python SDK
+---
+
+## Introduction
+
+The Skribble Python SDK provides a simple way to handle errors.
+
+## Common Errors
+
+When using the Skribble Python SDK, you may encounter several types of errors. Here are some common error types and how to handle them:
+
+### SkribbleValidationError
+
+This error occurs when there is a validation issue with the request data.
+
+```python
+try:
+    # Your SDK operation here
+    pass
+except SkribbleValidationError as e:
+    print(f"Validation error: {str(e)}")
+    for error in e.errors:
+        print(f"  - {error}")
+```
+
+### SkribbleAuthError
+
+This error occurs when there is an authentication issue.
+
+```python
+try:
+    # Your SDK operation here
+    pass
+except SkribbleAuthError as e:
+    print(f"Authentication error: {str(e)}")
+```
+
+### SkribbleAPIError
+
+This error occurs when there is an issue with the API.
+
+```python
+try:
+    # Your SDK operation here
+    pass
+except SkribbleAPIError as e:
+    print(f"API error: {str(e)}")
+```
+
+### SkribbleOperationError
+
+This error occurs when a specific operation fails.
+
+```python
+try:
+    # Your SDK operation here
+    pass
+except SkribbleOperationError as e:
+    print(f"Operation '{e.operation}' failed: {e.message}")
+    if e.original_error:
+        print(f"Original error: {str(e.original_error)}")
+```
+
+### General Exception Handling
+
+For any other unexpected errors, you can use a general exception handler.
+
+```python
+try:
+    # Your SDK operation here
+    pass
+except Exception as e:
+    print(f"An unexpected error occurred: {str(e)}")
+    import traceback
+    traceback.print_exc()
+```
+
+By using these error handlers, you can ensure that your application gracefully handles any issues that arise when interacting with the Skribble Python SDK.

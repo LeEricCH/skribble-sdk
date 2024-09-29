@@ -181,7 +181,7 @@ skribble.signature_request.list(limit=5)
 To delete a signature request:
 
 ```python
-delete_response = skribble.signature_request.delete(signature_request_id)
+skribble.signature_request.delete(signature_request_id)
 ```
 
 <ParamField path="signature_request_id" type="string" required>
@@ -193,7 +193,7 @@ delete_response = skribble.signature_request.delete(signature_request_id)
 To withdraw a signature request with a message:
 
 ```python
-withdraw_response = skribble.signature_request.withdraw(signature_request_id, message="Withdrawing for testing purposes")
+skribble.signature_request.withdraw(signature_request_id, message="Withdrawing for testing purposes")
 ```
 
 <ParamField path="signature_request_id" type="string" required>
@@ -273,11 +273,26 @@ To replace all signers in a signature request:
 
 ```python
 new_signers = [
-    {"account_email": "signer1@example.com"},
-    {"account_email": "signer2@example.com"}
+    {
+        "account_email": "newsigner1@example.com",
+        "signer_identity_data": {
+            "email_address": "newsigner1@example.com",
+            "first_name": "New",
+            "last_name": "Signer1",
+            "language": "en"
+        }
+    },
+    {
+        "account_email": "newsigner2@example.com",
+        "signer_identity_data": {
+            "email_address": "newsigner2@example.com",
+            "first_name": "New",
+            "last_name": "Signer2",
+            "language": "en"
+        }
+    }
 ]
-result = skribble.signature_request.replace_signers("sig_req_123", new_signers)
-print(len(result['signatures']))
+skribble.signature_request.replace_signers(signature_request_id, new_signers)
 ```
 
 <ParamField path="signature_request_id" type="string" required>
@@ -286,12 +301,29 @@ print(len(result['signatures']))
 
 <ParamField path="signatures" type="array" required>
   List of dictionaries containing new signer information
+  <Expandable title="signatures[]">
+    <ParamField path="account_email" type="string" required>
+      Email address of the signer
+    </ParamField>
+    <ParamField path="signer_identity_data" type="object" required>
+      Identity data of the signer
+      <Expandable title="signer_identity_data">
+        <ParamField path="email_address" type="string" required>
+          Email address of the signer
+        </ParamField>
+        <ParamField path="first_name" type="string" required>
+          First name of the signer
+        </ParamField>
+        <ParamField path="last_name" type="string" required>
+          Last name of the signer
+        </ParamField>
+        <ParamField path="language" type="string" required>
+          Language of the signer
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Expandable>
 </ParamField>
-
-<ParamField path="signatures[].account_email" type="string" required>
-  Email address of the signer
-</ParamField>
-
 ## Attachment Operations
 
 ### Adding Attachments

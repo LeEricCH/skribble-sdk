@@ -5,8 +5,8 @@ import base64
 from termcolor import colored
 
 # Replace with your actual API credentials
-USERNAME: str = "api_demo_testing_6067_0"
-API_KEY: str = "uRaFTWOKEDpOpYgeNtraTiOdrOpHEOve"
+USERNAME: str = "api_xxxxx"
+API_KEY: str = "xxxxx"
 
 # Initialize the SDK
 skribble.init(USERNAME, API_KEY)
@@ -49,6 +49,12 @@ signature_request = {
 }
 
 try:
+    # Login to the API
+    access_token = skribble.auth.login()
+    print(colored("Access token:", "green"))
+    print(colored(access_token, "cyan"))
+
+
     # Create a signature request
     create_response = skribble.signature_request.create(signature_request)
     print(colored("Signature request created successfully:", "green"))

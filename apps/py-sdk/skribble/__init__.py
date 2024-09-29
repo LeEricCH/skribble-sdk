@@ -6,6 +6,7 @@ from . import signature_request
 from . import attachment
 from . import document
 from . import seal
+from . import auth 
 
 __all__ = [
     'SkribbleClient',
@@ -18,5 +19,6 @@ __all__ = [
     'signature_request',
     'attachment',
     'document',
-    'seal'
+    'seal',
+    'auth'
 ]

@@ -7,6 +7,8 @@ skribble/exceptions.py
 skribble/models.py
 skribble/attachment/__init__.py
 skribble/attachment/operations.py
+skribble/auth/__init__.py
+skribble/auth/operations.py
 skribble/document/__init__.py
 skribble/document/operations.py
 skribble/seal/__init__.py

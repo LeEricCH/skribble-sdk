@@ -56,8 +56,8 @@ class SkribbleClient:
         params = {"limit": limit, "offset": offset}
         return self._make_request("GET", "/signature-requests", params=params)
 
-    def update_signature_request(self, updated_data: Dict[str, Any]) -> Dict[str, Any]:
-        return self._make_request("PUT", "/signature-requests", data=updated_data)
+    def update_signature_request(self, update_data: Dict[str, Any]) -> Dict[str, Any]:
+        return self._make_request("PUT", "/signature-requests", data=update_data)
 
     def add_signer_to_signature_request(self, signature_request_id: str, signer_data: Dict[str, Any]) -> Dict[str, Any]:
         return self._make_request("POST", f"/signature-requests/{signature_request_id}/signatures", data=signer_data)

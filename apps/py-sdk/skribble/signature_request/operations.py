@@ -206,6 +206,57 @@ def remove_signer(signature_request_id: str, signer_id: str) -> Dict[str, Any]:
     except Exception as e:
         raise SkribbleOperationError("remove_signer", f"Unexpected error: {str(e)}", e)
 
+def replace_signers(signature_request_id: str, signatures: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """
+    Replace all signers in a signature request.
+
+    :param signature_request_id: The ID of the signature request.
+    :type signature_request_id: str
+    :param signatures: A list of dictionaries containing signer information.
+    :type signatures: List[Dict[str, Any]]
+    :return: The updated signature request details.
+    :rtype: Dict[str, Any]
+    :raises SkribbleOperationError: If the operation fails.
+
+    Example:
+        >>> new_signers = [
+        ...     {"account_email": "signer1@example.com"},
+        ...     {"account_email": "signer2@example.com"}
+        ... ]
+        >>> result = skribble.signature_request.replace_signers("sig_req_123", new_signers)
+        >>> print(len(result['signatures']))
+        2
+
+    Note:
+        This operation will replace all existing signers. Any signers not included
+        in the new signatures list will be removed from the signature request.
+        Ensure that you include all desired signers, including existing ones you
+        wish to keep.
+    """
+    try:
+        client = get_client()
+
+        # Get the signature request and check if any of the signers have already signed
+        signature_request = client.get_signature_request(signature_request_id)
+        for signer in signature_request['signatures']:
+            if signer.get('status_code') == 'SIGNED':
+                raise SkribbleOperationError("replace_signers", "Cannot replace signers: One or more signers have already signed the document", None)
+
+        # Prepare the update data
+        update_data = {
+            "id": signature_request_id,
+            "signatures": signatures
+        }
+
+        # Update the signature request
+        response = client.update_signature_request(update_data)
+        
+        return response
+    except SkribbleAPIError as e:
+        raise SkribbleOperationError("replace_signers", str(e), e)
+    except Exception as e:
+        raise SkribbleOperationError("replace_signers", f"Unexpected error: {str(e)}", e)
+
 def remind(signature_request_id: str) -> None:
     """
     Send a reminder to open signers of a signature request.

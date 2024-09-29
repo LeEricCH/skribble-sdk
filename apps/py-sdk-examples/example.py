@@ -54,6 +54,10 @@ try:
     print(colored("Signature request created successfully:", "green"))
     print(colored(create_response, "cyan"))
 
+    # Remind signer about the signature request
+    skribble.signature_request.remind(create_response['id'])
+    print(colored("Reminded signer about the signature request", "green"))
+
     signature_request_id = create_response['id']
 
     # Add a new signer
@@ -82,6 +86,33 @@ try:
         print(colored(remove_signer_response, "cyan"))
     else:
         print(colored("Signer to remove not found", "yellow"))
+
+    # Replace signers in a signature request
+    new_signers = [
+        {
+            "account_email": "newsigner1@example.com",
+            "signer_identity_data": {
+                "email_address": "newsigner1@example.com",
+                "first_name": "New",
+                "last_name": "Signer1",
+                "language": "en"
+            }
+        },
+        {
+            "account_email": "newsigner2@example.com",
+            "signer_identity_data": {
+                "email_address": "newsigner2@example.com",
+                "first_name": "New",
+                "last_name": "Signer2",
+                "language": "en"
+            }
+        }
+    ]
+
+    replace_signers_response = skribble.signature_request.replace_signers(signature_request_id, new_signers)
+    print(colored("Signers replaced successfully:", "green"))
+    print(colored(replace_signers_response, "cyan"))
+
 
     # Get the created signature request
     get_response = skribble.signature_request.get(signature_request_id)
@@ -217,6 +248,7 @@ try:
 
     # print(colored("Seal created with specific seal successfully:", "green"))
     # print(colored(specific_seal_response, "cyan"))
+
 
     print(colored("="*30, "green"))
     print(colored("    All Operations Passed    ", "green", attrs=["bold"]))

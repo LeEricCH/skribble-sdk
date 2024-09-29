@@ -6,6 +6,7 @@ from .operations import (
     update,
     add_signer,
     remove_signer,
+    replace_signers,
     remind,
     withdraw,
     get_attachment
@@ -19,6 +20,7 @@ __all__ = [
     "update",
     "add_signer",
     "remove_signer",
+    "replace_signers",
     "remind",
     "withdraw",
     "get_attachment"

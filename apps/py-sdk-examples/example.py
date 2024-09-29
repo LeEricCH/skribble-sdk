@@ -5,55 +5,57 @@ import base64
 from termcolor import colored
 
 # Replace with your actual API credentials
-USERNAME: str = "api_xxxxx"
-API_KEY: str = "xxxxx"
-
-# Initialize the SDK
-skribble.init(USERNAME, API_KEY)
-
-# Create a sample signature request
-signature_request = {
-    "title": "Test Signature Request",
-    "message": "Please sign this test document",
-    "file_url": "https://pdfobject.com/pdf/sample.pdf",
-    "attachments": [
-        {
-            "file_url": "https://pdfobject.com/pdf/sample.pdf",
-            "file_name": "sample.pdf"
-        }
-    ],
-    "signatures": [
-        {
-            "account_email": "signer1@example.com",
-            "signer_identity_data": {
-                "email_address": "signer1@example.com",
-                "mobile_number": "1234567890",
-                "first_name": "John",
-                "last_name": "Doe",
-                "language": "en"
-            },
-            "sequence": 1,
-        },
-        {
-            "account_email": "signer2@example.com",
-            "signer_identity_data": {
-                "email_address": "signer2@example.com",
-                "mobile_number": "0987654321",
-                "first_name": "Jane",
-                "last_name": "Smith",
-                "language": "en"
-            },
-            "sequence": 2,
-        },
-    ],
-}
+USERNAME: str = "api_demo_testing_6067_0"
+API_KEY: str = "y7evSdH58hwtGf2mgWBTqJupac3r9xjCERA6QXFKzZ4sNb"
 
 try:
-    # Login to the API
+    # Initialize the SDK with username and API key
+    skribble.init(username=USERNAME, api_key=API_KEY)
+
+    # Login to the API and get access token
     access_token = skribble.auth.login()
     print(colored("Access token:", "green"))
     print(colored(access_token, "cyan"))
 
+    # Reinitialize the SDK with the access token
+    skribble.init(access_token=access_token)
+
+    # Create a sample signature request
+    signature_request = {
+        "title": "Test Signature Request",
+        "message": "Please sign this test document",
+        "file_url": "https://pdfobject.com/pdf/sample.pdf",
+        "attachments": [
+            {
+                "file_url": "https://pdfobject.com/pdf/sample.pdf",
+                "file_name": "sample.pdf"
+            }
+        ],
+        "signatures": [
+            {
+                "account_email": "signer1@example.com",
+                "signer_identity_data": {
+                    "email_address": "signer1@example.com",
+                    "mobile_number": "1234567890",
+                    "first_name": "John",
+                    "last_name": "Doe",
+                    "language": "en"
+                },
+                "sequence": 1,
+            },
+            {
+                "account_email": "signer2@example.com",
+                "signer_identity_data": {
+                    "email_address": "signer2@example.com",
+                    "mobile_number": "0987654321",
+                    "first_name": "Jane",
+                    "last_name": "Smith",
+                    "language": "en"
+                },
+                "sequence": 2,
+            },
+        ],
+    }
 
     # Create a signature request
     create_response = skribble.signature_request.create(signature_request)

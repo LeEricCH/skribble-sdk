@@ -7,30 +7,41 @@ import base64
 class SkribbleClient:
     BASE_URL: str = "https://api.skribble.com/v2"
 
-    def __init__(self, username: str, api_key: str):
+    def __init__(self, username: Optional[str] = None, api_key: Optional[str] = None, access_token: Optional[str] = None):
         """
         Initialize the Skribble client.
 
         Args:
-            username (str): The API username.
-            api_key (str): The API key.
+            username (str, optional): The API username.
+            api_key (str, optional): The API key.
+            access_token (str, optional): A pre-authenticated access token.
         """
-        self.username: str = username
-        self.api_key: str = api_key
+        self.username: Optional[str] = username
+        self.api_key: Optional[str] = api_key
+        self.access_token: Optional[str] = access_token
         self.session: requests.Session = requests.Session()
 
     def _authenticate(self) -> str:
+        if self.access_token:
+            return self.access_token
+        
+        if not self.username or not self.api_key:
+            raise SkribbleAuthError("Username and API key are required for authentication")
+
         auth_data = AuthRequest(username=self.username, **{"api-key": self.api_key})
         response = self.session.post(f"{self.BASE_URL}/access/login", json=auth_data.dict(by_alias=True))
 
         if response.status_code == 200:
-            return response.text.strip()
+            self.access_token = response.text.strip()
+            return self.access_token
         else:
             raise SkribbleAuthError(f"Authentication failed: {response.text}")
 
     def _make_request(self, method: str, endpoint: str, data: Optional[Dict[str, Any]] = None, params: Optional[Dict[str, Any]] = None) -> Any:
-        access_token = self._authenticate()
-        headers = {"Authorization": f"Bearer {access_token}"}
+        if not self.access_token:
+            self.access_token = self._authenticate()
+        
+        headers = {"Authorization": f"Bearer {self.access_token}"}
 
         response = self.session.request(method, f"{self.BASE_URL}{endpoint}", json=data, headers=headers, params=params)
 

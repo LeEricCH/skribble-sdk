@@ -43,6 +43,9 @@ skribble.init(USERNAME, API_KEY)
 # Get access token
 access_token = skribble.auth.login()
 print(access_token)
+
+# Reinitialize the SDK with the access token
+skribble.init(access_token=access_token)
 ``` 
 
 

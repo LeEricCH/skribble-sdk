@@ -344,18 +344,17 @@ attachment_response = skribble.attachment.add(signature_request_id, attachments)
 
 <ParamField path="attachments" type="array" required>
   List of dictionaries containing attachment information
-</ParamField>
-
-<ParamField path="attachments[].filename" type="string" required>
-  Name of the attachment
-</ParamField>
-
-<ParamField path="attachments[].content_type" type="string" required>
-  Content type of the attachment
-</ParamField>
-
-<ParamField path="attachments[].content" type="string" required>
-  Base64 encoded bytes of the attachment
+  <Expandable title="attachments[]">
+    <ParamField path="filename" type="string" required>
+      Name of the attachment
+    </ParamField>
+    <ParamField path="content_type" type="string" required>
+      Content type of the attachment
+    </ParamField>
+    <ParamField path="content" type="string" required>
+      Base64 encoded bytes of the attachment
+    </ParamField>
+  </Expandable>
 </ParamField>
 
 ### Getting an Attachment

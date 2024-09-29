@@ -26,9 +26,14 @@
   ],
   "anchors": [
     {
-      "name": "Documentation",
-      "icon": "book-open-cover",
+      "name": "Python SDK",
+      "icon": "python",
       "url": "documentation"
+    },
+    {
+      "name": "Typescript SDK",
+      "icon": "js",
+      "url": "typescript/coming-soon"
     }
   ],
   "navigation": [
@@ -36,24 +41,26 @@
       "group": "Getting Started",
       "pages": [
         "documentation/introduction",
+        "documentation/python/installation",
+        "documentation/python/examples",
         "documentation/local-development"
       ]
     },
     {
-      "group": "Python SDK",
+      "group": "Operations",
       "pages": [
-        "documentation/python/installation",
-        "documentation/python/examples",
         {
           "group": "Signature Requests",
           "pages": [
-            "documentation/python/signature-request/operations"
+            "documentation/python/signature-request/operations",
+            "documentation/python/signature-request/all-objects"
           ]
         },
         {
           "group": "Documents",
           "pages": [
-            "documentation/python/document/operations"
+            "documentation/python/document/operations",
+            "documentation/python/document/all-objects"
           ]
         },
         {

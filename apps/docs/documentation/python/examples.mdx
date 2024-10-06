@@ -8,6 +8,12 @@ description: How to use the Skribble Python SDK
 
 This guide demonstrates how to use the Skribble Python SDK to interact with the Skribble API. We'll cover common operations such as creating signature requests, managing signers, handling documents, and more.
 
+## Do you rather want to directly jump to the code?
+
+<Card title="Full Example" icon="python" href="https://github.com/LeEricCH/skribble-sdk/blob/master/apps/py-sdk-examples/example.py">
+    See how to use the Python SDK in GitHub
+</Card>
+
 ## Basic Setup
 
 First, make sure you've installed and initialized the SDK as described in the [installation guide](installation).
@@ -111,3 +117,4 @@ signer_to_remove = signature_request['signatures'][0] # This is the first signer
 skribble.signature_request.remove_signer(signature_request_id, signer_to_remove['sid'])
 
 ```
+

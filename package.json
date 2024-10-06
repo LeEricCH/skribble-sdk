@@ -13,7 +13,8 @@
     "run-examples": "turbo run run-examples",
     "build:sdk": "turbo run build --filter=@skribble/ts-sdk",
     "build:test": "turbo run build --filter=@skribble/ts-sdk-test",
-    "test:sdk": "turbo run test --filter=@skribble/ts-sdk-test"
+    "test:sdk": "turbo run test --filter=@skribble/ts-sdk-test",
+    "publish:py-sdk": "node scripts/publish-py-sdk.js"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",

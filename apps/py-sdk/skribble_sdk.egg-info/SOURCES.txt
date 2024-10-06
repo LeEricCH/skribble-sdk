@@ -1,5 +1,5 @@
 README.md
-setup.py
+pyproject.toml
 skribble/__init__.py
 skribble/client.py
 skribble/client_manager.py

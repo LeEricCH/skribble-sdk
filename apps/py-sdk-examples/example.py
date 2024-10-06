@@ -5,19 +5,14 @@ import base64
 from termcolor import colored
 
 # Replace with your actual API credentials
-USERNAME: str = "api_demo_testing_6067_0"
-API_KEY: str = "y7evSdH58hwtGf2mgWBTqJupac3r9xjCERA6QXFKzZ4sNb"
+USERNAME: str = "api_xxxxx"
+API_KEY: str = "xxxxx"
 
 try:
     # Initialize the SDK with username and API key
-    skribble.init(username=USERNAME, api_key=API_KEY)
+    access_token = skribble.init(username=USERNAME, api_key=API_KEY)
 
-    # Login to the API and get access token
-    access_token = skribble.auth.login()
-    print(colored("Access token:", "green"))
-    print(colored(access_token, "cyan"))
-
-    # Reinitialize the SDK with the access token
+    # Reinitialize the SDK with the access token (not needed, just for demo purposes)
     skribble.init(access_token=access_token)
 
     # Create a sample signature request
@@ -25,12 +20,6 @@ try:
         "title": "Test Signature Request",
         "message": "Please sign this test document",
         "file_url": "https://pdfobject.com/pdf/sample.pdf",
-        "attachments": [
-            {
-                "file_url": "https://pdfobject.com/pdf/sample.pdf",
-                "file_name": "sample.pdf"
-            }
-        ],
         "signatures": [
             {
                 "account_email": "signer1@example.com",
@@ -68,17 +57,18 @@ try:
 
     signature_request_id = create_response['id']
 
-    # Add a new signer
-    new_signer_email = "newsigner@example.com"
-    add_signer_response = skribble.signature_request.add_signer(
-        signature_request_id,
-        email=new_signer_email,
-        first_name="New",
-        last_name="Signer",
-        mobile_number="1234567890",
-        language="en"
-    )
-    print(colored("New signer added successfully:", "green"))
+    # Add signer to the signature request
+    add_signer_response = skribble.signature_request.add_signer(create_response["id"], {
+        "account_email": "test@test.com",
+        "signer_identity_data": {
+            "email_address": "test@test.com",
+            "mobile_number": "1234567890",
+            "first_name": "Test",
+            "last_name": "User",
+        },
+        "language": "en"
+    })
+    print(colored("Signer added successfully:", "green"))
     print(colored(add_signer_response, "cyan"))
 
     # Get the created signature request to find the signer ID
@@ -165,7 +155,7 @@ try:
         print(colored("No attachments found in the signature request", "yellow"))
 
     # List signature requests
-    list_response = skribble.signature_request.list(limit=5)
+    list_response = skribble.signature_request.list(page_size=10)
     print(colored("Listed signature requests:", "green"))
     print(colored(f"Total number of signature requests: {len(list_response)}", "cyan"))
 
@@ -201,8 +191,11 @@ try:
     print(colored("Downloaded document size:", "green"), colored(len(document_content), "cyan"), colored("bytes", "green"))
 
     # Get document preview
-    preview_image = skribble.document.preview(document_id, page_id=0, scale=20)
-    print(colored("Preview image size:", "green"), colored(len(preview_image), "cyan"), colored("bytes", "green"))
+    try:
+        preview_image = skribble.document.preview(document_id, page_id=0, scale=20, max_retries=10, retry_delay=2)
+        print(colored("Preview image size:", "green"), colored(len(preview_image), "cyan"), colored("bytes", "green"))
+    except SkribbleAPIError as e:
+        print(colored(f"Failed to get preview: {str(e)}", "red"))
 
     # Delete document
     delete_response = skribble.document.delete(document_id)
@@ -262,19 +255,11 @@ try:
     print(colored("    All Operations Passed    ", "green", attrs=["bold"]))
     print(colored("="*30, "green"))
 
-except SkribbleValidationError as e:
-    print(colored(f"Validation error: {str(e)}", "red"))
-    for error in e.errors:
-        print(colored(f"  - {error}", "red"))
 except SkribbleAuthError as e:
-    print(colored(f"Authentication error: {str(e)}", "red"))
+    print("Authentication error:", e.message)
+except SkribbleValidationError as e:
+    print("Validation error:", e.message)
 except SkribbleAPIError as e:
-    print(colored(f"API error: {str(e)}", "red"))
-except SkribbleOperationError as e:
-    print(colored(f"Operation '{e.operation}' failed: {e.message}", "red"))
-    if e.original_error:
-        print(colored(f"Original error: {str(e.original_error)}", "red"))
+    print(f"API error (status code {e.status_code}):", e.message)
 except Exception as e:
-    print(colored(f"An unexpected error occurred: {str(e)}", "red"))
-    import traceback
-    traceback.print_exc()
+    print("An unexpected error occurred:", str(e))

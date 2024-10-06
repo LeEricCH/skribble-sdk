@@ -166,14 +166,41 @@ skribble.signature_request.get(signature_request_id)
 
 ### Listing Signature Requests
 
-To list signature requests:
+To list signature requests with optional filtering and pagination:
 
 ```python
-skribble.signature_request.list(limit=5)
+skribble.signature_request.list(
+    account_email="john.doe@example.com",
+    search="Contract",
+    signature_status="OPEN",
+    status_overall="OPEN",
+    page_number=1,
+    page_size=10
+)
 ```
 
-<ParamField path="limit" type="int">
-  Limit the number of signature requests to return
+<ParamField path="account_email" type="string">
+  Filter on the field signatures[].account_email
+</ParamField>
+
+<ParamField path="search" type="string">
+  Filter on the field title to search for documents containing the search term
+</ParamField>
+
+<ParamField path="signature_status" type="string">
+  Filter on the field signatures[].status_code with one of the valid Signature states
+</ParamField>
+
+<ParamField path="status_overall" type="string">
+  Filter on the field status_overall with one of the valid Signature states
+</ParamField>
+
+<ParamField path="page_number" type="int">
+  Page number for pagination (must be greater than or equal to 0)
+</ParamField>
+
+<ParamField path="page_size" type="int">
+  Number of items per page (must be greater than or equal to 0, default is 50)
 </ParamField>
 
 ### Deleting a Signature Request

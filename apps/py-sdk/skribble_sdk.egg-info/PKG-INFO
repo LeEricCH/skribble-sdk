@@ -1,10 +1,12 @@
 Metadata-Version: 2.1
 Name: skribble-sdk
-Version: 0.6
+Version: 0.7
 Summary: A Python SDK for the Skribble API
-Home-page: https://github.com/LeEricCH/skribble-sdk
-Author: Eric Campos
-Author-email: ec@webix.ch
+Author-email: Eric Campos <ec@webix.ch>
+Project-URL: Homepage, https://github.com/LeEricCH/skribble-sdk
+Project-URL: Documentation, https://skribblesdk.mintlify.app/
+Project-URL: Repository, https://github.com/LeEricCH/skribble-sdk.git
+Keywords: skribble,api,sdk
 Classifier: Development Status :: 3 - Alpha
 Classifier: Intended Audience :: Developers
 Classifier: License :: OSI Approved :: MIT License
@@ -43,8 +45,9 @@ import skribble
 USERNAME = "your_username"
 API_KEY = "your_api_key"
 
-# Initialize the SDK
-skribble.init(USERNAME, API_KEY)
+# Initialize the SDK and get the access token
+token = skribble.init(USERNAME, API_KEY)
+print(f"Access token: {token}")
 
 # Create a signature request
 signature_request = {

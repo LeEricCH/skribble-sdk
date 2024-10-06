@@ -1,6 +1,7 @@
 from typing import List, Optional, Literal, Dict
 from pydantic import BaseModel, Field, HttpUrl, EmailStr, validator, model_validator
 from difflib import get_close_matches
+from .exceptions import SkribbleValidationError
 
 class AuthRequest(BaseModel):
     username: str = Field(..., description="API username")
@@ -115,13 +116,25 @@ class SignatureRequest(BaseModel):
     write_access: Optional[List[EmailStr]] = Field(None, description="Users with full write access")
     signatures: Optional[List[Signature]] = None
 
+    @model_validator(mode='before')
+    def check_fields(cls, values):
+        valid_fields = cls.model_fields.keys()
+        for field in values:
+            if field not in valid_fields:
+                close_matches = get_close_matches(field, valid_fields, n=1, cutoff=0.6)
+                if close_matches:
+                    raise SkribbleValidationError(f"Invalid field '{field}'. Did you mean '{close_matches[0]}'?", errors=[{"field": field, "message": f"Invalid field. Did you mean '{close_matches[0]}'?"}])
+                else:
+                    raise SkribbleValidationError(f"Invalid field '{field}'. Valid fields are: {', '.join(valid_fields)}", errors=[{"field": field, "message": f"Invalid field. Valid fields are: {', '.join(valid_fields)}"}])
+        return values
+
     @model_validator(mode='after')
     def check_document_source(self):
         content = self.content
         file_url = self.file_url
         document_id = self.document_id
         if not any([content, file_url, document_id]):
-            raise ValueError("At least one of 'content', 'file_url', or 'document_id' must be provided")
+            raise SkribbleValidationError("At least one of 'content', 'file_url', or 'document_id' must be provided", errors=[{"field": "document_source", "message": "At least one of 'content', 'file_url', or 'document_id' must be provided"}])
         return self
 
     class Config:
@@ -150,7 +163,45 @@ class DocumentRequest(BaseModel):
     @model_validator(mode='after')
     def check_content_or_file_url(cls, values):
         if bool(values.content) == bool(values.file_url):
-            raise ValueError("Either 'content' or 'file_url' must be provided, but not both")
+            raise SkribbleValidationError("Either 'content' or 'file_url' must be provided, but not both", errors=[{"field": "content_source", "message": "Either 'content' or 'file_url' must be provided, but not both"}])
         if values.content and not values.content_type:
-            raise ValueError("'content_type' must be provided when 'content' is used")
+            raise SkribbleValidationError("'content_type' must be provided when 'content' is used", errors=[{"field": "content_type", "message": "'content_type' must be provided when 'content' is used"}])
         return values
+
+class SignerRequest(BaseModel):
+    account_email: Optional[EmailStr] = Field(None, description="Signer's e-mail address")
+    signer_identity_data: Optional[SignerIdentityData] = None
+    visual_signature: Optional[VisualSignature] = None
+    sequence: Optional[int] = Field(None, ge=1, le=999)
+    notify: Optional[bool] = True
+    language: Optional[str] = None
+
+    @model_validator(mode='after')
+    def check_email_or_identity(cls, values):
+        if not values.get('account_email') and not values.get('signer_identity_data'):
+            raise ValueError("Either 'account_email' or 'signer_identity_data' must be provided")
+        return values
+
+class UpdateSignatureRequest(BaseModel):
+    id: str = Field(..., description="ID of the signature request to update")
+    title: Optional[str] = Field(None, max_length=1024, description="New title of the signature request")
+    message: Optional[str] = Field(None, max_length=1024, description="New message sent to the participants")
+    legislation: Optional[str] = Field(None, max_length=100, description="New legislation of the signatures")
+    quality: Optional[str] = Field(None, max_length=100, description="New minimal quality of the signatures")
+    cc_email_addresses: Optional[List[EmailStr]] = Field(None, description="New CC email addresses")
+    callback_success_url: Optional[str] = Field(None, max_length=2048, description="New callback-URL for success")
+    callback_error_url: Optional[str] = Field(None, max_length=2048, description="New callback-URL for errors")
+    callback_update_url: Optional[str] = Field(None, max_length=2048, description="New callback-URL for updates")
+    custom: Optional[str] = Field(None, max_length=10000, description="New custom field for own/customer settings")
+    write_access: Optional[List[EmailStr]] = Field(None, description="New users with full write access")
+
+class Attachment(BaseModel):
+    title: str = Field(..., max_length=1024, description="Title of the attachment")
+    content: str = Field(..., description="Base64 encoded bytes of the attachment")
+    content_type: str = Field(..., max_length=100, description="Content type of the attachment")
+
+class SealRequest(BaseModel):
+    title: str = Field(..., max_length=1024, description="Title of the seal document")
+    content: str = Field(..., description="Base64 encoded bytes of document")
+    account_name: Optional[str] = Field(None, max_length=256, description="Specifies the seal to use for sealing")
+    visual_signature: Optional[VisualSignature] = None

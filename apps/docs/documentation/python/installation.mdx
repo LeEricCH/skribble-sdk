@@ -28,7 +28,7 @@ skribble.init(USERNAME, API_KEY)
 ```
 
 ## Optional: Get access token
-There might be cases where you want to get the access token for the API. You can do this by calling the `login` function from the `skribble.auth` module.
+There might be cases where you want to get the access token for the API. You can do this by using the `init` function with the `access_token` parameter.
 
 ```python
 import skribble
@@ -38,10 +38,9 @@ USERNAME: str = "api_xxxxx"
 API_KEY: str = "xxxxx"
 
 # Initialize the SDK
-skribble.init(USERNAME, API_KEY)
+access_token = skribble.init(USERNAME, API_KEY)
 
 # Get access token
-access_token = skribble.auth.login()
 print(access_token)
 
 # Reinitialize the SDK with the access token

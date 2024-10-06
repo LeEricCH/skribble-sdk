@@ -67,13 +67,62 @@ skribble.document.delete(document_id)
 
 ### Listing Documents
 
-To list all documents with a limit:
+To list all documents with optional pagination:
 
 ```python
 skribble.document.list(limit=5)
 ```
 
 <ParamField path="limit" type="int">
-  The number of documents to return
+  The maximum number of documents to return. If None, returns all documents.
 </ParamField>
 
+
+### Getting Document Preview
+
+To get a document page preview:
+
+```python
+skribble.document.preview(document_id, page_id, scale=20, max_retries=5, retry_delay=2)
+```
+
+<ParamField path="document_id" type="string" required>
+  The ID of the document
+</ParamField>
+
+<ParamField path="page_id" type="int" required>
+  The page number (starting from 0)
+</ParamField>
+
+<ParamField path="scale" type="int">
+  The scale of the preview (20 for thumbnail, 100 for full size). Default is 20.
+</ParamField>
+
+<ParamField path="max_retries" type="int">
+  Maximum number of retries for polling. Default is 5.
+</ParamField>
+
+<ParamField path="retry_delay" type="int">
+  Delay between retries in seconds. Default is 2.
+</ParamField>
+
+This function returns the preview image content as bytes. It handles cases where the preview might not be immediately available by implementing a retry mechanism.
+
+If the preview is still generating, the function will retry up to `max_retries` times, waiting `retry_delay` seconds between each attempt. This ensures that the function can handle scenarios where the preview generation takes some time to complete.
+This only applies to newly added documents. If the document has already been processed, the preview will be immediately available.
+
+The function will raise a `SkribbleAPIError` in the following cases:
+- If the maximum number of retries is reached without success
+- If an unexpected content type is received (not image/png or image/webp)
+- If an empty response is received
+- If any other API error occurs during the process
+
+Example usage:
+
+```python
+try:
+    preview = skribble.document.preview("5c33d0cb-84...", page_id=0, scale=20)
+    print(f"Preview image size: {len(preview)} bytes")
+except SkribbleAPIError as e:
+    print(f"Error getting preview: {str(e)}")
+```

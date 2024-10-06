@@ -1,6 +1,6 @@
 from typing import Dict, Any, Optional
 from ..client_manager import get_client
-from ..exceptions import SkribbleValidationError
+from ..exceptions import SkribbleValidationError, SkribbleAPIError
 from ..models import Seal
 
 def create(seal_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -23,14 +23,17 @@ def create(seal_data: Dict[str, Any]) -> Dict[str, Any]:
         ... }
         >>> result = skribble.seal.create(seal_data)
         >>> print(result)
-        {'document_id': 'doc_123', 'status': 'success'}
+        {'document_id': '5c33d0cb-84...', 'status': 'success'}
     """
     try:
         validated_seal = Seal(**seal_data)
     except ValueError as e:
         raise SkribbleValidationError("Invalid seal data", str(e))
     
-    return get_client().create_seal(validated_seal.model_dump(exclude_none=True))
+    try:
+        return get_client()._make_request("POST", "/seal", data=validated_seal.model_dump(exclude_none=True))
+    except SkribbleAPIError as e:
+        raise SkribbleAPIError(f"Failed to create seal: {str(e)}")
 
 def create_specific(content: str, account_name: Optional[str] = None) -> Dict[str, Any]:
     """
@@ -60,4 +63,7 @@ def create_specific(content: str, account_name: Optional[str] = None) -> Dict[st
     except ValueError as e:
         raise SkribbleValidationError("Invalid seal data", str(e))
     
-    return get_client().create_specific_seal(validated_seal.model_dump(exclude_none=True))
+    try:
+        return get_client()._make_request("POST", "/seal", data=validated_seal.model_dump(exclude_none=True))
+    except SkribbleAPIError as e:
+        raise SkribbleAPIError(f"Failed to create specific seal: {str(e)}")

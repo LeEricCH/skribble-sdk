@@ -21,8 +21,9 @@ import skribble
 USERNAME = "your_username"
 API_KEY = "your_api_key"
 
-# Initialize the SDK
-skribble.init(USERNAME, API_KEY)
+# Initialize the SDK and get the access token
+token = skribble.init(USERNAME, API_KEY)
+print(f"Access token: {token}")
 
 # Create a signature request
 signature_request = {

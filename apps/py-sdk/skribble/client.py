@@ -1,8 +1,7 @@
 import requests
 from typing import Optional, Dict, Any, List
-from .models import AuthRequest, SignatureRequest
-from .exceptions import SkribbleAuthError, SkribbleAPIError
-import base64
+from .models import AuthRequest
+from .exceptions import SkribbleAuthError, SkribbleValidationError, SkribbleAPIError
 
 class SkribbleClient:
     BASE_URL: str = "https://api.skribble.com/v2"
@@ -34,8 +33,10 @@ class SkribbleClient:
         if response.status_code == 200:
             self.access_token = response.text.strip()
             return self.access_token
+        elif response.status_code in [401, 403]:
+            raise SkribbleAuthError("Invalid credentials")
         else:
-            raise SkribbleAuthError(f"Authentication failed: {response.text}")
+            raise SkribbleAPIError(response.text, status_code=response.status_code)
 
     def _make_request(self, method: str, endpoint: str, data: Optional[Dict[str, Any]] = None, params: Optional[Dict[str, Any]] = None) -> Any:
         if not self.access_token:
@@ -43,114 +44,28 @@ class SkribbleClient:
         
         headers = {"Authorization": f"Bearer {self.access_token}"}
 
-        response = self.session.request(method, f"{self.BASE_URL}{endpoint}", json=data, headers=headers, params=params)
-
-        if response.status_code >= 200 and response.status_code < 300:
-            return response.json() if response.text else None
-        else:
-            raise SkribbleAPIError(f"API request failed: {response.text}")
-
-    def create_signature_request(self, signature_request: Dict[str, Any]) -> Dict[str, Any]:
-        return self._make_request("POST", "/signature-requests", data=signature_request)
-
-    def get_signature_request(self, signature_request_id: str) -> Dict[str, Any]:
-        return self._make_request("GET", f"/signature-requests/{signature_request_id}")
-
-    def delete_signature_request(self, signature_request_id: str) -> Dict[str, Any]:
         try:
-            self._make_request("DELETE", f"/signature-requests/{signature_request_id}")
-            return {"status": "success", "message": f"Signature request {signature_request_id} deleted successfully"}
-        except SkribbleAPIError as e:
-            return {"status": "error", "message": f"Failed to delete signature request: {str(e)}"}
+            response = self.session.request(method, f"{self.BASE_URL}{endpoint}", json=data, headers=headers, params=params)
+            response.raise_for_status()  # This will raise an HTTPError for bad responses
 
-    def list_signature_requests(self, limit: int = 20, offset: int = 0) -> List[Dict[str, Any]]:
-        params = {"limit": limit, "offset": offset}
-        return self._make_request("GET", "/signature-requests", params=params)
+            if response.status_code >= 200 and response.status_code < 300:
+                return response.json() if response.text else None
+        except requests.exceptions.HTTPError as http_err:
+            error_message = f"HTTP error occurred: {http_err}. "
+            try:
+                error_detail = response.json()
+                error_message += f"Error details: {error_detail}"
+            except ValueError:
+                error_message += f"Response text: {response.text}"
 
-    def update_signature_request(self, update_data: Dict[str, Any]) -> Dict[str, Any]:
-        return self._make_request("PUT", "/signature-requests", data=update_data)
+            if response.status_code in [401, 403]:
+                raise SkribbleAuthError(f"Invalid or expired token. {error_message}")
+            elif response.status_code == 400:
+                raise SkribbleValidationError(f"Validation error: {error_message}")
+            elif response.status_code == 404:
+                raise SkribbleAPIError(error_message, status_code=response.status_code)
+            else:
+                raise SkribbleAPIError(error_message, status_code=response.status_code)
+        except requests.exceptions.RequestException as req_err:
+            raise SkribbleAPIError(f"Request failed: {str(req_err)}")
 
-    def add_signer_to_signature_request(self, signature_request_id: str, signer_data: Dict[str, Any]) -> Dict[str, Any]:
-        return self._make_request("POST", f"/signature-requests/{signature_request_id}/signatures", data=signer_data)
-
-    def remove_signer_from_signature_request(self, signature_request_id: str, signer_id: str) -> None:
-        self._make_request("DELETE", f"/signature-requests/{signature_request_id}/signatures/{signer_id}")
-
-    def remind_signature_request(self, signature_request_id: str) -> None:
-        self._make_request("POST", f"/signature-requests/{signature_request_id}/remind")
-
-    def withdraw_signature_request(self, signature_request_id: str, message: Optional[str] = None) -> Dict[str, Any]:
-        data = {"message": message} if message else None
-        response = self._make_request("POST", f"/signature-requests/{signature_request_id}/withdraw", data=data)
-        if response is None:
-            return {"status": "success", "message": "Signature request withdrawn successfully"}
-        return response
-
-    def get_signature_request_attachment(self, signature_request_id: str, attachment_id: str) -> bytes:
-        response = self.session.get(f"{self.BASE_URL}/signature-requests/{signature_request_id}/attachments/{attachment_id}/content", headers={"Authorization": f"Bearer {self._authenticate()}"})
-        if response.status_code == 200:
-            return response.content
-        else:
-            raise SkribbleAPIError(f"Failed to get attachment: {response.text}")
-
-    def add_signature_request_attachments(self, signature_request_id: str, attachments: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        attachment_responses = []
-        for attachment in attachments:
-            response = self._make_request("POST", f"/signature-requests/{signature_request_id}/attachments", data=attachment)
-            attachment_responses.append(response)
-        return attachment_responses
-
-    def get_signature_request_attachment(self, signature_request_id: str, attachment_id: str) -> bytes:
-        response = self.session.get(f"{self.BASE_URL}/signature-requests/{signature_request_id}/attachments/{attachment_id}/content", headers={"Authorization": f"Bearer {self._authenticate()}"})
-        if response.status_code == 200:
-            return response.content
-        else:
-            raise SkribbleAPIError(f"Failed to get attachment: {response.text}")
-
-    def delete_signature_request_attachment(self, signature_request_id: str, attachment_id: str) -> None:
-        response = self.session.delete(f"{self.BASE_URL}/signature-requests/{signature_request_id}/attachments/{attachment_id}", headers={"Authorization": f"Bearer {self._authenticate()}"})
-        if response.status_code not in [204, 200]:
-            raise SkribbleAPIError(f"Failed to delete attachment: {response.text}")
-
-    def get_document(self, document_id: str) -> Dict[str, Any]:
-        return self._make_request("GET", f"/documents/{document_id}")
-
-    def delete_document(self, document_id: str) -> Dict[str, Any]:
-        try:
-            self._make_request("DELETE", f"/documents/{document_id}")
-            return {"status": "success", "message": f"Document {document_id} deleted successfully"}
-        except SkribbleAPIError as e:
-            return {"status": "error", "message": f"Failed to delete document: {str(e)}"}
-
-    def get_documents(self, limit: int = 20, offset: int = 0) -> List[Dict[str, Any]]:
-        params = {"limit": limit, "offset": offset}
-        return self._make_request("GET", "/documents", params=params)
-
-    def get_document_meta(self, document_id: str) -> Dict[str, Any]:
-        return self._make_request("GET", f"/documents/{document_id}")
-
-    def delete_document(self, document_id: str) -> None:
-        self._make_request("DELETE", f"/documents/{document_id}")
-
-    def add_document(self, document_data: Dict[str, Any]) -> Dict[str, Any]:
-        return self._make_request("POST", "/documents", data=document_data)
-
-    def download_document(self, document_id: str) -> bytes:
-        response = self.session.get(f"{self.BASE_URL}/documents/{document_id}/content", headers={"Authorization": f"Bearer {self._authenticate()}"})
-        if response.status_code == 200:
-            return response.content
-        else:
-            raise SkribbleAPIError(f"Failed to download document: {response.text}")
-
-    def get_document_preview(self, document_id: str, page_id: int, scale: int) -> bytes:
-        response = self.session.get(f"{self.BASE_URL}/documents/{document_id}/pages/{page_id}?scale={scale}", headers={"Authorization": f"Bearer {self._authenticate()}"})
-        if response.status_code == 200:
-            return response.content
-        else:
-            raise SkribbleAPIError(f"Failed to get document preview: {response.text}")
-
-    def create_seal(self, seal_data: Dict[str, Any]) -> Dict[str, Any]:
-        return self._make_request("POST", "/seal", data=seal_data)
-
-    def create_specific_seal(self, seal_data: Dict[str, Any]) -> Dict[str, Any]:
-        return self._make_request("POST", "/seal", data=seal_data)

@@ -67,3 +67,26 @@ def delete(signature_request_id: str, attachment_id: str) -> None:
     response = client.session.delete(f"{client.BASE_URL}/signature-requests/{signature_request_id}/attachments/{attachment_id}", headers={"Authorization": f"Bearer {client._authenticate()}"})
     if response.status_code not in [204, 200]:
         raise SkribbleAPIError(f"Failed to delete attachment: {response.text}")
+
+def list(signature_request_id: str) -> List[Dict[str, str]]:
+    """
+    List all attachments for a signature request.
+
+    Args:
+        signature_request_id (str): The ID of the signature request.
+
+    Returns:
+        List[Dict[str, str]]: A list of dictionaries containing the attachment information.
+        Each dictionary has 'attachment_id' and 'filename' keys.
+
+    Raises:
+        SkribbleAPIError: If the API request fails.
+    """
+    client = get_client()
+    response = client._make_request("GET", f"/signature-requests/{signature_request_id}")
+    
+    if 'attachments' in response:
+        return response['attachments']
+    else:
+        return []
+

@@ -1,11 +1,13 @@
 from .operations import (
     add,
     get,
-    delete
+    delete,
+    list
 )
 
 __all__ = [
     "add",
     "get",
     "delete"
+    "list"
 ]

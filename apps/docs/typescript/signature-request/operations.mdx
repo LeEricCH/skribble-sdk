@@ -1,0 +1,417 @@
+---
+title: Operations
+"og:title": "Signature Request Operations"
+description: All Signature Request operations
+---
+
+## Request Operations
+
+### Creating a Signature Request
+
+To create a signature request, use the following code:
+
+```typescript
+await skribble.signature_request.create(signature_request);
+```
+
+<ResponseField name="signature_request" type="SignatureRequest Object">
+  <Expandable title="properties">
+    <ResponseField name="title" type="string" required>
+      Title of the signature request
+    </ResponseField>
+
+    <ResponseField name="message" type="string">
+      Message sent to the participants
+    </ResponseField>
+
+    <ResponseField name="content" type="string">
+      Base64 encoded bytes of document
+    </ResponseField>
+
+    <ResponseField name="content_type" type="string">
+      Content type of bytes sent in content
+    </ResponseField>
+
+    <ResponseField name="file_url" type="string">
+      Publicly accessible URL for document download
+    </ResponseField>
+
+    <ResponseField name="document_id" type="string">
+      Document ID of an existing document on Skribble
+    </ResponseField>
+
+    <ResponseField name="legislation" type="string">
+      Legislation of the signatures
+    </ResponseField>
+
+    <ResponseField name="quality" type="string">
+      Minimal quality of the signatures
+    </ResponseField>
+
+    <ResponseField name="cc_email_addresses" type="array">
+      CC email addresses
+    </ResponseField>
+
+    <ResponseField name="callback_success_url" type="string">
+      Callback-URL for success
+    </ResponseField>
+
+    <ResponseField name="callback_error_url" type="string">
+      Callback-URL for errors
+    </ResponseField>
+
+    <ResponseField name="callback_update_url" type="string">
+      Callback-URL for updates
+    </ResponseField>
+
+    <ResponseField name="custom" type="string">
+      Custom field for own/customer settings
+    </ResponseField>
+
+    <ResponseField name="write_access" type="array">
+      Users with full write access
+    </ResponseField>
+
+<ResponseField name="signatures" type="array">
+  <Expandable title="properties">
+    <ResponseField name="account_email" type="string">
+      Email address of the account
+    </ResponseField>
+
+    <ResponseField name="signer_identity_data" type="array">
+      <Expandable title="properties">
+        <ResponseField name="email_address" type="string">
+          Email address of no-account-signer
+        </ResponseField>
+        <ResponseField name="mobile_number" type="string">
+          Mobile number of no-account-signer
+        </ResponseField>
+        <ResponseField name="first_name" type="string">
+          First name of no-account-signer
+        </ResponseField>
+        <ResponseField name="last_name" type="string">
+          Last name of no-account-signer
+        </ResponseField>
+        <ResponseField name="language" type="string">
+          Language for communication with the signer
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+
+    <ResponseField name="visual_signature" type="object">
+      <Expandable title="properties">
+        <ResponseField name="position" type="object">
+          <Expandable title="properties">
+            <ResponseField name="x" type="float">
+              X coordinate of the visual signature
+            </ResponseField>
+            <ResponseField name="y" type="float">
+              Y coordinate of the visual signature
+            </ResponseField>
+            <ResponseField name="width" type="float">
+              Width of the visual signature
+            </ResponseField>
+            <ResponseField name="height" type="float">
+              Height of the visual signature
+            </ResponseField>
+            <ResponseField name="page" type="string">
+              Page number where the visual signature appears
+            </ResponseField>
+            <ResponseField name="rotation" type="float">
+              Rotation of the visual signature
+            </ResponseField>
+          </Expandable>
+        </ResponseField>
+        <ResponseField name="image" type="object">
+          <Expandable title="properties">
+            <ResponseField name="content_type" type="string">
+              Content type of the image
+            </ResponseField>
+            <ResponseField name="content" type="string">
+              Base64 encoded content of the image
+            </ResponseField>
+          </Expandable>
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+
+    <ResponseField name="sequence" type="integer">
+      Define a signing sequence for signers (1-999)
+    </ResponseField>
+
+    <ResponseField name="notify" type="boolean">
+      Send e-mails to notify the signer
+    </ResponseField>
+
+    <ResponseField name="language" type="string">
+      Language for communication
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Getting a Signature Request
+
+To get details of a specific signature request:
+
+```typescript
+await skribble.signature_request.get(signature_request_id);
+```
+
+<ParamField path="signature_request_id" type="string" required>
+  ID of the signature request to get
+</ParamField>
+
+### Listing Signature Requests
+
+To list signature requests with optional filtering and pagination:
+
+```typescript
+const signatureRequests = await skribble.signature_request.list({
+    account_email: "john.doe@example.com",
+    search: "Contract",
+    signature_status: "OPEN",
+    status_overall: "OPEN",
+    page_number: 1,
+    page_size: 10
+});
+```
+
+<ParamField path="account_email" type="string">
+  Filter on the field signatures[].account_email
+</ParamField>
+
+<ParamField path="search" type="string">
+  Filter on the field title to search for documents containing the search term
+</ParamField>
+
+<ParamField path="signature_status" type="string">
+  Filter on the field signatures[].status_code with one of the valid Signature states
+</ParamField>
+
+<ParamField path="status_overall" type="string">
+  Filter on the field status_overall with one of the valid Signature states
+</ParamField>
+
+<ParamField path="page_number" type="number">
+  Page number for pagination (must be greater than or equal to 0)
+</ParamField>
+
+<ParamField path="page_size" type="number">
+  Number of items per page (must be greater than or equal to 0, default is 50)
+</ParamField>
+
+### Deleting a Signature Request
+
+To delete a signature request:
+
+```typescript
+await skribble.signature_request.delete(signature_request_id);
+```
+
+<ParamField path="signature_request_id" type="string" required>
+  ID of the signature request to delete
+</ParamField>
+
+### Withdrawing a Signature Request
+
+To withdraw a signature request with a message:
+
+```typescript
+await skribble.signature_request.withdraw(signature_request_id, { message: "Withdrawing for testing purposes" });
+```
+
+<ParamField path="signature_request_id" type="string" required>
+  ID of the signature request to withdraw
+</ParamField>
+
+<ParamField path="message" type="string">
+  Message to send to the signers
+</ParamField>
+
+## Signer Operations
+
+### Adding a New Signer
+
+To add a new signer to an existing signature request:
+
+```typescript
+const addSignerResponse = await skribble.signature_request.add_signer(
+    signature_request_id,
+    {
+        email: "newsigner@example.com",
+        first_name: "New",
+        last_name: "Signer",
+        mobile_number: "1234567890",
+        language: "en"
+    }
+);
+```
+
+<ParamField path="signature_request_id" type="string" required>
+  ID of the signature request to add the signer to
+</ParamField>
+
+<ParamField path="email" type="string" required>
+  Email address of the signer
+</ParamField>
+
+<ParamField path="first_name" type="string">
+  First name of the signer
+</ParamField>
+
+<ParamField path="last_name" type="string">
+  Last name of the signer
+</ParamField>
+
+<ParamField path="mobile_number" type="string">
+  Mobile number of the signer
+</ParamField>
+
+<ParamField path="language" type="string">
+  Language of the signer
+</ParamField>
+
+### Removing a Signer
+
+To remove a signer from an existing signature request:
+
+```typescript
+const signatureRequest = await skribble.signature_request.get(signature_request_id);
+
+const signerToRemove = signatureRequest.signatures[0]; // This is the first signer in the list
+
+await skribble.signature_request.remove_signer(signature_request_id, signerToRemove.sid);
+```
+
+<ParamField path="signature_request_id" type="string" required>
+  ID of the signature request to remove the signer from
+</ParamField>
+
+<ParamField path="signer_id" type="string" required>
+  SID of the signer to remove
+</ParamField>
+
+### Replacing Signers
+
+To replace all signers in a signature request:
+
+```typescript
+const newSigners = [
+    {
+        account_email: "newsigner1@example.com",
+        signer_identity_data: {
+            email_address: "newsigner1@example.com",
+            first_name: "New",
+            last_name: "Signer1",
+            language: "en"
+        }
+    },
+    {
+        account_email: "newsigner2@example.com",
+        signer_identity_data: {
+            email_address: "newsigner2@example.com",
+            first_name: "New",
+            last_name: "Signer2",
+            language: "en"
+        }
+    }
+];
+await skribble.signature_request.replace_signers(signature_request_id, newSigners);
+```
+
+<ParamField path="signature_request_id" type="string" required>
+  ID of the signature request to replace the signers in
+</ParamField>
+
+<ParamField path="signatures" type="array" required>
+  List of objects containing new signer information
+  <Expandable title="signatures[]">
+    <ParamField path="account_email" type="string" required>
+      Email address of the signer
+    </ParamField>
+    <ParamField path="signer_identity_data" type="object" required>
+      Identity data of the signer
+      <Expandable title="signer_identity_data">
+        <ParamField path="email_address" type="string" required>
+          Email address of the signer
+        </ParamField>
+        <ParamField path="first_name" type="string" required>
+          First name of the signer
+        </ParamField>
+        <ParamField path="last_name" type="string" required>
+          Last name of the signer
+        </ParamField>
+        <ParamField path="language" type="string" required>
+          Language of the signer
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+## Attachment Operations
+
+### Adding Attachments
+
+To add multiple attachments to an existing signature request:
+
+```typescript
+const attachments = [
+    { filename: "doc1.pdf", content_type: "application/pdf", content: "base64_encoded_content_1" },
+    { filename: "doc2.pdf", content_type: "application/pdf", content: "base64_encoded_content_2" }
+];
+const attachmentResponse = await skribble.attachment.add(signature_request_id, attachments);
+```
+
+<ParamField path="signature_request_id" type="string" required>
+  ID of the signature request to add the attachments to
+</ParamField>
+
+<ParamField path="attachments" type="array" required>
+  List of objects containing attachment information
+  <Expandable title="attachments[]">
+    <ParamField path="filename" type="string" required>
+      Name of the attachment
+    </ParamField>
+    <ParamField path="content_type" type="string" required>
+      Content type of the attachment
+    </ParamField>
+    <ParamField path="content" type="string" required>
+      Base64 encoded bytes of the attachment
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Getting an Attachment
+
+To download a specific attached file from a signature request:
+
+```typescript
+const attachmentContent = await skribble.attachment.get(signature_request_id, attachment_id);
+```
+
+<ParamField path="signature_request_id" type="string" required>
+  ID of the signature request to get the attachment from
+</ParamField>
+
+<ParamField path="attachment_id" type="string" required>
+  ID of the attachment to get, you can get the ID from the signature request response
+</ParamField>
+
+### Deleting an Attachment
+
+To remove an attachment from a signature request:
+
+```typescript
+await skribble.attachment.delete(signature_request_id, attachment_id);
+```
+
+<ParamField path="signature_request_id" type="string" required>
+  ID of the signature request to delete the attachment from
+</ParamField>
+
+<ParamField path="attachment_id" type="string" required>
+  ID of the attachment to delete, you can get the ID from the signature request response
+</ParamField>

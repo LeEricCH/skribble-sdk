@@ -1,0 +1,125 @@
+---
+title: Error Handling
+"og:title": "Error Handling in the Skribble TypeScript SDK"
+description: How to handle errors in the Skribble TypeScript SDK
+---
+
+## Introduction
+
+The Skribble TypeScript SDK provides a robust way to handle errors that may occur during API interactions. This guide will show you how to effectively catch and handle these errors in your TypeScript applications.
+
+## Common Errors
+
+When using the Skribble TypeScript SDK, you may encounter several types of errors. Here are the common error types and how to handle them:
+
+### SkribbleAuthError
+
+This error occurs when there is an authentication issue.
+
+```typescript
+try {
+  // Your SDK operation here
+} catch (error) {
+  const skribbleError = handleSkribbleError(error);
+  if (skribbleError instanceof SkribbleAuthError) {
+    console.error("Authentication error:", skribbleError.message);
+  }
+}
+```
+
+### SkribbleValidationError
+
+This error occurs when there is a validation issue with the request data or when the API returns a 400 error.
+
+```typescript
+try {
+  // Your SDK operation here
+} catch (error) {
+  const skribbleError = handleSkribbleError(error);
+  if (skribbleError instanceof SkribbleValidationError) {
+    console.error("Validation error:", skribbleError.message);
+    if (skribbleError.errors) {
+      skribbleError.errors.forEach(error => {
+        console.error(`  - ${error}`);
+      });
+    }
+  }
+}
+```
+
+### SkribbleAPIError
+
+This error occurs when there is an issue with the API.
+
+```typescript
+try {
+  // Your SDK operation here
+} catch (error) {
+  const skribbleError = handleSkribbleError(error);
+  if (skribbleError instanceof SkribbleAPIError) {
+    console.error(`API error (status code ${skribbleError.statusCode}):`, skribbleError.message);
+    console.error("Response data:", skribbleError.responseData);
+  }
+}
+```
+
+### General Exception Handling
+
+For any other unexpected errors, you can use a general exception handler.
+
+```typescript
+try {
+  // Your SDK operation here
+} catch (error) {
+  const skribbleError = handleSkribbleError(error);
+  console.error("An unexpected error occurred:", skribbleError.message);
+}
+```
+
+## Comprehensive Error Handling Example
+
+Here's an example of how to handle all the possible errors in a single try-catch block:
+
+```typescript
+import { handleSkribbleError, SkribbleAuthError, SkribbleValidationError, SkribbleAPIError } from 'skribble-sdk';
+
+try {
+  // Your SDK operation here
+} catch (error) {
+  const skribbleError = handleSkribbleError(error);
+
+  if (skribbleError instanceof SkribbleAuthError) {
+    console.error("Authentication error:", skribbleError.message);
+  } else if (skribbleError instanceof SkribbleValidationError) {
+    console.error("Validation error:", skribbleError.message);
+    if (skribbleError.errors) {
+      skribbleError.errors.forEach(error => {
+        console.error(`  - ${error}`);
+      });
+    }
+  } else if (skribbleError instanceof SkribbleAPIError) {
+    console.error(`API error (status code ${skribbleError.statusCode}):`, skribbleError.message);
+    console.error("Response data:", skribbleError.responseData);
+  } else {
+    console.error("An unexpected error occurred:", skribbleError.message);
+  }
+}
+```
+
+## Using the handleSkribbleError Function
+
+The Skribble TypeScript SDK provides a `handleSkribbleError` function that helps convert unknown errors into `SkribbleError` instances. This function is particularly useful when you're not sure what type of error you might receive:
+
+```typescript
+import { handleSkribbleError, SkribbleError } from 'skribble-sdk';
+
+try {
+  // Your SDK operation here
+} catch (error) {
+  const skribbleError = handleSkribbleError(error);
+  console.error("An error occurred:", skribbleError.message);
+  // You can now safely use skribbleError properties and methods
+}
+```
+
+By using these error handlers and the `handleSkribbleError` function, you can ensure that your application gracefully handles any issues that arise when interacting with the Skribble TypeScript SDK. Each error type provides specific information to help you diagnose and respond to the problem appropriately.

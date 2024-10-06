@@ -1,0 +1,312 @@
+---
+title: All Objects
+"og:title": "Signature Request Objects"
+description: All possible objects for Signature Requests
+---
+
+### SignatureRequest Object
+
+<ResponseField name="signature_request" type="SignatureRequest Object">
+  <Expandable title="properties">
+    <ResponseField name="title" type="string" required>
+      Title of the signature request
+    </ResponseField>
+
+    <ResponseField name="message" type="string">
+      Message sent to the participants
+    </ResponseField>
+
+    <ResponseField name="content" type="string">
+      Base64 encoded bytes of document
+    </ResponseField>
+
+    <ResponseField name="content_type" type="string">
+      Content type of bytes sent in content
+    </ResponseField>
+
+    <ResponseField name="file_url" type="string">
+      Publicly accessible URL for document download
+    </ResponseField>
+
+    <ResponseField name="document_id" type="string">
+      Document ID of an existing document on Skribble
+    </ResponseField>
+
+    <ResponseField name="legislation" type="string">
+      Legislation of the signatures
+    </ResponseField>
+
+    <ResponseField name="quality" type="string">
+      Minimal quality of the signatures
+    </ResponseField>
+
+    <ResponseField name="cc_email_addresses" type="array">
+      CC email addresses
+    </ResponseField>
+
+    <ResponseField name="callback_success_url" type="string">
+      Callback-URL for success
+    </ResponseField>
+
+    <ResponseField name="callback_error_url" type="string">
+      Callback-URL for errors
+    </ResponseField>
+
+    <ResponseField name="callback_update_url" type="string">
+      Callback-URL for updates
+    </ResponseField>
+
+    <ResponseField name="custom" type="string">
+      Custom field for own/customer settings
+    </ResponseField>
+
+    <ResponseField name="write_access" type="array">
+      Users with full write access
+    </ResponseField>
+
+    <ResponseField name="signatures" type="array">
+      <Expandable title="properties">
+        <ResponseField name="account_email" type="string">
+          Email address of the account
+        </ResponseField>
+
+        <ResponseField name="signer_identity_data" type="array">
+          <Expandable title="properties">
+            <ResponseField name="email_address" type="string">
+              Email address of no-account-signer
+            </ResponseField>
+            <ResponseField name="mobile_number" type="string">
+              Mobile number of no-account-signer
+            </ResponseField>
+            <ResponseField name="first_name" type="string">
+              First name of no-account-signer
+            </ResponseField>
+            <ResponseField name="last_name" type="string">
+              Last name of no-account-signer
+            </ResponseField>
+            <ResponseField name="language" type="string">
+              Language for communication with the signer
+            </ResponseField>
+          </Expandable>
+        </ResponseField>
+
+        <ResponseField name="visual_signature" type="object">
+          <Expandable title="properties">
+            <ResponseField name="position" type="object">
+              <Expandable title="properties">
+                <ResponseField name="x" type="float">
+                  X coordinate of the visual signature
+                </ResponseField>
+                <ResponseField name="y" type="float">
+                  Y coordinate of the visual signature
+                </ResponseField>
+                <ResponseField name="width" type="float">
+                  Width of the visual signature
+                </ResponseField>
+                <ResponseField name="height" type="float">
+                  Height of the visual signature
+                </ResponseField>
+                <ResponseField name="page" type="string">
+                  Page number where the visual signature appears
+                </ResponseField>
+                <ResponseField name="rotation" type="float">
+                  Rotation of the visual signature
+                </ResponseField>
+              </Expandable>
+            </ResponseField>
+            <ResponseField name="image" type="object">
+              <Expandable title="properties">
+                <ResponseField name="content_type" type="string">
+                  Content type of the image
+                </ResponseField>
+                <ResponseField name="content" type="string">
+                  Base64 encoded content of the image
+                </ResponseField>
+              </Expandable>
+            </ResponseField>
+          </Expandable>
+        </ResponseField>
+
+        <ResponseField name="sequence" type="integer">
+          Define a signing sequence for signers (1-999)
+        </ResponseField>
+
+        <ResponseField name="notify" type="boolean">
+          Send e-mails to notify the signer
+        </ResponseField>
+
+        <ResponseField name="language" type="string">
+          Language for communication
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Signer Object
+
+<ResponseField name="signer" type="Signer Object">
+  <Expandable title="properties">
+    <ResponseField name="account_email" type="string">
+      Email address of the account
+    </ResponseField>
+
+    <ResponseField name="signer_identity_data" type="array">
+      <Expandable title="properties">
+        <ResponseField name="email_address" type="string">
+          Email address of no-account-signer
+        </ResponseField>
+        <ResponseField name="mobile_number" type="string">
+          Mobile number of no-account-signer
+        </ResponseField>
+        <ResponseField name="first_name" type="string">
+          First name of no-account-signer
+        </ResponseField>
+        <ResponseField name="last_name" type="string">
+          Last name of no-account-signer
+        </ResponseField>
+        <ResponseField name="language" type="string">
+          Language for communication with the signer
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+
+    <ResponseField name="visual_signature" type="object">
+      <Expandable title="properties">
+        <ResponseField name="position" type="object">
+          <Expandable title="properties">
+            <ResponseField name="x" type="float">
+              X coordinate of the visual signature
+            </ResponseField>
+            <ResponseField name="y" type="float">
+              Y coordinate of the visual signature
+            </ResponseField>
+            <ResponseField name="width" type="float">
+              Width of the visual signature
+            </ResponseField>
+            <ResponseField name="height" type="float">
+              Height of the visual signature
+            </ResponseField>
+            <ResponseField name="page" type="string">
+              Page number where the visual signature appears
+            </ResponseField>
+            <ResponseField name="rotation" type="float">
+              Rotation of the visual signature
+            </ResponseField>
+          </Expandable>
+        </ResponseField>
+        <ResponseField name="image" type="object">
+          <Expandable title="properties">
+            <ResponseField name="content_type" type="string">
+              Content type of the image
+            </ResponseField>
+            <ResponseField name="content" type="string">
+              Base64 encoded content of the image
+            </ResponseField>
+          </Expandable>
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+
+    <ResponseField name="sequence" type="integer">
+      Define a signing sequence for signers (1-999)
+    </ResponseField>
+
+    <ResponseField name="notify" type="boolean">
+      Send e-mails to notify the signer
+    </ResponseField>
+
+    <ResponseField name="language" type="string">
+      Language for communication
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### SignatureRequest Response Object
+
+<ResponseField name="signature_request_response" type="SignatureRequest Response Object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string" required>
+      ID of the SignatureRequest object
+    </ResponseField>
+    <ResponseField name="title" type="string" required>
+      Given title for the signature request
+    </ResponseField>
+    <ResponseField name="message" type="string">
+      Given message that is shown to the participants
+    </ResponseField>
+    <ResponseField name="document_id" type="string" required>
+      ID of the Document object
+    </ResponseField>
+    <ResponseField name="legislation" type="string">
+      Given legislation of the signatures for this signature request
+    </ResponseField>
+    <ResponseField name="quality" type="string">
+      Given quality of the signatures for this signature request
+    </ResponseField>
+    <ResponseField name="signing_url" type="string">
+      Deprecated. Please use the signing_url inside the user's Signature entry
+    </ResponseField>
+    <ResponseField name="status_overall" type="string">
+      Status of the signature request
+    </ResponseField>
+    <ResponseField name="signatures" type="array">
+      Array of signatures within this signature request
+    </ResponseField>
+    <ResponseField name="cc_email_addresses" type="array">
+      Given array of email-addresses that will be additionally notified upon completed signature request
+    </ResponseField>
+    <ResponseField name="owner" type="string" required>
+      Creator of the SignatureRequest object
+    </ResponseField>
+    <ResponseField name="read_access" type="array">
+      Array of users with read access on the signature request
+    </ResponseField>
+    <ResponseField name="write_access" type="array">
+      Array of users with write access on the signature request
+    </ResponseField>
+    <ResponseField name="created_at" type="string">
+      Timestamp at which the signature request was created
+    </ResponseField>
+    <ResponseField name="updated_at" type="string">
+      Timestamp at which the signature request was last updated
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Signature Response Object
+
+<ResponseField name="signature_response" type="Signature Response Object">
+  <Expandable title="properties">
+    <ResponseField name="sid" type="string" required>
+      ID of the SignatureRequest object
+    </ResponseField>
+    <ResponseField name="account_email" type="string">
+      Email address of the signer
+    </ResponseField>
+    <ResponseField name="signer_identity_data" type="array">
+      Contains the given first_name and last_name of the signer
+    </ResponseField>
+    <ResponseField name="sequence" type="integer">
+      Signing sequence for the signer
+    </ResponseField>
+    <ResponseField name="status_code" type="string">
+      Status of the signature
+    </ResponseField>
+    <ResponseField name="notify" type="boolean">
+      Given identifier, if the signer will be notified about changes on this signature request
+    </ResponseField>
+    <ResponseField name="signed_at" type="string">
+      Visible only after the signature. Timestamp UTC at which the signature was executed
+    </ResponseField>
+    <ResponseField name="signed_quality" type="string">
+      Visible only after the signature. Quality level with which the signature was executed
+    </ResponseField>
+    <ResponseField name="signed_legislation" type="string">
+      Visible only after the signature. Legislation with which the signature was executed
+    </ResponseField>
+    <ResponseField name="last_viewed_at" type="string">
+      Timestamp UTC at which the signer opened/viewed the document the last time
+    </ResponseField>
+  </Expandable>
+</ResponseField>

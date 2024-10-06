@@ -28,22 +28,20 @@
     {
       "name": "Python SDK",
       "icon": "python",
-      "url": "documentation"
+      "url": "python"
     },
     {
       "name": "Typescript SDK",
       "icon": "js",
-      "url": "typescript/coming-soon"
+      "url": "typescript"
     }
   ],
   "navigation": [
     {
       "group": "Getting Started",
       "pages": [
-        "documentation/introduction",
-        "documentation/python/installation",
-        "documentation/python/examples",
-        "documentation/local-development"
+        "python/installation",
+        "python/examples"
       ]
     },
     {
@@ -52,21 +50,28 @@
         {
           "group": "Signature Requests",
           "pages": [
-            "documentation/python/signature-request/operations",
-            "documentation/python/signature-request/all-objects"
+            "python/signature-request/operations",
+            "python/signature-request/all-objects"
           ]
         },
         {
           "group": "Documents",
           "pages": [
-            "documentation/python/document/operations",
-            "documentation/python/document/all-objects"
+            "python/document/operations",
+            "python/document/all-objects"
+          ]
+        },
+        {
+          "group": "Attachments",
+          "pages": [
+            "python/attachment/operations",
+            "python/attachment/all-objects"
           ]
         },
         {
           "group": "Seals",
           "pages": [
-            "documentation/python/seal/operations"
+            "python/seal/operations"
           ]
         }
       ]
@@ -74,7 +79,52 @@
     {
       "group": "Error Handling",
       "pages": [
-        "documentation/python/error-handling"
+        "python/error-handling"
+      ]
+    },
+    {
+      "group": "Getting Started",
+      "pages": [
+        "typescript/installation",
+        "typescript/examples"
+      ]
+    },
+    {
+      "group": "Operations",
+      "pages": [
+        {
+          "group": "Signature Requests",
+          "pages": [
+            "typescript/signature-request/operations",
+            "typescript/signature-request/all-objects"
+          ]
+        },
+        {
+          "group": "Documents",
+          "pages": [
+            "typescript/document/operations",
+            "typescript/document/all-objects"
+          ]
+        },
+        {
+          "group": "Attachments",
+          "pages": [
+            "typescript/attachment/operations",
+            "typescript/attachment/all-objects"
+          ]
+        },
+        {
+          "group": "Seals",
+          "pages": [
+            "typescript/seal/operations"
+          ]
+        }
+      ]
+    },
+    {
+      "group": "Error Handling",
+      "pages": [
+        "typescript/error-handling"
       ]
     }
   ],

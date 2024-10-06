@@ -1,0 +1,72 @@
+---
+title: Install the SDK
+"og:title": "TypeScript SDK installation"
+description: How to install the TypeScript SDK
+---
+
+## Introduction
+
+The TypeScript SDK is available on [npm](https://www.npmjs.com/package/skribble-sdk).
+
+You can install the SDK using npm:
+
+    ```bash
+    npm install skribble-sdk
+    ```
+
+<Warning>This SDK is not maintained or published by Skribble. It is an unofficial open source SDK.</Warning>
+
+## Initialize the SDK
+
+```typescript
+import skribble, { handleSkribbleError, SkribbleAPIError } from 'skribble-sdk';
+
+// Replace with your actual API credentials
+const USERNAME: string = "api_xxxxx";
+const API_KEY: string = "xxxxx";
+
+// Initialize the SDK
+await skribble.init(USERNAME, API_KEY);
+```
+
+## Optional: Get access token
+There might be cases where you want to get the access token for the API. You can do this by using the `init` function and storing the returned access token.
+
+```typescript
+import skribble, { handleSkribbleError, SkribbleAPIError } from 'skribble-sdk';
+
+// Replace with your actual API credentials
+const USERNAME: string = "api_xxxxx";
+const API_KEY: string = "xxxxx";
+
+async function getAndUseAccessToken() {
+  try {
+    // Initialize the SDK and get the access token
+    const accessToken = await skribble.init(USERNAME, API_KEY);
+    console.log('Access token:', accessToken);
+
+    // Reinitialize the SDK with the access token
+    await skribble.init(accessToken);
+    console.log('SDK reinitialized with access token');
+
+    // Now you can use the SDK with the access token
+  } catch (error) {
+    const skribbleError = handleSkribbleError(error);
+    console.error('Error:', skribbleError.message);
+    if (skribbleError instanceof SkribbleAPIError) {
+      console.error("Status code:", skribbleError.statusCode);
+      console.error("Response data:", skribbleError.responseData);
+    }
+  }
+}
+
+getAndUseAccessToken();
+```
+
+## Next steps
+
+See usage in the next article
+
+<Card title="Examples" icon="js" href="examples">
+    See how to use the TypeScript SDK
+</Card>

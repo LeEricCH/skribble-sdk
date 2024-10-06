@@ -1,0 +1,82 @@
+---
+title: Operations
+"og:title": "Attachment Operations"
+description: All Attachment operations
+---
+
+## Attachment Operations
+
+### Adding Attachments
+
+To add multiple attachments to an existing signature request:
+
+```typescript
+const attachments = [
+  { filename: "doc1.pdf", content_type: "application/pdf", content: "base64_encoded_content_1" },
+  { filename: "doc2.pdf", content_type: "application/pdf", content: "base64_encoded_content_2" }
+];
+const attachmentResponse = await skribble.attachment.add(signatureRequestId, attachments);
+```
+
+<ParamField path="signatureRequestId" type="string" required>
+  ID of the signature request to add the attachments to
+</ParamField>
+
+<ParamField path="attachments" type="array" required>
+  Array of objects containing attachment information
+  <Expandable title="attachments[]">
+    <ParamField path="filename" type="string" required>
+      Name of the attachment
+    </ParamField>
+    <ParamField path="content_type" type="string" required>
+      Content type of the attachment
+    </ParamField>
+    <ParamField path="content" type="string" required>
+      Base64 encoded string of the attachment
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Getting an Attachment
+
+To download a specific attached file from a signature request:
+
+```typescript
+const attachmentContent = await skribble.attachment.get(signatureRequestId, attachmentId);
+```
+
+<ParamField path="signatureRequestId" type="string" required>
+  ID of the signature request to get the attachment from
+</ParamField>
+
+<ParamField path="attachmentId" type="string" required>
+  ID of the attachment to get, you can get the ID from the signature request response
+</ParamField>
+
+### Deleting an Attachment
+
+To remove an attachment from a signature request:
+
+```typescript
+await skribble.attachment.delete(signatureRequestId, attachmentId);
+```
+
+<ParamField path="signatureRequestId" type="string" required>
+  ID of the signature request to delete the attachment from
+</ParamField>
+
+<ParamField path="attachmentId" type="string" required>
+  ID of the attachment to delete, you can get the ID from the signature request response
+</ParamField>
+
+## Listing Attachments
+
+To list all attachments for a signature request:
+
+```typescript
+const attachments = await skribble.attachment.list(signatureRequestId);
+```
+
+<ParamField path="signatureRequestId" type="string" required>
+  ID of the signature request to list the attachments for
+</ParamField>

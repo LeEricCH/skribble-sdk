@@ -1,0 +1,70 @@
+---
+title: Examples
+"og:title": "TypeScript SDK Examples"
+description: Examples of how to use the TypeScript SDK
+---
+
+## Introduction
+
+This guide demonstrates how to use the Skribble TypeScript SDK to interact with the Skribble API. We'll cover common operations such as creating signature requests, managing signers, handling documents, and more.
+
+## Do you rather want to directly jump to the code?
+
+<Card title="Full Example" icon="github" href="https://github.com/LeEricCH/skribble-sdk/blob/master/apps/ts-sdk-example/src/index.ts">
+    See how to use the TypeScript SDK in GitHub
+</Card>
+
+## Basic Setup
+
+First, make sure you've installed and initialized the SDK as described in the [installation guide](installation).
+
+```typescript
+import skribble, { handleSkribbleError, Types, SkribbleAPIError } from 'skribble-sdk';
+
+// Replace with your actual API credentials
+const USERNAME: string = "api_xxxxx";
+const API_KEY: string = "xxxxx";
+
+async function main() {
+  try {
+    // Initialize the SDK
+    await skribble.init(USERNAME, API_KEY);
+
+    // Create a signature request
+    const signatureRequest: Types.SignatureRequest = {
+      title: "Test Signature Request",
+      message: "Please sign this test document",
+      file_url: "https://example.com/document.pdf",
+      signatures: [
+        {
+          account_email: "signer@example.com",
+          signer_identity_data: {
+            email_address: "signer@example.com",
+            first_name: "John",
+            last_name: "Doe",
+            language: "en"
+          },
+          sequence: 1,
+        },
+      ],
+    };
+
+    const response = await skribble.signature_request.create(signatureRequest);
+    console.log("Signature request created successfully:", response);
+
+    // Get the signature request
+    const getResponse = await skribble.signature_request.get(response.id);
+    console.log("Retrieved signature request:", getResponse);
+
+  } catch (error) {
+    const skribbleError = handleSkribbleError(error);
+    console.error("An error occurred:", skribbleError.message);
+    if (skribbleError instanceof SkribbleAPIError) {
+      console.error("Status code:", skribbleError.statusCode);
+      console.error("Response data:", skribbleError.responseData);
+    }
+  }
+}
+
+main();
+```

@@ -1,0 +1,77 @@
+---
+title: Operations
+"og:title": "Seal Operations"
+description: All Seal operations
+---
+
+### Creating a Seal
+
+To create a seal:
+
+```typescript
+const sealResponse = await skribble.seal.create(seal);
+```
+
+<ParamField path="seal" type="Seal Object" required>
+  <Expandable title="properties">
+    <ParamField path="content" type="string" required>
+      The base64 encoded content of the seal
+    </ParamField>
+
+    <ParamField path="visual_signature" type="VisualSignature Object" required>
+      The visual signature of the seal
+      <Expandable title="visual_signature properties">
+        <ParamField path="position" type="Position Object" required>
+          The position of the visual signature
+          <Expandable title="position properties">
+            <ParamField path="x" type="int" required>
+              The x coordinate of the position
+            </ParamField>
+            <ParamField path="y" type="int" required>
+              The y coordinate of the position
+            </ParamField>    
+            <ParamField path="width" type="int" required>
+              The width of the position
+            </ParamField>
+            <ParamField path="height" type="int" required>
+              The height of the position
+            </ParamField>
+            <ParamField path="page" type="int" required>
+              The page of the position
+            </ParamField>
+          </Expandable>
+        </ParamField>
+
+        <ParamField path="image" type="Image Object" required>
+          The image of the visual signature
+          <Expandable title="image properties">
+            <ParamField path="content_type" type="string" required>
+              The content type of the image
+            </ParamField>
+            <ParamField path="content" type="string" required>
+              The content of the image
+            </ParamField>
+          </Expandable>
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Creating a Specific Seal
+
+To create a specific seal:
+
+```typescript
+const specificSealResponse = await skribble.seal.create_specific(content, account_name);
+```
+
+
+<ParamField path="content" type="string" required>
+  The base64 encoded content of the seal.
+</ParamField>
+
+
+<ParamField path="account_name" type="string" optional="true">
+  The name of the account Skribble set up for your organization seal.
+</ParamField>

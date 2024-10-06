@@ -1,0 +1,134 @@
+---
+title: Operations
+"og:title": "Document Operations"
+description: All Document operations
+---
+
+
+### Uploading a Document
+
+To upload a document:
+
+```typescript
+skribble.document.add(documentData)
+```
+
+<ResponseField name="documentData" type="DocumentData">
+  <Expandable title="properties">
+    <ResponseField name="title" type="string" required>
+      The title of the document
+    </ResponseField>
+
+    <ResponseField name="content_type" type="string" required>
+      The content type of the document
+    </ResponseField>
+
+    <ResponseField name="content" type="string" required>
+      The content of the document as a base64 encoded string
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+
+### Getting Document Metadata
+
+To get document metadata:
+
+```typescript
+skribble.document.get(documentId)
+```
+<ParamField path="documentId" type="string" required>
+  The ID of the document
+</ParamField>
+
+### Downloading a Document
+
+To download a document:
+
+```typescript
+skribble.document.download(documentId)
+```
+
+<ParamField path="documentId" type="string" required>
+  The ID of the document
+</ParamField>
+
+### Deleting a Document
+
+To delete a document:
+
+```typescript
+skribble.document.delete(documentId)
+```
+
+<ParamField path="documentId" type="string" required>
+  The ID of the document
+</ParamField>
+
+### Listing Documents
+
+To list all documents with optional pagination:
+
+```typescript
+skribble.document.list(limit)
+```
+
+<ParamField path="limit" type="number">
+  The maximum number of documents to return. If undefined, returns all documents.
+</ParamField>
+
+
+### Getting Document Preview
+
+To get a document page preview:
+
+```typescript
+skribble.document.preview(documentId, pageId, scale, maxRetries, retryDelay)
+```
+
+<ParamField path="documentId" type="string" required>
+  The ID of the document
+</ParamField>
+
+<ParamField path="pageId" type="number" required>
+  The page number (starting from 0)
+</ParamField>
+
+<ParamField path="scale" type="number">
+  The scale of the preview (20 for thumbnail, 100 for full size). Default is 20.
+</ParamField>
+
+<ParamField path="maxRetries" type="number">
+  Maximum number of retries for polling. Default is 5.
+</ParamField>
+
+<ParamField path="retryDelay" type="number">
+  Delay between retries in milliseconds. Default is 2000.
+</ParamField>
+
+This function returns a Promise that resolves to the preview image content as a Buffer. It handles cases where the preview might not be immediately available by implementing a retry mechanism.
+
+If the preview is still generating, the function will retry up to `maxRetries` times, waiting `retryDelay` milliseconds between each attempt. This ensures that the function can handle scenarios where the preview generation takes some time to complete.
+This only applies to newly added documents. If the document has already been processed, the preview will be immediately available.
+
+The function will throw a `SkribbleAPIError` in the following cases:
+- If the maximum number of retries is reached without success
+- If an unexpected content type is received (not image/png or image/webp)
+- If an empty response is received
+- If any other API error occurs during the process
+
+Example usage:
+
+```typescript
+try {
+  const preview = await skribble.document.preview("5c33d0cb-84...", 0, 20, 10, 2000);
+  console.log(`Preview image size: ${preview.length} bytes`);
+} catch (error) {
+  const skribbleError = handleSkribbleError(error);
+  console.error("Failed to get preview:", skribbleError.message);
+  if (skribbleError instanceof SkribbleAPIError) {
+    console.error("Status code:", skribbleError.statusCode);
+    console.error("Response data:", skribbleError.responseData);
+  }
+}
+```

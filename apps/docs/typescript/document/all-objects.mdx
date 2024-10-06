@@ -1,0 +1,70 @@
+---
+title: All Objects
+"og:title": "Document Objects"
+description: All possible objects for Documents
+---
+
+### DocumentRequest Object
+
+<ResponseField name="document_request" type="DocumentRequest Object">
+  <Expandable title="properties">
+    <ResponseField name="title" type="string" required>
+      Title of the document
+    </ResponseField>
+
+    <ResponseField name="content_type" type="string">
+      Content type of bytes sent in content
+    </ResponseField>
+
+    <ResponseField name="content" type="string">
+      Base64 encoded bytes of document
+    </ResponseField>
+
+    <ResponseField name="file_url" type="string">
+      Publicly accessible URL for document download
+    </ResponseField>
+
+  </Expandable>
+</ResponseField>
+
+### Document Response Object
+
+<ResponseField name="document" type="Document Object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string" required>
+      ID of the Document object
+    </ResponseField>
+
+    <ResponseField name="parent_id" type="string">
+      ID of the previous version of the Document object
+    </ResponseField>
+
+    <ResponseField name="title" type="string" required>
+      Given title of the document
+    </ResponseField>
+
+    <ResponseField name="content_type" type="string" required>
+      Content type of the document
+    </ResponseField>
+
+    <ResponseField name="size" type="integer" required>
+      Size in bytes of the document
+    </ResponseField>
+
+    <ResponseField name="page_count" type="integer">
+      Number of pages in the document
+    </ResponseField>
+
+    <ResponseField name="page_width" type="integer">
+      Width of the document pages
+    </ResponseField>
+
+    <ResponseField name="page_height" type="integer">
+      Height of the document pages
+    </ResponseField>
+
+    <ResponseField name="owner" type="string" required>
+      Owner of the document
+    </ResponseField>
+  </Expandable>
+</ResponseField>

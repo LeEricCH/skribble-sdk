@@ -5,8 +5,8 @@ import base64
 from termcolor import colored
 
 # Replace with your actual API credentials
-USERNAME: str = "api_xxxxx"
-API_KEY: str = "xxxxx"
+USERNAME: str = "api_xxx"
+API_KEY: str = "xxxx"
 
 try:
     # Initialize the SDK with username and API key
@@ -134,25 +134,12 @@ try:
     print(colored(attachment_response, "cyan"))
 
     # Check if there are any attachments and delete all of them
-    get_response = skribble.signature_request.get(signature_request_id)
-    if 'attachments' in get_response and get_response['attachments']:
-        for attachment in get_response['attachments']:
-            attachment_id = attachment['attachment_id']
-            try:
-                # Delete the attachment
-                skribble.attachment.delete(signature_request_id, attachment_id)
-                print(colored(f"Attachment {attachment_id} deleted successfully", "green"))
-            except SkribbleAPIError as e:
-                print(colored(f"Failed to delete attachment {attachment_id}: {str(e)}", "red"))
-
-        # Verify all attachments were deleted
-        get_response = skribble.signature_request.get(signature_request_id)
-        if not get_response['attachments']:
-            print(colored("All attachments deletion confirmed", "green"))
-        else:
-            print(colored("Attachment deletion failed: Some attachments are still present in the signature request", "red"))
-    else:
-        print(colored("No attachments found in the signature request", "yellow"))
+    attachements_response = skribble.attachment.list(signature_request_id)
+    print(colored("Listed attachments:", "green"))
+    print(colored(attachements_response, "cyan"))
+    if attachements_response:
+        delete_attachment_response = skribble.attachment.delete(signature_request_id, attachements_response[0]['attachment_id'])
+        print(colored("Attachment deleted successfully", "green"))
 
     # List signature requests
     list_response = skribble.signature_request.list(page_size=10)

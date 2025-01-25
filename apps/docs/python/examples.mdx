@@ -118,3 +118,44 @@ skribble.signature_request.remove_signer(signature_request_id, signer_to_remove[
 
 ```
 
+### Checking Signature Request Status and Downloading Signed Document
+
+After creating a signature request, you may want to check its status and download the signed document once it's completed. Here's how to do that:
+
+```python
+# Get the signature request details
+signature_request_id = "your_signature_request_id"
+signature_request = skribble.signature_request.get(signature_request_id)
+
+# Check if the signature request is signed
+if signature_request['overall_status'] == 'SIGNED':
+    print("The signature request has been signed!")
+    
+    # Get the document ID
+    document_id = signature_request['document_id']
+    
+    # Download the signed document
+    signed_document = skribble.document.download(document_id)
+    
+    # Save the signed document to a file
+    with open("signed_document.pdf", "wb") as file:
+        file.write(signed_document)
+    
+    print("Signed document downloaded and saved as 'signed_document.pdf'")
+else:
+    print(f"The signature request is not yet signed. Current status: {signature_request['overall_status']}")
+```
+
+This code snippet demonstrates how to:
+
+1. Retrieve the signature request details using `skribble.signature_request.get()`.
+2. Check if the `overall_status` is 'SIGNED'.
+3. If signed, get the `document_id` from the signature request.
+4. Use `skribble.document.download()` to retrieve the signed document.
+5. Save the downloaded document to a file.
+
+<Tip>
+The `overall_status` can have different values such as 'OPEN', 'SIGNED', 'DECLINED', or 'WITHDRAWN'. Make sure to handle these different statuses in your application as needed.
+</Tip>
+
+You can periodically check the status of a signature request to determine when it has been signed and then proceed with downloading the signed document.

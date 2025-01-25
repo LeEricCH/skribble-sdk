@@ -1,7 +1,14 @@
 import requests
-from typing import Optional, Dict, Any, List
-from .models import AuthRequest
+from typing import Optional, Dict, Any, List, TypeVar, Generic, Union
+from .models import (
+    AuthRequest,
+    SignatureRequestResponse,
+    SignatureResponse,
+    DocumentResponse
+)
 from .exceptions import SkribbleAuthError, SkribbleValidationError, SkribbleAPIError
+
+T = TypeVar('T')
 
 class SkribbleClient:
     BASE_URL: str = "https://api.skribble.com/v2"
@@ -27,18 +34,34 @@ class SkribbleClient:
         if not self.username or not self.api_key:
             raise SkribbleAuthError("Username and API key are required for authentication")
 
-        auth_data = AuthRequest(username=self.username, **{"api-key": self.api_key})
-        response = self.session.post(f"{self.BASE_URL}/access/login", json=auth_data.dict(by_alias=True))
+        auth_data = {
+            "username": self.username,
+            "api-key": self.api_key
+        }
+        
+        response = self.session.post(f"{self.BASE_URL}/access/login", json=auth_data)
 
         if response.status_code == 200:
+            # The API returns just the raw token string
             self.access_token = response.text.strip()
             return self.access_token
         elif response.status_code in [401, 403]:
             raise SkribbleAuthError("Invalid credentials")
         else:
-            raise SkribbleAPIError(response.text, status_code=response.status_code)
+            try:
+                error_detail = response.json()
+                raise SkribbleAPIError(error_detail.get("message", response.text), status_code=response.status_code)
+            except ValueError:
+                raise SkribbleAPIError(response.text, status_code=response.status_code)
 
-    def _make_request(self, method: str, endpoint: str, data: Optional[Dict[str, Any]] = None, params: Optional[Dict[str, Any]] = None) -> Any:
+    def _make_request(
+        self,
+        method: str,
+        endpoint: str,
+        data: Optional[Dict[str, Any]] = None,
+        params: Optional[Dict[str, Any]] = None,
+        binary_response: bool = False
+    ) -> Union[SignatureRequestResponse, SignatureResponse, DocumentResponse, Dict[str, Any], List[Dict[str, Any]], bytes, None]:
         if not self.access_token:
             self.access_token = self._authenticate()
         
@@ -49,6 +72,8 @@ class SkribbleClient:
             response.raise_for_status()  # This will raise an HTTPError for bad responses
 
             if response.status_code >= 200 and response.status_code < 300:
+                if binary_response:
+                    return response.content
                 return response.json() if response.text else None
         except requests.exceptions.HTTPError as http_err:
             error_message = f"HTTP error occurred: {http_err}. "

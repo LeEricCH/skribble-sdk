@@ -1,4 +1,5 @@
 {
+  "name": "skribble-ts-sdk-example",
   "scripts": {
     "start": "ts-node src/index.ts"
   },
@@ -9,7 +10,6 @@
   },
   "dependencies": {
     "axios": "^0.21.1",
-    "skribble-sdk": "link:..\\ts-sdk",
-    "skribble-ts-sdk": "link:..\\ts-sdk"
+    "@skribble/ts-sdk": "workspace:*"
   }
 }

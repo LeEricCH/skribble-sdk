@@ -1,5 +1,5 @@
 import { SkribbleClient } from '../client';
-import { Document, DocumentRequest } from '../types';
+import { Document, DocumentRequest, DocumentContent } from '../types';
 import { SkribbleValidationError, SkribbleAPIError } from '../errors';
 
 /**
@@ -89,17 +89,40 @@ export async function add(documentData: DocumentRequest): Promise<Document> {
  * Download the document content.
  * 
  * @param documentId - The ID of the document to download.
- * @returns A promise that resolves to the document content as a Blob.
+ * @param format - The format of the response: 'blob' for raw bytes or 'base64' for base64 encoded string.
+ * @returns A promise that resolves to either a Blob or a base64 string depending on the format parameter.
  * 
  * @example
  * ```typescript
- * const content = await skribble.document.download("5c33d0cb-84...");
- * console.log(content.size);
+ * // Download as blob
+ * const blobContent = await skribble.document.download("5c33d0cb-84...", 'blob');
+ * console.log(blobContent.size);
+ * 
+ * // Download as base64
+ * const base64Content = await skribble.document.download("5c33d0cb-84...", 'base64');
+ * console.log(base64Content.substring(0, 50));
  * ```
  */
-export async function download(documentId: string): Promise<Blob> {
+export async function download(
+  documentId: string,
+  format: 'blob' | 'base64'
+): Promise<DocumentContent> {
   const client = SkribbleClient.getInstance();
-  const response = await client.makeRequest('GET', `/documents/${documentId}/content`, null, null, 'blob');
+  const headers = format === 'base64' ? { Accept: 'application/json' } : undefined;
+  const responseType = format === 'base64' ? 'json' : 'blob';
+  
+  const response = await client.makeRequest(
+    'GET',
+    `/documents/${documentId}/content`,
+    null,
+    headers,
+    responseType
+  );
+
+  if (format === 'base64') {
+    return (response as { content: string }).content;
+  }
+  
   return response as Blob;
 }
 

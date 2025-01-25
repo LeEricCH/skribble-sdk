@@ -204,9 +204,38 @@ async function main() {
     const documentMetadata = await skribble.document.get(documentId);
     console.log("Document metadata:", documentMetadata);
 
-    // Download document
-    const documentContentDownloaded = await skribble.document.download(documentId);
-    console.log("Downloaded document size:", documentContentDownloaded.size, "bytes");
+    // Download document in both formats
+    console.log("\n=== Testing document downloads ===");
+    
+    // Download as blob
+    const blobContent = await skribble.document.download(documentId, 'blob');
+    if (blobContent instanceof Blob) {
+      console.log("Downloaded document as blob:", {
+        size: blobContent.size,
+        type: blobContent.type
+      });
+
+      // Save blob to file
+      const blobBuffer = await blobContent.arrayBuffer();
+      fs.writeFileSync(path.join(__dirname, 'downloaded-doc.pdf'), Buffer.from(blobBuffer));
+      console.log("Saved blob document to: downloaded-doc.pdf");
+    }
+
+    // Download as base64
+    const base64Content = await skribble.document.download(documentId, 'base64');
+    if (typeof base64Content === 'string') {
+      console.log("Downloaded document as base64:", {
+        preview: base64Content.substring(0, 50) + '...',
+        length: base64Content.length
+      });
+
+      // Save base64 to file
+      fs.writeFileSync(
+        path.join(__dirname, 'downloaded-doc-base64.pdf'), 
+        Buffer.from(base64Content, 'base64')
+      );
+      console.log("Saved base64 document to: downloaded-doc-base64.pdf");
+    }
 
     // Get document preview
     try {

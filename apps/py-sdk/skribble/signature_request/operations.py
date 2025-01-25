@@ -1,17 +1,26 @@
 from typing import Dict, Any, List, Optional
-from ..models import SignatureRequest, Signature, SignerIdentityData
+from ..models import (
+    SignatureRequest,
+    SignatureRequestResponse,
+    SignatureResponse,
+    Signature,
+    SignerIdentityData,
+    SignerRequest,
+    AttachmentRequest,
+    AttachmentResponse
+)
 from ..client_manager import get_client
 from ..exceptions import SkribbleValidationError, SkribbleAPIError, SkribbleOperationError
 from pydantic import ValidationError
 
-def create(signature_request: Dict[str, Any]) -> Dict[str, Any]:
+def create(signature_request: Dict[str, Any]) -> SignatureRequestResponse:
     """
     Create a new signature request.
 
     :param signature_request: The signature request data.
     :type signature_request: Dict[str, Any]
     :return: The created signature request details.
-    :rtype: Dict[str, Any]
+    :rtype: SignatureRequestResponse
     :raises SkribbleValidationError: If the input data is invalid.
 
     Example:
@@ -43,23 +52,25 @@ def create(signature_request: Dict[str, Any]) -> Dict[str, Any]:
     except ValidationError as e:
         raise SkribbleValidationError("Invalid signature request data", e.errors())
     
-    return get_client()._make_request("POST", "/signature-requests", data=validated_request.model_dump(exclude_none=True, by_alias=True))
+    response = get_client()._make_request("POST", "/signature-requests", data=validated_request.model_dump(exclude_none=True, by_alias=True))
+    return SignatureRequestResponse(**response)
 
-def get(signature_request_id: str) -> Dict[str, Any]:
+def get(signature_request_id: str) -> SignatureRequestResponse:
     """
     Get details of a specific signature request.
 
     :param signature_request_id: The ID of the signature request to retrieve.
     :type signature_request_id: str
     :return: The signature request details.
-    :rtype: Dict[str, Any]
+    :rtype: SignatureRequestResponse
 
     Example:
         >>> details = skribble.signature_request.get("5c33d0cb-84...")
         >>> print(details['title'])
         'Test Request'
     """
-    return get_client()._make_request("GET", f"/signature-requests/{signature_request_id}")
+    response = get_client()._make_request("GET", f"/signature-requests/{signature_request_id}")
+    return SignatureRequestResponse(**response)
 
 def delete(signature_request_id: str) -> Dict[str, Any]:
     """
@@ -88,7 +99,7 @@ def list(
     status_overall: Optional[str] = None,
     page_number: Optional[int] = None,
     page_size: int = 50
-) -> List[Dict[str, Any]]:
+) -> List[SignatureRequestResponse]:
     """
     List signature requests with optional filtering and pagination.
 
@@ -105,7 +116,7 @@ def list(
     :param page_size: Number of items per page (must be greater than or equal to 0, default is 50)
     :type page_size: int
     :return: A list of signature request details.
-    :rtype: List[Dict[str, Any]]
+    :rtype: List[SignatureRequestResponse]
 
     Example:
         >>> requests = skribble.signature_request.list(
@@ -127,15 +138,15 @@ def list(
     # Remove None values from params
     params = {k: v for k, v in params.items() if v is not None}
     
-    all_requests = get_client()._make_request("GET", "/signature-requests", params=params)
+    response = get_client()._make_request("GET", "/signature-requests", params=params)
     
     # Apply pagination on the client side
     start_index = (page_number or 0) * page_size
     end_index = start_index + page_size
     
-    return all_requests[start_index:end_index]
+    return [SignatureRequestResponse(**req) for req in response[start_index:end_index]]
 
-def update(signature_request_id: str, updated_data: Dict[str, Any]) -> Dict[str, Any]:
+def update(signature_request_id: str, updated_data: Dict[str, Any]) -> SignatureRequestResponse:
     """
     Update a signature request.
 
@@ -144,50 +155,34 @@ def update(signature_request_id: str, updated_data: Dict[str, Any]) -> Dict[str,
         updated_data (Dict[str, Any]): The updated data for the signature request.
 
     Returns:
-        Dict[str, Any]: The updated signature request details.
+        SignatureRequestResponse: The updated signature request details.
     """
     updated_data["id"] = signature_request_id
-    return get_client()._make_request("PUT", "/signature-requests", data=updated_data)
+    response = get_client()._make_request("PUT", "/signature-requests", data=updated_data)
+    return SignatureRequestResponse(**response)
 
-def add_signer(signature_request_id: str, signer_data: Dict[str, Any]) -> Dict[str, Any]:
+def add_signer(signature_request_id: str, signer_data: Dict[str, Any]) -> SignatureRequestResponse:
     """
-    Add a signer to a signature request.
+    Add a signer to an existing signature request.
 
-    :param signature_request_id: The ID of the signature request.
-    :type signature_request_id: str
-    :param signer_data: The signer data including email, name, etc.
-    :type signer_data: Dict[str, Any]
-    :return: The response containing the added signer details.
-    :rtype: Dict[str, Any]
-    :raises SkribbleOperationError: If the operation fails.
+    Args:
+        signature_request_id (str): The ID of the signature request.
+        signer_data (Dict[str, Any]): The signer data.
 
-    Example:
-        >>> signer_data = {
-        ...     "account_email": "new_signer@example.com",
-        ...     "signer_identity_data": {
-        ...         "email_address": "new_signer@example.com",
-        ...         "first_name": "John",
-        ...         "last_name": "Doe"
-        ...     }
-        ... }
-        >>> result = skribble.signature_request.add_signer("5c33d0cb-84...", signer_data)
-        >>> print(result['sid'])
-        'signer_456'
+    Returns:
+        SignatureRequestResponse: The updated signature request.
+
+    Raises:
+        SkribbleOperationError: If the operation fails.
     """
     try:
         client = get_client()
-
-        # Get the signature request and check if any of the signers status_code is SIGNED if so return
-        signature_request = client._make_request("GET", f"/signature-requests/{signature_request_id}")
-        for signer in signature_request.get('signatures', []):
-            if signer.get('status_code') == 'SIGNED':
-                raise SkribbleOperationError("add_signer", "One of the signers has already signed the document", None)
-
         response = client._make_request("POST", f"/signature-requests/{signature_request_id}/signatures", data=signer_data)
-        
-        return response
+        return SignatureRequestResponse(**response)
     except SkribbleAPIError as e:
-        raise SkribbleOperationError("add_signer", str(e), e)
+        raise SkribbleOperationError("add_signer", f"API Error: {e.message}", e)
+    except ValidationError as e:
+        raise SkribbleOperationError("add_signer", "Validation failed", e)
     except Exception as e:
         raise SkribbleOperationError("add_signer", f"Unexpected error: {str(e)}", e)
 
@@ -225,54 +220,38 @@ def remove_signer(signature_request_id: str, signer_id: str) -> Dict[str, Any]:
     except Exception as e:
         raise SkribbleOperationError("remove_signer", f"Unexpected error: {str(e)}", e)
 
-def replace_signers(signature_request_id: str, signatures: List[Dict[str, Any]]) -> Dict[str, Any]:
+def replace_signers(signature_request_id: str, new_signers: List[Dict[str, Any]]) -> SignatureRequestResponse:
     """
-    Replace all signers in a signature request.
+    Replace all signers in a signature request with new signers.
 
-    :param signature_request_id: The ID of the signature request.
-    :type signature_request_id: str
-    :param signatures: A list of dictionaries containing signer information.
-    :type signatures: List[Dict[str, Any]]
-    :return: The updated signature request details.
-    :rtype: Dict[str, Any]
-    :raises SkribbleOperationError: If the operation fails.
+    Args:
+        signature_request_id (str): The ID of the signature request.
+        new_signers (List[Dict[str, Any]]): List of new signers to replace the existing ones.
 
-    Example:
-        >>> new_signers = [
-        ...     {"account_email": "signer1@example.com"},
-        ...     {"account_email": "signer2@example.com"}
-        ... ]
-        >>> result = skribble.signature_request.replace_signers("5c33d0cb-84...", new_signers)
-        >>> print(len(result['signatures']))
-        2
+    Returns:
+        SignatureRequestResponse: The updated signature request.
 
-    Note:
-        This operation will replace all existing signers. Any signers not included
-        in the new signatures list will be removed from the signature request.
-        Ensure that you include all desired signers, including existing ones you
-        wish to keep.
+    Raises:
+        SkribbleOperationError: If the operation fails.
     """
     try:
         client = get_client()
-
-        # Get the signature request and check if any of the signers have already signed
-        signature_request = client._make_request("GET", f"/signature-requests/{signature_request_id}")
-        for signer in signature_request['signatures']:
-            if signer.get('status_code') == 'SIGNED':
-                raise SkribbleOperationError("replace_signers", "Cannot replace signers: One or more signers have already signed the document", None)
-
-        # Prepare the update data
+        # Get the current signature request to preserve other fields
+        current = client._make_request("GET", f"/signature-requests/{signature_request_id}")
+        
+        # Update only the signatures field
         update_data = {
             "id": signature_request_id,
-            "signatures": signatures
+            "signatures": new_signers
         }
-
-        # Update the signature request
-        response = client._make_request("PUT", "/signature-requests", data=update_data)
         
-        return response
+        # Use the main signature request endpoint with PUT
+        response = client._make_request("PUT", "/signature-requests", data=update_data)
+        return SignatureRequestResponse(**response)
     except SkribbleAPIError as e:
-        raise SkribbleOperationError("replace_signers", str(e), e)
+        raise SkribbleOperationError("replace_signers", f"API Error: {e.message}", e)
+    except ValidationError as e:
+        raise SkribbleOperationError("replace_signers", "Validation failed", e)
     except Exception as e:
         raise SkribbleOperationError("replace_signers", f"Unexpected error: {str(e)}", e)
 
@@ -311,24 +290,96 @@ def withdraw(signature_request_id: str, message: Optional[str] = None) -> Dict[s
         return {"status": "success", "message": "Signature request withdrawn successfully"}
     return response
 
-def get_attachment(signature_request_id: str, attachment_id: str) -> bytes:
-    """
-    Download a specific attached file from a signature request.
+def add_attachment(signature_request_id: str, attachment: AttachmentRequest) -> List[Dict[str, str]]:
+    """Add an attachment to a signature request.
 
     Args:
-        signature_request_id (str): The ID of the signature request.
-        attachment_id (str): The ID of the attachment to download.
+        signature_request_id: The ID of the signature request.
+        attachment: The attachment to add.
 
     Returns:
-        bytes: The content of the attachment file.
+        List[Dict[str, str]]: The list of attachments after adding the new one.
+
+    Raises:
+        SkribbleOperationError: If the operation fails.
     """
     try:
         client = get_client()
-        response = client.session.get(f"{client.BASE_URL}/signature-requests/{signature_request_id}/attachments/{attachment_id}/content", headers={"Authorization": f"Bearer {client._authenticate()}"})
-        if response.status_code == 200:
-            return response.content
-        else:
-            raise SkribbleAPIError(f"Failed to get attachment: {response.text}")
+        response = client._make_request(
+            "POST", 
+            f"/signature-requests/{signature_request_id}/attachments",
+            data=attachment.model_dump()
+        )
+        # Get the updated signature request to return all attachments
+        updated_request = client._make_request(
+            "GET",
+            f"/signature-requests/{signature_request_id}"
+        )
+        return updated_request.get("attachments", [])
     except Exception as e:
-        print(f"Error getting attachment: {str(e)}")
-        return b''
+        raise SkribbleOperationError("add_attachment", str(e), e)
+
+def download_attachment(signature_request_id: str, attachment_id: str) -> bytes:
+    """Get the content of an attachment.
+
+    Args:
+        signature_request_id: ID of the signature request
+        attachment_id: ID of the attachment to get
+
+    Returns:
+        bytes: The attachment content
+
+    Raises:
+        SkribbleOperationError: If the operation fails
+    """
+    try:
+        client = get_client()
+        response = client._make_request(
+            "GET",
+            f"/signature-requests/{signature_request_id}/attachments/{attachment_id}/content",
+            binary_response=True
+        )
+        return response
+    except Exception as e:
+        raise SkribbleOperationError("download_attachment", str(e), e)
+
+def delete_attachment(signature_request_id: str, attachment_id: str) -> None:
+    """Delete an attachment from a signature request.
+
+    Args:
+        signature_request_id: ID of the signature request
+        attachment_id: ID of the attachment to delete
+
+    Raises:
+        SkribbleOperationError: If the operation fails
+    """
+    try:
+        client = get_client()
+        client._make_request(
+            "DELETE",
+            f"/signature-requests/{signature_request_id}/attachments/{attachment_id}"
+        )
+    except Exception as e:
+        raise SkribbleOperationError("delete_attachment", str(e), e)
+
+def list_attachments(signature_request_id: str) -> List[Dict[str, str]]:
+    """List all attachments for a signature request.
+
+    Args:
+        signature_request_id: The ID of the signature request.
+
+    Returns:
+        List[Dict[str, str]]: The list of attachments.
+
+    Raises:
+        SkribbleOperationError: If the operation fails.
+    """
+    try:
+        client = get_client()
+        response = client._make_request(
+            "GET",
+            f"/signature-requests/{signature_request_id}"
+        )
+        return response.get("attachments", [])
+    except Exception as e:
+        raise SkribbleOperationError("list_attachments", str(e), e)

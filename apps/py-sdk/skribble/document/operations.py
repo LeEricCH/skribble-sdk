@@ -2,16 +2,16 @@ from typing import Dict, Any, List, Optional
 import time
 from ..client_manager import get_client
 from ..exceptions import SkribbleValidationError, SkribbleOperationError, SkribbleAPIError
-from ..models import Document, DocumentRequest
+from ..models import Document, DocumentRequest, DocumentResponse
 
-def list(limit: Optional[int] = None) -> List[Dict[str, Any]]:
+def list(limit: Optional[int] = None) -> List[DocumentResponse]:
     """
     List all documents.
 
     :param limit: The maximum number of documents to return. If None, returns all documents.
     :type limit: Optional[int]
     :return: A list of documents.
-    :rtype: List[Dict[str, Any]]
+    :rtype: List[DocumentResponse]
 
     Example:
         >>> documents = skribble.document.list(limit=5)
@@ -19,19 +19,20 @@ def list(limit: Optional[int] = None) -> List[Dict[str, Any]]:
         5
     """
     response = get_client()._make_request("GET", "/documents")
+    documents = [DocumentResponse(**doc) for doc in response]
     
     if limit is not None:
-        return response[:limit]
-    return response
+        return documents[:limit]
+    return documents
 
-def get(document_id: str) -> Dict[str, Any]:
+def get(document_id: str) -> DocumentResponse:
     """
     Get the document metadata.
 
     :param document_id: The ID of the document to retrieve.
     :type document_id: str
     :return: The document metadata.
-    :rtype: Dict[str, Any]
+    :rtype: DocumentResponse
 
     Example:
         >>> metadata = skribble.document.get("5c33d0cb-84...")
@@ -39,7 +40,7 @@ def get(document_id: str) -> Dict[str, Any]:
         'Sample Document'
     """
     response = get_client()._make_request("GET", f"/documents/{document_id}")
-    return Document(**response).model_dump()
+    return DocumentResponse(**response)
 
 def delete(document_id: str) -> Dict[str, Any]:
     """
@@ -61,14 +62,14 @@ def delete(document_id: str) -> Dict[str, Any]:
     except SkribbleAPIError as e:
         return {"status": "error", "message": f"Failed to delete document: {str(e)}"}
 
-def add(document_data: Dict[str, Any]) -> Dict[str, Any]:
+def add(document_data: Dict[str, Any]) -> DocumentResponse:
     """
     Add a new document.
 
     :param document_data: The document data.
     :type document_data: Dict[str, Any]
     :return: The created document details.
-    :rtype: Dict[str, Any]
+    :rtype: DocumentResponse
 
     Example:
         >>> document_data = {
@@ -81,7 +82,8 @@ def add(document_data: Dict[str, Any]) -> Dict[str, Any]:
         'doc_789'
     """
     validated_request = DocumentRequest(**document_data)
-    return get_client()._make_request("POST", "/documents", data=validated_request.model_dump(exclude_none=True))
+    response = get_client()._make_request("POST", "/documents", data=validated_request.model_dump(exclude_none=True))
+    return DocumentResponse(**response)
 
 def download(document_id: str) -> bytes:
     """

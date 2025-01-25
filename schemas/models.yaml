@@ -1,0 +1,671 @@
+models:
+  # Base models with no dependencies
+  Image:
+    description: Image data with content type and content
+    properties:
+      content_type:
+        type: string
+      content:
+        type: string
+    required: [content_type, content]
+
+  Position:
+    description: Position details for visual elements
+    properties:
+      x:
+        type: number
+      y:
+        type: number
+      width:
+        type: number
+      height:
+        type: number
+      page:
+        type: string
+      rotation:
+        type: number
+        default: 0
+        optional: true
+    required: [x, y, width, height, page]
+
+  SignerIdentityData:
+    description: Identity data for no-account signers
+    properties:
+      email_address:
+        type: string
+        format: email
+        description: Email address of no-account-signer
+      mobile_number:
+        type: string
+        maxLength: 100
+        description: Mobile number of no-account-signer
+        optional: true
+      first_name:
+        type: string
+        maxLength: 1024
+        description: First name of no-account-signer
+        optional: true
+      last_name:
+        type: string
+        maxLength: 1024
+        description: Last name of no-account-signer
+        optional: true
+      language:
+        type: string
+        description: Language for communication with the signer
+        optional: true
+    required: [email_address]
+    validators:
+      - name: check_fields
+        description: Validate that only known fields are provided
+
+  Document:
+    description: Represents a document
+    properties:
+      id:
+        type: string
+        description: ID of the Document object
+      parent_id:
+        type: string
+        description: ID of the previous version of the Document object
+        optional: true
+      title:
+        type: string
+        maxLength: 1024
+        description: Given title of the document
+      content_type:
+        type: string
+        description: Content type of the document
+      size:
+        type: integer
+        description: Size in bytes of the document
+      page_count:
+        type: integer
+        description: Number of pages in the document
+        optional: true
+      page_width:
+        type: integer
+        description: Width of the document pages
+        optional: true
+      page_height:
+        type: integer
+        description: Height of the document pages
+        optional: true
+      owner:
+        type: string
+        description: Owner of the document
+    required: [id, title, content_type, size, owner]
+
+  # Models that depend on base models
+  VisualSignature:
+    description: Visual signature with position and optional image
+    properties:
+      form_field:
+        type: string
+        maxLength: 100
+        description: Name of the document's form field in which the signature is placed. Takes precedence before positions
+        optional: true
+      position:
+        type: object
+        ref: Position
+      image:
+        type: object
+        ref: Image
+        optional: true
+    required: [position]
+
+  # Models that depend on VisualSignature and SignerIdentityData
+  Signature:
+    description: Represents a signature in a signature request
+    properties:
+      account_email:
+        type: string
+        format: email
+        description: Signer's e-mail address
+        optional: true
+      signer_identity_data:
+        type: object
+        ref: SignerIdentityData
+        optional: true
+      visual_signature:
+        type: object
+        ref: VisualSignature
+        optional: true
+      sequence:
+        type: integer
+        minimum: 1
+        maximum: 999
+        description: Define a signing sequence for signers
+        optional: true
+      notify:
+        type: boolean
+        default: true
+        description: Send e-mails to notify the signer
+        optional: true
+      language:
+        type: string
+        description: Language for communication
+        optional: true
+    validators:
+      - name: check_email_or_identity
+        description: Either account_email or signer_identity_data must be provided
+      - name: check_sequence
+        description: Sequence must be between 1 and 999
+
+  SignerRequest:
+    description: Request to add a signer
+    properties:
+      account_email:
+        type: string
+        format: email
+        description: Signer's e-mail address
+        optional: true
+      signer_identity_data:
+        type: object
+        ref: SignerIdentityData
+        optional: true
+      visual_signature:
+        type: object
+        ref: VisualSignature
+        optional: true
+      sequence:
+        type: integer
+        minimum: 1
+        maximum: 999
+        optional: true
+      notify:
+        type: boolean
+        default: true
+        optional: true
+      language:
+        type: string
+        optional: true
+    validators:
+      - name: check_email_or_identity
+        description: Either account_email or signer_identity_data must be provided
+
+  # Models that depend on Document
+  DocumentResponse:
+    description: Response object for a document
+    properties:
+      id:
+        type: string
+        description: ID of the Document object
+      parent_id:
+        type: string
+        description: ID of the previous version of the Document object
+        optional: true
+      title:
+        type: string
+        maxLength: 1024
+        description: Given title of the document
+      content_type:
+        type: string
+        description: Content type of the document (always application/pdf)
+      size:
+        type: integer
+        description: Size in bytes of the document
+      page_count:
+        type: integer
+        description: Number of pages of the document
+        optional: true
+      page_width:
+        type: integer
+        description: Width of the document in pixel
+        optional: true
+      page_height:
+        type: integer
+        description: Height of the document in pixel
+        optional: true
+      signature_fields:
+        type: array
+        items:
+          type: object
+          properties:
+            name:
+              type: string
+              description: Name of the signature field
+            status:
+              type: string
+              description: Status of the signature field
+            position:
+              type: object
+              ref: Position
+              description: Position of the signature field
+        description: PDF AcroForm signature fields found in the document
+        optional: true
+      read_access:
+        type: array
+        items:
+          type: string
+          format: email
+        description: Array of users with read access
+      write_access:
+        type: array
+        items:
+          type: string
+          format: email
+        description: Array of users with write access
+      created_at:
+        type: string
+        format: date-time
+        description: Timestamp at which the document was created
+      updated_at:
+        type: string
+        format: date-time
+        description: Timestamp at which the document was last updated
+        optional: true
+    required: [id, title, content_type, size, read_access, write_access, created_at]
+
+  # Other models
+  AuthRequest:
+    description: Authentication request for the API
+    properties:
+      username:
+        type: string
+        description: API username
+      api_key:
+        type: string
+        description: API key
+        alias: api-key
+    required: [username, api_key]
+
+  SignatureRequest:
+    description: Represents a signature request
+    properties:
+      title:
+        type: string
+        maxLength: 1024
+        description: Title of the signature request
+      message:
+        type: string
+        maxLength: 1024
+        description: Message sent to the participants
+        optional: true
+      content:
+        type: string
+        description: Base64 encoded bytes of document
+        optional: true
+      content_type:
+        type: string
+        maxLength: 1024
+        description: Content type of bytes sent in content
+        optional: true
+      file_url:
+        type: string
+        maxLength: 2048
+        description: Publicly accessible URL for document download
+        optional: true
+      document_id:
+        type: string
+        maxLength: 100
+        description: Document ID of an existing document on Skribble
+        optional: true
+      legislation:
+        type: string
+        maxLength: 100
+        description: Legislation of the signatures (ZERTES or EIDAS). Only important for QES signatures
+        enum: [ZERTES, EIDAS]
+        optional: true
+      quality:
+        type: string
+        maxLength: 100
+        description: Minimal quality of the signatures (AES, AES_MINIMAL, SES or QES)
+        enum: [AES, AES_MINIMAL, SES, QES]
+        optional: true
+      cc_email_addresses:
+        type: array
+        items:
+          type: string
+          format: email
+        description: CC email addresses
+        optional: true
+      callback_success_url:
+        type: string
+        maxLength: 2048
+        description: Callback-URL for success
+        optional: true
+      callback_error_url:
+        type: string
+        maxLength: 2048
+        description: Callback-URL for errors
+        optional: true
+      callback_update_url:
+        type: string
+        maxLength: 2048
+        description: Callback-URL for updates
+        optional: true
+      custom:
+        type: string
+        maxLength: 10000
+        description: Custom field for own/customer settings
+        optional: true
+      write_access:
+        type: array
+        items:
+          type: string
+          format: email
+        description: Users with full write access
+        optional: true
+      signatures:
+        type: array
+        items:
+          type: object
+          ref: Signature
+        optional: true
+    required: [title]
+    validators:
+      - name: check_document_source
+        description: At least one of content, file_url, or document_id must be provided
+      - name: check_fields
+        description: Validate that only known fields are provided
+
+  SignatureRequestResponse:
+    description: Response object for a signature request
+    properties:
+      id:
+        type: string
+        description: ID of the SignatureRequest object
+        required: true
+      title:
+        type: string
+        description: Given title for the signature request
+        required: true
+      message:
+        type: string
+        description: Given message that is shown to the participants
+        optional: true
+      document_id:
+        type: string
+        description: ID of the Document object
+        required: true
+      legislation:
+        type: string
+        description: Given legislation of the signatures for this signature request
+        optional: true
+      quality:
+        type: string
+        description: Given quality of the signatures for this signature request
+        optional: true
+      signing_url:
+        type: string
+        description: Deprecated. Please use the signing_url inside the user's Signature entry
+        optional: true
+      status_overall:
+        type: string
+        description: Status of the signature request
+        required: true
+      signatures:
+        type: array
+        description: Array of signatures within this signature request
+        items:
+          type: SignatureResponse
+        required: true
+      cc_email_addresses:
+        type: array
+        description: Given array of email-addresses that will be additionally notified upon completed signature request
+        items:
+          type: string
+        optional: true
+      owner:
+        type: string
+        description: Creator of the SignatureRequest object
+        required: true
+      read_access:
+        type: array
+        description: Array of users with read access on the signature request
+        items:
+          type: string
+        optional: true
+      write_access:
+        type: array
+        description: Array of users with write access on the signature request
+        items:
+          type: string
+        optional: true
+      created_at:
+        type: string
+        description: Timestamp at which the signature request was created
+        optional: true
+      updated_at:
+        type: string
+        description: Timestamp at which the signature request was last updated
+        optional: true
+
+  SignatureResponse:
+    description: Response object for a signature
+    properties:
+      sid:
+        type: string
+        description: ID of the SignatureRequest object
+        required: true
+      account_email:
+        type: string
+        description: Email address of the signer
+        optional: true
+      signer_identity_data:
+        type: SignerIdentityData
+        description: Contains the given first_name and last_name of the signer
+        optional: true
+      sequence:
+        type: integer
+        description: Signing sequence for the signer
+        optional: true
+      status_code:
+        type: string
+        description: Status of the signature
+        required: true
+      notify:
+        type: boolean
+        description: Given identifier, if the signer will be notified about changes on this signature request
+        optional: true
+      signed_at:
+        type: string
+        description: Visible only after the signature. Timestamp UTC at which the signature was executed
+        optional: true
+      signed_quality:
+        type: string
+        description: Visible only after the signature. Quality level with which the signature was executed
+        optional: true
+      signed_legislation:
+        type: string
+        description: Visible only after the signature. Legislation with which the signature was executed
+        optional: true
+      last_viewed_at:
+        type: string
+        description: Timestamp UTC at which the signer opened/viewed the document the last time
+        optional: true
+
+  DocumentRequest:
+    description: Request to create a new document
+    properties:
+      title:
+        type: string
+        maxLength: 1024
+        description: Title of the document
+      content_type:
+        type: string
+        maxLength: 100
+        description: Content type of bytes sent in content
+        optional: true
+      content:
+        type: string
+        description: Base64 encoded bytes of document
+        optional: true
+      file_url:
+        type: string
+        maxLength: 2048
+        description: Publicly accessible URL for document download
+        optional: true
+      write_access:
+        type: array
+        items:
+          type: string
+          format: email
+        description: E-mail addresses with write access to the object
+        optional: true
+    required: [title]
+    validators:
+      - name: check_content_or_file_url
+        description: Either content or file_url must be provided, but not both
+      - name: check_content_type
+        description: content_type must be provided when content is used
+
+  UpdateSignatureRequest:
+    description: Request to update a signature request
+    properties:
+      id:
+        type: string
+        description: ID of the signature request to update
+      title:
+        type: string
+        maxLength: 1024
+        description: New title of the signature request
+        optional: true
+      message:
+        type: string
+        maxLength: 1024
+        description: New message sent to the participants
+        optional: true
+      legislation:
+        type: string
+        maxLength: 100
+        description: New legislation of the signatures
+        optional: true
+      quality:
+        type: string
+        maxLength: 100
+        description: New minimal quality of the signatures
+        optional: true
+      cc_email_addresses:
+        type: array
+        items:
+          type: string
+          format: email
+        description: New CC email addresses
+        optional: true
+      callback_success_url:
+        type: string
+        maxLength: 2048
+        description: New callback-URL for success
+        optional: true
+      callback_error_url:
+        type: string
+        maxLength: 2048
+        description: New callback-URL for errors
+        optional: true
+      callback_update_url:
+        type: string
+        maxLength: 2048
+        description: New callback-URL for updates
+        optional: true
+      custom:
+        type: string
+        maxLength: 10000
+        description: New custom field for own/customer settings
+        optional: true
+      write_access:
+        type: array
+        items:
+          type: string
+          format: email
+        description: New users with full write access
+        optional: true
+    required: [id]
+
+  Attachment:
+    description: Attachment for a document
+    properties:
+      title:
+        type: string
+        maxLength: 1024
+        description: Title of the attachment
+      content:
+        type: string
+        description: Base64 encoded bytes of the attachment
+      content_type:
+        type: string
+        maxLength: 100
+        description: Content type of the attachment
+    required: [title, content, content_type]
+
+  AttachmentRequest:
+    description: Request to add an attachment to a signature request
+    properties:
+      filename:
+        type: string
+        maxLength: 1024
+        description: Name of the attachment file
+      content_type:
+        type: string
+        maxLength: 100
+        description: Content type of the attachment
+      content:
+        type: string
+        description: Base64 encoded content of the attachment
+    required: [filename, content_type, content]
+
+  AttachmentResponse:
+    description: "Response from attachment operations containing an array of attachments"
+    type: array
+    items:
+      type: object
+      properties:
+        id:
+          type: string
+          description: "The attachment ID"
+        filename:
+          type: string
+          description: "The filename of the attachment"
+      required: [id, filename]
+
+  SealRequest:
+    description: Request to seal a document
+    properties:
+      title:
+        type: string
+        maxLength: 1024
+        description: Title of the seal document
+      content:
+        type: string
+        description: Base64 encoded bytes of document
+      account_name:
+        type: string
+        maxLength: 256
+        description: Specifies the seal to use for sealing
+        optional: true
+      visual_signature:
+        type: object
+        ref: VisualSignature
+        optional: true
+    required: [title, content]
+
+  Seal:
+    description: Seal for a document
+    properties:
+      title:
+        type: string
+        maxLength: 1024
+        description: Title of the seal document
+        optional: true
+      content:
+        type: string
+        description: Base64 encoded bytes of document
+      account_name:
+        type: string
+        maxLength: 256
+        description: Specifies the seal to use for sealing
+        optional: true
+      visual_signature:
+        type: object
+        ref: VisualSignature
+        optional: true
+    required: [content]
+
+  SealResponse:
+    description: "Response from seal operations"
+    properties:
+      document_id:
+        type: string
+        description: "The document ID"
+    required: [document_id] 

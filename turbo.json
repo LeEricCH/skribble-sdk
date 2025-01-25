@@ -1,7 +1,7 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "globalDependencies": [
-    "**/.env"
+    "**/.env.*local"
   ],
   "globalEnv": [
     "NODE_ENV"
@@ -9,11 +9,15 @@
   "pipeline": {
     "build": {
       "dependsOn": [
-        "^build"
+        "^build",
+        "^generate-models"
       ],
       "outputs": [
         "dist/**",
-        ".next/**"
+        "**/generated/**",
+        "openapi.yaml",
+        ".next/**",
+        "!.next/cache/**"
       ]
     },
     "docs#build": {
@@ -34,12 +38,28 @@
       "persistent": true
     },
     "test": {
-      "cache": false,
-      "persistent": true
+      "dependsOn": [
+        "build"
+      ]
     },
     "run-examples": {
       "cache": false,
       "persistent": true
+    },
+    "generate-models": {
+      "inputs": [
+        "../../schemas/models.yaml",
+        "generate_models.py"
+      ],
+      "outputs": [
+        "../../apps/ts-sdk/src/types.ts",
+        "../../apps/py-sdk/skribble/models.py"
+      ],
+      "cache": true
+    },
+    "publish-py-sdk": {
+      "cache": false,
+      "dependsOn": ["build"]
     }
   }
 }

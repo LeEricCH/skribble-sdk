@@ -1,4 +1,6 @@
+from typing import Optional, List, Dict, Any
 import json
+from pydantic import ValidationError
 
 class SkribbleError(Exception):
     """Base exception for Skribble SDK"""
@@ -23,21 +25,34 @@ class SkribbleAPIError(SkribbleError):
 
 class SkribbleValidationError(SkribbleError):
     """Raised when input validation fails or when the API returns a 400 error"""
-    def __init__(self, message, errors=None):
-        if isinstance(message, str) and message.startswith('Validation error:'):
-            try:
-                error_dict = json.loads(message.split('Validation error:', 1)[1].strip())
-                self.message = error_dict.get('message', message)
-            except json.JSONDecodeError:
-                self.message = message
+    def __init__(self, message: str, errors: Optional[List[Dict[str, Any]]] = None):
+        if isinstance(message, ValidationError):
+            # Format Pydantic validation errors nicely
+            error_messages = []
+            for error in message.errors():
+                field = " -> ".join(str(loc) for loc in error["loc"])
+                msg = error["msg"]
+                error_messages.append(f"  • {field}: {msg}")
+            
+            self.message = "Validation Error:\n" + "\n".join(error_messages)
         else:
             self.message = message
         self.errors = errors or []
         super().__init__(self.message)
 
 class SkribbleOperationError(SkribbleError):
-    def __init__(self, operation: str, message: str, original_error: Exception = None):
+    def __init__(self, operation: str, message: str, original_error: Optional[Exception] = None):
         self.operation = operation
-        self.message = message
+        if isinstance(original_error, ValidationError):
+            # Format validation errors nicely when they occur in operations
+            error_messages = []
+            for error in original_error.errors():
+                field = " -> ".join(str(loc) for loc in error["loc"])
+                msg = error["msg"]
+                error_messages.append(f"  • {field}: {msg}")
+            
+            self.message = f"Validation error in '{operation}':\n" + "\n".join(error_messages)
+        else:
+            self.message = f"Error in '{operation}': {message}"
         self.original_error = original_error
-        super().__init__(f"Error in operation '{operation}': {message}")
+        super().__init__(self.message)

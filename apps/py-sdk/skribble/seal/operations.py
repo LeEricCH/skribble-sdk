@@ -1,16 +1,16 @@
 from typing import Dict, Any, Optional
 from ..client_manager import get_client
 from ..exceptions import SkribbleValidationError, SkribbleAPIError
-from ..models import Seal
+from ..models import Seal, SealResponse
 
-def create(seal_data: Dict[str, Any]) -> Dict[str, Any]:
+def create(seal_data: Dict[str, Any]) -> SealResponse:
     """
     Create a seal for a document.
 
     :param seal_data: The seal data.
     :type seal_data: Dict[str, Any]
     :return: The created seal details.
-    :rtype: Dict[str, Any]
+    :rtype: SealResponse
     :raises SkribbleValidationError: If the input data is invalid.
 
     Example:
@@ -22,8 +22,8 @@ def create(seal_data: Dict[str, Any]) -> Dict[str, Any]:
         ...     }
         ... }
         >>> result = skribble.seal.create(seal_data)
-        >>> print(result)
-        {'document_id': '5c33d0cb-84...', 'status': 'success'}
+        >>> print(result.document_id)
+        '5c33d0cb-84...'
     """
     try:
         validated_seal = Seal(**seal_data)
@@ -31,11 +31,12 @@ def create(seal_data: Dict[str, Any]) -> Dict[str, Any]:
         raise SkribbleValidationError("Invalid seal data", str(e))
     
     try:
-        return get_client()._make_request("POST", "/seal", data=validated_seal.model_dump(exclude_none=True))
+        response = get_client()._make_request("POST", "/seal", data=validated_seal.model_dump(exclude_none=True))
+        return SealResponse(**response)
     except SkribbleAPIError as e:
         raise SkribbleAPIError(f"Failed to create seal: {str(e)}")
 
-def create_specific(content: str, account_name: Optional[str] = None) -> Dict[str, Any]:
+def create_specific(content: str, account_name: Optional[str] = None) -> SealResponse:
     """
     Create a seal for a document with a specific seal.
 
@@ -44,15 +45,15 @@ def create_specific(content: str, account_name: Optional[str] = None) -> Dict[st
     :param account_name: The name of the account Skribble set up for your organization seal.
     :type account_name: Optional[str]
     :return: The created seal details.
-    :rtype: Dict[str, Any]
+    :rtype: SealResponse
     :raises SkribbleValidationError: If the input data is invalid.
 
     Example:
         >>> content = "base64_encoded_pdf_content"
         >>> account_name = "company_seal_department_a"
         >>> result = skribble.seal.create_specific(content, account_name)
-        >>> print(result)
-        {'document_id': 'doc_456', 'status': 'success'}
+        >>> print(result.document_id)
+        'doc_456'
     """
     seal_data = {
         "content": content,
@@ -64,6 +65,7 @@ def create_specific(content: str, account_name: Optional[str] = None) -> Dict[st
         raise SkribbleValidationError("Invalid seal data", str(e))
     
     try:
-        return get_client()._make_request("POST", "/seal", data=validated_seal.model_dump(exclude_none=True))
+        response = get_client()._make_request("POST", "/seal", data=validated_seal.model_dump(exclude_none=True))
+        return SealResponse(**response)
     except SkribbleAPIError as e:
         raise SkribbleAPIError(f"Failed to create specific seal: {str(e)}")

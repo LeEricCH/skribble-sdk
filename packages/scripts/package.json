@@ -1,0 +1,14 @@
+{
+  "name": "@repo/scripts",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./generate_models.py",
+  "scripts": {
+    "generate-models": "python generate_models.py",
+    "publish-py-sdk": "python publish_py_sdk.py"
+  },
+  "dependencies": {
+    "yaml": "^2.7.0"
+  }
+} 

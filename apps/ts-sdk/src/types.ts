@@ -1,3 +1,5 @@
+export type DocumentContent = Blob | string
+
 export type Image = {
   content_type: string;
   content: string;
@@ -65,7 +67,7 @@ export type DocumentResponse = {
   page_count?: number;
   page_width?: number;
   page_height?: number;
-  signature_fields?: any[];
+  signature_fields?: { name?: string; status?: string; position?: Position }[];
   read_access: string[];
   write_access: string[];
   created_at: string;
@@ -74,7 +76,7 @@ export type DocumentResponse = {
 
 export type AuthRequest = {
   username: string;
-  api_key: string;
+  "api-key": string;
 }
 
 export type SignatureRequest = {
@@ -95,22 +97,9 @@ export type SignatureRequest = {
   signatures?: Signature[];
 }
 
-export type SignatureRequestResponse = {
-  id?: string;
-  title?: string;
-  message?: string;
-  document_id?: string;
-  legislation?: string;
-  quality?: string;
-  signing_url?: string;
-  status_overall?: string;
-  signatures?: any[];
-  cc_email_addresses?: string[];
-  owner?: string;
-  read_access?: string[];
-  write_access?: string[];
-  created_at?: string;
-  updated_at?: string;
+export type AttachmentResponse = {
+  attachment_id: string;
+  filename: string;
 }
 
 export type SignatureResponse = {
@@ -124,6 +113,25 @@ export type SignatureResponse = {
   signed_quality?: string;
   signed_legislation?: string;
   last_viewed_at?: string;
+}
+
+export type SignatureRequestResponse = {
+  id: string;
+  title: string;
+  message?: string;
+  document_id: string;
+  legislation?: string;
+  quality?: string;
+  signing_url?: string;
+  status_overall: string;
+  signatures: SignatureResponse[];
+  cc_email_addresses?: string[];
+  owner: string;
+  read_access?: string[];
+  write_access?: string[];
+  created_at?: string;
+  updated_at?: string;
+  attachments?: AttachmentResponse[];
 }
 
 export type DocumentRequest = {
@@ -159,11 +167,6 @@ export type AttachmentRequest = {
   content_type: string;
   content: string;
 }
-
-export type AttachmentResponse = {
-  id: string;
-  filename: string;
-}[]
 
 export type SealRequest = {
   title: string;

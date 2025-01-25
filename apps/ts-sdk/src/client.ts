@@ -3,7 +3,6 @@ import { AuthRequest } from './types';
 import { SkribbleAuthError, SkribbleAPIError, handleSkribbleError } from './errors';
 import * as document from './document';
 import * as seal from './seal';
-import * as attachment from './attachment';
 
 export class SkribbleClient {
   private static instance: SkribbleClient;
@@ -13,7 +12,6 @@ export class SkribbleClient {
 
   public document = document;
   public seal = seal;
-  public attachment = attachment;
 
   private constructor() {
     this.axiosInstance = axios.create({

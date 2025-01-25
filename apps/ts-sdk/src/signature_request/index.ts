@@ -1,6 +1,6 @@
 import { SkribbleClient } from '../client';
-import { SignatureRequest, Signature } from '../types';
-import { SkribbleValidationError } from '../errors';
+import { SignatureRequest, SignatureRequestResponse, Signature, SignerRequest, AttachmentRequest, AttachmentResponse } from '../types';
+import { SkribbleValidationError, SkribbleAPIError } from '../errors';
 
 /**
  * Create a new signature request.
@@ -21,7 +21,7 @@ import { SkribbleValidationError } from '../errors';
  * console.log(result.id);
  * ```
  */
-export async function create(signatureRequest: SignatureRequest): Promise<any> {
+export async function create(signatureRequest: SignatureRequest): Promise<SignatureRequestResponse> {
   const client = SkribbleClient.getInstance();
   return client.makeRequest('POST', '/signature-requests', signatureRequest);
 }
@@ -38,7 +38,7 @@ export async function create(signatureRequest: SignatureRequest): Promise<any> {
  * console.log(details.title);
  * ```
  */
-export async function get(signatureRequestId: string): Promise<any> {
+export async function get(signatureRequestId: string): Promise<SignatureRequestResponse> {
   const client = SkribbleClient.getInstance();
   return client.makeRequest('GET', `/signature-requests/${signatureRequestId}`);
 }
@@ -69,16 +69,13 @@ export async function list(params?: {
   status_overall?: string;
   page_number?: number;
   page_size?: number;
-}): Promise<any[]> {
+}): Promise<SignatureRequestResponse[]> {
   const client = SkribbleClient.getInstance();
   
-  // Remove page_number and page_size from the params sent to the API
   const { page_number, page_size, ...apiParams } = params || {};
   
-  // Fetch all results from the API
   const allRequests = await client.makeRequest('GET', '/signature-requests', null, apiParams);
   
-  // Apply client-side pagination
   const pageNumber = page_number || 0;
   const itemsPerPage = page_size || 50;
   const startIndex = pageNumber * itemsPerPage;
@@ -102,76 +99,28 @@ export async function list(params?: {
  * console.log(updatedRequest.title);
  * ```
  */
-export async function update(signatureRequestId: string, updatedData: Partial<SignatureRequest>): Promise<any> {
+export async function update(signatureRequestId: string, updatedData: Partial<SignatureRequest>): Promise<SignatureRequestResponse> {
   const client = SkribbleClient.getInstance();
   return client.makeRequest('PUT', '/signature-requests', { id: signatureRequestId, ...updatedData });
 }
 
 /**
- * Add a signer to a signature request.
+ * Withdraw a signature request.
  * 
- * @param signatureRequestId - The ID of the signature request.
- * @param signerData - The signer data including email, name, etc.
- * @returns A promise that resolves to the response containing the added signer details.
- * @throws {SkribbleOperationError} If the operation fails.
- * 
- * @example
- * ```typescript
- * const signerData = {
- *   account_email: "new_signer@example.com",
- *   signer_identity_data: {
- *     email_address: "new_signer@example.com",
- *     first_name: "John",
- *     last_name: "Doe"
- *   }
- * };
- * const result = await skribble.signature_request.add_signer("5c33d0cb-84...", signerData);
- * console.log(result.sid);
- * ```
- */
-export async function add_signer(signatureRequestId: string, signerData: Signature): Promise<any> {
-  const client = SkribbleClient.getInstance();
-  return client.makeRequest('POST', `/signature-requests/${signatureRequestId}/signatures`, signerData);
-}
-
-/**
- * Remove a signer from a signature request.
- * 
- * @param signatureRequestId - The ID of the signature request.
- * @param signerId - The ID of the signer to remove.
- * @returns A promise that resolves to the response of the removal operation.
+ * @param signatureRequestId - The ID of the signature request to withdraw.
+ * @param message - Optional message to include with the withdrawal.
+ * @returns A promise that resolves to the response of the withdrawal operation.
  * 
  * @example
  * ```typescript
- * const result = await skribble.signature_request.remove_signer("5c33d0cb-84...", "signer123");
+ * const result = await skribble.signature_request.withdraw("5c33d0cb-84...", "Request no longer needed");
  * console.log(result);
  * ```
  */
-export async function remove_signer(signatureRequestId: string, signerId: string): Promise<any> {
+export async function withdraw(signatureRequestId: string, message?: string): Promise<{ status: string; message: string }> {
   const client = SkribbleClient.getInstance();
-  return client.makeRequest('DELETE', `/signature-requests/${signatureRequestId}/signatures/${signerId}`);
-}
-
-/**
- * Replace all signers in a signature request.
- * 
- * @param signatureRequestId - The ID of the signature request.
- * @param signatures - An array of new signer data to replace existing signers.
- * @returns A promise that resolves to the updated signature request details.
- * 
- * @example
- * ```typescript
- * const newSigners = [
- *   { account_email: "signer1@example.com" },
- *   { account_email: "signer2@example.com" }
- * ];
- * const result = await skribble.signature_request.replace_signers("5c33d0cb-84...", newSigners);
- * console.log(result);
- * ```
- */
-export async function replace_signers(signatureRequestId: string, signatures: Signature[]): Promise<any> {
-  const client = SkribbleClient.getInstance();
-  return client.makeRequest('PUT', '/signature-requests', { id: signatureRequestId, signatures });
+  const response = await client.makeRequest('POST', `/signature-requests/${signatureRequestId}/withdraw`, { message });
+  return response || { status: 'success', message: 'Signature request withdrawn successfully' };
 }
 
 /**
@@ -192,24 +141,6 @@ export async function remind(signatureRequestId: string): Promise<void> {
 }
 
 /**
- * Withdraw a signature request.
- * 
- * @param signatureRequestId - The ID of the signature request to withdraw.
- * @param message - Optional message to include with the withdrawal.
- * @returns A promise that resolves to the response of the withdrawal operation.
- * 
- * @example
- * ```typescript
- * const result = await skribble.signature_request.withdraw("5c33d0cb-84...", "Request no longer needed");
- * console.log(result);
- * ```
- */
-export async function withdraw(signatureRequestId: string, message?: string): Promise<any> {
-  const client = SkribbleClient.getInstance();
-  return client.makeRequest('POST', `/signature-requests/${signatureRequestId}/withdraw`, { message });
-}
-
-/**
  * Delete a signature request.
  * 
  * @param signatureRequestId - The ID of the signature request to delete.
@@ -221,10 +152,55 @@ export async function withdraw(signatureRequestId: string, message?: string): Pr
  * console.log(result);
  * ```
  */
-export async function deleteSignatureRequest(signatureRequestId: string): Promise<any> {
+export async function deleteSignatureRequest(signatureRequestId: string): Promise<{ status: string; message: string }> {
   const client = SkribbleClient.getInstance();
-  return client.makeRequest('DELETE', `/signature-requests/${signatureRequestId}`);
+  await client.makeRequest('DELETE', `/signature-requests/${signatureRequestId}`);
+  return { status: 'success', message: `Signature request ${signatureRequestId} deleted successfully` };
 }
 
 // Export the function as 'delete'
 export { deleteSignatureRequest as delete };
+
+// Signer operations submodule
+export const signer = {
+  async add(signatureRequestId: string, signerData: SignerRequest): Promise<SignatureRequestResponse> {
+    const client = SkribbleClient.getInstance();
+    return client.makeRequest('POST', `/signature-requests/${signatureRequestId}/signatures`, signerData);
+  },
+
+  async remove(signatureRequestId: string, signerId: string): Promise<{ status: string; message: string }> {
+    const client = SkribbleClient.getInstance();
+    await client.makeRequest('DELETE', `/signature-requests/${signatureRequestId}/signatures/${signerId}`);
+    return { status: 'success', message: `Signer with ID ${signerId} removed successfully` };
+  },
+
+  async replace(signatureRequestId: string, signatures: SignerRequest[]): Promise<SignatureRequestResponse> {
+    const client = SkribbleClient.getInstance();
+    return client.makeRequest('PUT', '/signature-requests', { id: signatureRequestId, signatures });
+  }
+};
+
+// Attachment operations submodule
+export const attachment = {
+  async add(signatureRequestId: string, attachment: AttachmentRequest): Promise<AttachmentResponse> {
+    const client = SkribbleClient.getInstance();
+    const response = await client.makeRequest('POST', `/signature-requests/${signatureRequestId}/attachments`, attachment);
+    return response;
+  },
+
+  async download(signatureRequestId: string, attachmentId: string): Promise<Blob> {
+    const client = SkribbleClient.getInstance();
+    return client.makeRequest('GET', `/signature-requests/${signatureRequestId}/attachments/${attachmentId}/content`, null, null, 'blob');
+  },
+
+  async delete(signatureRequestId: string, attachmentId: string): Promise<void> {
+    const client = SkribbleClient.getInstance();
+    await client.makeRequest('DELETE', `/signature-requests/${signatureRequestId}/attachments/${attachmentId}`);
+  },
+
+  async list(signatureRequestId: string): Promise<AttachmentResponse> {
+    const client = SkribbleClient.getInstance();
+    const signatureRequest = await client.makeRequest('GET', `/signature-requests/${signatureRequestId}`);
+    return signatureRequest.attachments || [];
+  }
+};

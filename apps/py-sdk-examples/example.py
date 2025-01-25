@@ -13,8 +13,8 @@ from termcolor import colored
 
 # Replace these with your actual Skribble API credentials
 # You can get these from your Skribble account settings
-USERNAME: str = "api_demo_skribbleag_42b4_6" 
-API_KEY: str = "87d93a7f-1fce-411a-9cca-dedce9a731bc"
+USERNAME: str = "api_" 
+API_KEY: str = ""
 
 if not USERNAME or not API_KEY:
     raise ValueError(

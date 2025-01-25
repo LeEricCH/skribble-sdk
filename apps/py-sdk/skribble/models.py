@@ -4,6 +4,9 @@ from enum import Enum
 from difflib import get_close_matches
 from .exceptions import SkribbleValidationError
 
+class DocumentContent(BaseModel):
+    """Document content type that can be either a Blob or string"""
+
 class Image(BaseModel):
     """Image data with content type and content"""
     content_type: str
@@ -101,23 +104,10 @@ class SignatureRequest(BaseModel):
     write_access: Optional[List[str]] = Field(default=None, description='Users with full write access')
     signatures: Optional[List["Signature"]] = Field(default=None)
 
-class SignatureRequestResponse(BaseModel):
-    """Response object for a signature request"""
-    id: Optional[str] = Field(default=None, description='ID of the SignatureRequest object')
-    title: Optional[str] = Field(default=None, description='Given title for the signature request')
-    message: Optional[str] = Field(default=None, description='Given message that is shown to the participants')
-    document_id: Optional[str] = Field(default=None, description='ID of the Document object')
-    legislation: Optional[str] = Field(default=None, description='Given legislation of the signatures for this signature request')
-    quality: Optional[str] = Field(default=None, description='Given quality of the signatures for this signature request')
-    signing_url: Optional[str] = Field(default=None, description="Deprecated. Please use the signing_url inside the user's Signature entry")
-    status_overall: Optional[str] = Field(default=None, description='Status of the signature request')
-    signatures: Optional[List["SignatureResponse"]] = Field(default=None, description='Array of signatures within this signature request')
-    cc_email_addresses: Optional[List[str]] = Field(default=None, description='Given array of email-addresses that will be additionally notified upon completed signature request')
-    owner: Optional[str] = Field(default=None, description='Creator of the SignatureRequest object')
-    read_access: Optional[List[str]] = Field(default=None, description='Array of users with read access on the signature request')
-    write_access: Optional[List[str]] = Field(default=None, description='Array of users with write access on the signature request')
-    created_at: Optional[str] = Field(default=None, description='Timestamp at which the signature request was created')
-    updated_at: Optional[str] = Field(default=None, description='Timestamp at which the signature request was last updated')
+class AttachmentResponse(BaseModel):
+    """Response object for an attachment"""
+    attachment_id: str = Field(description='ID of the attachment')
+    filename: str = Field(description='Name of the attachment file')
 
 class SignatureResponse(BaseModel):
     """Response object for a signature"""
@@ -131,6 +121,25 @@ class SignatureResponse(BaseModel):
     signed_quality: Optional[str] = Field(default=None, description='Visible only after the signature. Quality level with which the signature was executed')
     signed_legislation: Optional[str] = Field(default=None, description='Visible only after the signature. Legislation with which the signature was executed')
     last_viewed_at: Optional[str] = Field(default=None, description='Timestamp UTC at which the signer opened/viewed the document the last time')
+
+class SignatureRequestResponse(BaseModel):
+    """Response object for a signature request"""
+    id: str = Field(description='ID of the SignatureRequest object')
+    title: str = Field(description='Given title for the signature request')
+    message: Optional[str] = Field(default=None, description='Given message that is shown to the participants')
+    document_id: str = Field(description='ID of the Document object')
+    legislation: Optional[str] = Field(default=None, description='Given legislation of the signatures for this signature request')
+    quality: Optional[str] = Field(default=None, description='Given quality of the signatures for this signature request')
+    signing_url: Optional[str] = Field(default=None, description="Deprecated. Please use the signing_url inside the user's Signature entry")
+    status_overall: str = Field(description='Status of the signature request')
+    signatures: List["SignatureResponse"] = Field(description='Array of signatures within this signature request')
+    cc_email_addresses: Optional[List[str]] = Field(default=None, description='Given array of email-addresses that will be additionally notified upon completed signature request')
+    owner: str = Field(description='Creator of the SignatureRequest object')
+    read_access: Optional[List[str]] = Field(default=None, description='Array of users with read access on the signature request')
+    write_access: Optional[List[str]] = Field(default=None, description='Array of users with write access on the signature request')
+    created_at: Optional[str] = Field(default=None, description='Timestamp at which the signature request was created')
+    updated_at: Optional[str] = Field(default=None, description='Timestamp at which the signature request was last updated')
+    attachments: Optional[List["AttachmentResponse"]] = Field(default=None, description='Array of attachments associated with this signature request')
 
 class DocumentRequest(BaseModel):
     """Request to create a new document"""
@@ -165,11 +174,6 @@ class AttachmentRequest(BaseModel):
     filename: str = Field(description='Name of the attachment file')
     content_type: str = Field(description='Content type of the attachment')
     content: str = Field(description='Base64 encoded content of the attachment')
-
-class AttachmentResponse(BaseModel):
-    """Response from attachment operations containing an array of attachments"""
-    id: str = Field(description='The attachment ID')
-    filename: str = Field(description='The filename of the attachment')
 
 class SealRequest(BaseModel):
     """Request to seal a document"""

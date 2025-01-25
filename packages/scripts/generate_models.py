@@ -6,6 +6,17 @@ from typing import Dict, Any, List, Set
 from collections import defaultdict
 import sys
 
+typescript_type_map = {
+    "string": "string",
+    "number": "number",
+    "integer": "number",
+    "boolean": "boolean",
+    "object": "any",
+    "array": "any[]",
+    "union": "any",
+    "Blob": "Blob"
+}
+
 def get_model_dependencies(model_name: str, model_data: dict, models: dict, visited: set = None) -> set:
     """Get all model dependencies for a given model."""
     if visited is None:
@@ -69,41 +80,67 @@ def sort_models_by_dependencies(models: dict) -> list:
     
     return sorted_models
 
-def get_typescript_type(prop_def: Dict[str, Any], prop_name: str = "") -> str:
-    """Get the TypeScript type for a property definition."""
-    if "ref" in prop_def:
-        return prop_def["ref"]
+def get_typescript_type(type_def):
+    if isinstance(type_def, str):
+        return typescript_type_map.get(type_def, "any")
     
-    prop_type = prop_def["type"]
-    if prop_type == "string":
-        return "string"
-    elif prop_type in ["number", "integer"]:
-        return "number"
-    elif prop_type == "boolean":
-        return "boolean"
-    elif prop_type == "array":
-        item_def = prop_def["items"]
-        item_type = get_typescript_type(item_def)
-        return f"{item_type}[]"
-    elif prop_type == "object":
-        if "ref" in prop_def:
-            return prop_def["ref"]
+    if "type" not in type_def:
+        if "ref" in type_def:
+            return type_def["ref"]
         return "any"
-    return "any"
+    
+    type_name = type_def["type"]
+    
+    if type_name == "array":
+        item_def = type_def.get("items", {})
+        if isinstance(item_def, dict):
+            if "ref" in item_def:
+                return f"{item_def['ref']}[]"
+            elif item_def.get("type") == "object":
+                return f"{get_typescript_type(item_def)}[]"
+            else:
+                return f"{get_typescript_type(item_def)}[]"
+        else:
+            return f"{get_typescript_type(item_def)}[]"
+    
+    if type_name == "object":
+        if "ref" in type_def:
+            return type_def["ref"]
+        # If it's an object type with properties, generate an inline type
+        if "properties" in type_def:
+            props = []
+            for prop_name, prop_def in type_def["properties"].items():
+                prop_type = get_typescript_type(prop_def)
+                required = prop_name in type_def.get("required", [])
+                props.append(f"{prop_name}{'' if required else '?'}: {prop_type}")
+            return "{ " + "; ".join(props) + " }"
+        return "any"
+    
+    if type_name == "union":
+        types = type_def.get("types", [])
+        return " | ".join(types)
+    
+    return typescript_type_map.get(type_name, "any")
 
 def generate_typescript_type(model_name: str, model_def: Dict[str, Any]) -> str:
     """Generate TypeScript type definition for a model."""
     lines = []
     lines.append(f"export type {model_name} = ")
 
+    # Handle union types
+    if model_def.get("type") == "union":
+        types = model_def.get("types", [])
+        lines[-1] += " | ".join(types)
+        return "\n".join(lines)
+
     # Handle array types
     if model_def.get("type") == "array":
         item_def = model_def["items"]
-        if item_def["type"] == "object":
+        if isinstance(item_def, dict) and item_def.get("type") == "object":
             # Array of objects - define the object type inline
             lines[-1] += "{"
             for prop_name, prop_def in item_def["properties"].items():
-                prop_type = get_typescript_type(prop_def, prop_name)
+                prop_type = get_typescript_type(prop_def)
                 required = prop_name in item_def.get("required", [])
                 lines.append(f"  {prop_name}{'' if required else '?'}: {prop_type};")
             lines.append("}[]")
@@ -111,14 +148,20 @@ def generate_typescript_type(model_name: str, model_def: Dict[str, Any]) -> str:
             # Simple array type
             item_type = get_typescript_type(item_def)
             lines[-1] += f"{item_type}[]"
-    else:
-        # Regular object type
-        lines[-1] += "{"
-        for prop_name, prop_def in model_def["properties"].items():
-            prop_type = get_typescript_type(prop_def, prop_name)
-            required = prop_name in model_def.get("required", [])
-            lines.append(f"  {prop_name}{'' if required else '?'}: {prop_type};")
-        lines.append("}")
+        return "\n".join(lines)
+
+    # Regular object type
+    lines[-1] += "{"
+    required_fields = model_def.get("required", [])
+    for prop_name, prop_def in model_def.get("properties", {}).items():
+        prop_type = get_typescript_type(prop_def)
+        # Use the alias if defined, otherwise use the original property name
+        field_name = prop_def.get("alias", prop_name)
+        # If the field name contains a hyphen, wrap it in quotes
+        if "-" in field_name:
+            field_name = f'"{field_name}"'
+        lines.append(f"  {field_name}{'' if prop_name in required_fields else '?'}: {prop_type};")
+    lines.append("}")
 
     return "\n".join(lines)
 

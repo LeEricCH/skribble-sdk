@@ -2,6 +2,15 @@ import { SkribbleClient } from '../client';
 import { SignatureRequest, SignatureRequestResponse, Signature, SignerRequest, AttachmentRequest, AttachmentResponse } from '../types';
 import { SkribbleValidationError, SkribbleAPIError } from '../errors';
 
+interface ListOptions {
+  account_email?: string;
+  search?: string;
+  signature_status?: string;
+  status_overall?: string;
+  page_number?: number;
+  page_size?: number;
+}
+
 /**
  * Create a new signature request.
  * 
@@ -21,9 +30,15 @@ import { SkribbleValidationError, SkribbleAPIError } from '../errors';
  * console.log(result.id);
  * ```
  */
-export async function create(signatureRequest: SignatureRequest): Promise<SignatureRequestResponse> {
+export async function create(request: SignatureRequest): Promise<SignatureRequestResponse> {
+  if (!request.title || !request.signatures || request.signatures.length === 0) {
+    throw new SkribbleValidationError('Invalid signature request data', [
+      { field: 'title', msg: 'Title is required' },
+      { field: 'signatures', msg: 'At least one signature is required' }
+    ]);
+  }
   const client = SkribbleClient.getInstance();
-  return client.makeRequest('POST', '/signature-requests', signatureRequest);
+  return client.makeRequest('POST', '/signature-requests', request);
 }
 
 /**
@@ -39,6 +54,9 @@ export async function create(signatureRequest: SignatureRequest): Promise<Signat
  * ```
  */
 export async function get(signatureRequestId: string): Promise<SignatureRequestResponse> {
+  if (!signatureRequestId) {
+    throw new SkribbleValidationError('Signature request ID is required');
+  }
   const client = SkribbleClient.getInstance();
   return client.makeRequest('GET', `/signature-requests/${signatureRequestId}`);
 }
@@ -46,7 +64,7 @@ export async function get(signatureRequestId: string): Promise<SignatureRequestR
 /**
  * List signature requests with optional filtering and pagination.
  * 
- * @param params - Optional parameters for filtering and pagination.
+ * @param options - Optional parameters for filtering and pagination.
  * @returns A promise that resolves to a list of signature request details.
  * 
  * @example
@@ -62,26 +80,10 @@ export async function get(signatureRequestId: string): Promise<SignatureRequestR
  * console.log(requests.length);
  * ```
  */
-export async function list(params?: {
-  account_email?: string;
-  search?: string;
-  signature_status?: string;
-  status_overall?: string;
-  page_number?: number;
-  page_size?: number;
-}): Promise<SignatureRequestResponse[]> {
+export async function list(options?: ListOptions): Promise<SignatureRequestResponse[]> {
   const client = SkribbleClient.getInstance();
-  
-  const { page_number, page_size, ...apiParams } = params || {};
-  
-  const allRequests = await client.makeRequest('GET', '/signature-requests', null, apiParams);
-  
-  const pageNumber = page_number || 0;
-  const itemsPerPage = page_size || 50;
-  const startIndex = pageNumber * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  
-  return allRequests.slice(startIndex, endIndex);
+  const response = await client.makeRequest('GET', '/signature-requests', undefined, options);
+  return Array.isArray(response) ? response : [];
 }
 
 /**
@@ -99,9 +101,24 @@ export async function list(params?: {
  * console.log(updatedRequest.title);
  * ```
  */
-export async function update(signatureRequestId: string, updatedData: Partial<SignatureRequest>): Promise<SignatureRequestResponse> {
+export async function update(id: string, updateData: Partial<SignatureRequest>): Promise<SignatureRequestResponse> {
+  if (!id) {
+    throw new SkribbleValidationError('Signature request ID is required');
+  }
+
   const client = SkribbleClient.getInstance();
-  return client.makeRequest('PUT', '/signature-requests', { id: signatureRequestId, ...updatedData });
+  try {
+    const response = await client.makeRequest('PUT', '/signature-requests', {
+      id,
+      ...updateData
+    });
+    return response;
+  } catch (error) {
+    if (error instanceof SkribbleAPIError) {
+      throw error;
+    }
+    throw new SkribbleAPIError('Failed to update signature request', 500);
+  }
 }
 
 /**
@@ -117,10 +134,23 @@ export async function update(signatureRequestId: string, updatedData: Partial<Si
  * console.log(result.status_overall); // 'WITHDRAWN'
  * ```
  */
-export async function withdraw(signatureRequestId: string, message?: string): Promise<SignatureRequestResponse> {
+export async function withdraw(id: string, message?: string): Promise<SignatureRequestResponse> {
+  if (!id) {
+    throw new SkribbleValidationError('Signature request ID is required');
+  }
+
   const client = SkribbleClient.getInstance();
-  const response = await client.makeRequest('POST', `/signature-requests/${signatureRequestId}/withdraw`, { message });
-  return response;
+  try {
+    const response = await client.makeRequest('POST', `/signature-requests/${id}/withdraw`, {
+      message
+    });
+    return response;
+  } catch (error) {
+    if (error instanceof SkribbleAPIError) {
+      throw error;
+    }
+    throw new SkribbleAPIError('Failed to withdraw signature request', 500);
+  }
 }
 
 /**
@@ -135,9 +165,20 @@ export async function withdraw(signatureRequestId: string, message?: string): Pr
  * console.log("Reminder sent successfully");
  * ```
  */
-export async function remind(signatureRequestId: string): Promise<void> {
+export async function remind(id: string): Promise<void> {
+  if (!id) {
+    throw new SkribbleValidationError('Signature request ID is required');
+  }
+
   const client = SkribbleClient.getInstance();
-  await client.makeRequest('POST', `/signature-requests/${signatureRequestId}/remind`);
+  try {
+    await client.makeRequest('POST', `/signature-requests/${id}/remind`);
+  } catch (error) {
+    if (error instanceof SkribbleAPIError) {
+      throw error;
+    }
+    throw new SkribbleAPIError('Failed to send reminder', 500);
+  }
 }
 
 /**
@@ -152,10 +193,24 @@ export async function remind(signatureRequestId: string): Promise<void> {
  * console.log(result);
  * ```
  */
-export async function deleteSignatureRequest(signatureRequestId: string): Promise<{ status: string; message: string }> {
+export async function deleteSignatureRequest(id: string): Promise<{ status: string; message: string }> {
+  if (!id) {
+    throw new SkribbleValidationError('Signature request ID is required');
+  }
+
   const client = SkribbleClient.getInstance();
-  await client.makeRequest('DELETE', `/signature-requests/${signatureRequestId}`);
-  return { status: 'success', message: `Signature request ${signatureRequestId} deleted successfully` };
+  try {
+    await client.makeRequest('DELETE', `/signature-requests/${id}`);
+    return {
+      status: 'success',
+      message: `Signature request ${id} deleted successfully`
+    };
+  } catch (error) {
+    if (error instanceof SkribbleAPIError) {
+      throw error;
+    }
+    throw new SkribbleAPIError('Failed to delete signature request', 500);
+  }
 }
 
 // Export the function as 'delete'
@@ -163,20 +218,70 @@ export { deleteSignatureRequest as delete };
 
 // Signer operations submodule
 export const signer = {
-  async add(signatureRequestId: string, signerData: SignerRequest): Promise<SignatureRequestResponse> {
+  /**
+   * Add a new signer to a signature request.
+   * 
+   * @param signatureRequestId - The ID of the signature request.
+   * @param signer - The signer data.
+   * @returns A promise that resolves to the updated signature request.
+   */
+  async add(signatureRequestId: string, signer: SignerRequest): Promise<SignatureRequestResponse> {
+    if (!signatureRequestId) {
+      throw new SkribbleValidationError('Signature request ID is required');
+    }
+    if (!signer.account_email || !signer.signer_identity_data) {
+      throw new SkribbleValidationError('Invalid signer data', [
+        { field: 'account_email', msg: 'Account email is required' },
+        { field: 'signer_identity_data', msg: 'Signer identity data is required' }
+      ]);
+    }
     const client = SkribbleClient.getInstance();
-    return client.makeRequest('POST', `/signature-requests/${signatureRequestId}/signatures`, signerData);
+    return client.makeRequest('POST', `/signature-requests/${signatureRequestId}/signatures`, signer);
   },
 
+  /**
+   * Remove a signer from a signature request.
+   * 
+   * @param signatureRequestId - The ID of the signature request.
+   * @param signerId - The ID of the signer to remove.
+   * @returns A promise that resolves when the signer is removed.
+   */
   async remove(signatureRequestId: string, signerId: string): Promise<{ status: string; message: string }> {
+    if (!signatureRequestId || !signerId) {
+      throw new SkribbleValidationError('Both signature request ID and signer ID are required');
+    }
     const client = SkribbleClient.getInstance();
     await client.makeRequest('DELETE', `/signature-requests/${signatureRequestId}/signatures/${signerId}`);
-    return { status: 'success', message: `Signer with ID ${signerId} removed successfully` };
+    return {
+      status: 'success',
+      message: `Signer ${signerId} removed successfully from signature request ${signatureRequestId}`
+    };
   },
 
-  async replace(signatureRequestId: string, signatures: SignerRequest[]): Promise<SignatureRequestResponse> {
+  /**
+   * Replace all signers in a signature request.
+   * 
+   * @param signatureRequestId - The ID of the signature request.
+   * @param signers - The new signers data.
+   * @returns A promise that resolves to the updated signature request.
+   */
+  async replace(signatureRequestId: string, signers: SignerRequest[]): Promise<SignatureRequestResponse> {
+    if (!signatureRequestId) {
+      throw new SkribbleValidationError('Signature request ID is required');
+    }
+    if (!Array.isArray(signers) || signers.length === 0) {
+      throw new SkribbleValidationError('At least one signer is required');
+    }
+    for (const signer of signers) {
+      if (!signer.account_email || !signer.signer_identity_data) {
+        throw new SkribbleValidationError('Invalid signer data', [
+          { field: 'account_email', msg: 'Account email is required' },
+          { field: 'signer_identity_data', msg: 'Signer identity data is required' }
+        ]);
+      }
+    }
     const client = SkribbleClient.getInstance();
-    return client.makeRequest('PUT', '/signature-requests', { id: signatureRequestId, signatures });
+    return client.makeRequest('PUT', '/signature-requests', { id: signatureRequestId, signatures: signers });
   }
 };
 

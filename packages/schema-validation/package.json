@@ -1,0 +1,16 @@
+{
+  "name": "skribble-schema-validation",
+  "version": "1.0.0",
+  "description": "JSON Schema validation for Skribble SDK schemas",
+  "main": "index.js",
+  "files": [
+    "*.schema.json"
+  ],
+  "scripts": {
+    "validate": "ajv validate -s models.schema.json -d ../../schemas/models.yaml && ajv validate -s operations.schema.json -d ../../schemas/operations.yaml"
+  },
+  "devDependencies": {
+    "ajv-cli": "^5.0.0",
+    "yaml": "^2.3.4"
+  }
+} 

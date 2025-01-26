@@ -1,12 +1,15 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "globalDependencies": [
-    "**/.env.*local"
+    "**/.env.*local",
+    ".env"
   ],
   "globalEnv": [
-    "NODE_ENV"
+    "NODE_ENV",
+    "SKRIBBLE_USERNAME",
+    "SKRIBBLE_API_KEY"
   ],
-  "pipeline": {
+  "tasks": {
     "build": {
       "dependsOn": [
         "^build",
@@ -52,8 +55,8 @@
         "generate_models.py"
       ],
       "outputs": [
-        "../../apps/ts-sdk/src/types.ts",
-        "../../apps/py-sdk/skribble/models.py"
+        "../../sdks/typescript/src/types.ts",
+        "../../sdks/python/skribble/models.py"
       ],
       "cache": true
     },

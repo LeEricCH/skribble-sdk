@@ -1,0 +1,6 @@
+{
+  "yaml.schemas": {
+    "./packages/schema-validation/models.schema.json": ["schemas/models.yaml"],
+    "./packages/schema-validation/operations.schema.json": ["schemas/operations.yaml"]
+  }
+} 

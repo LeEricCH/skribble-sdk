@@ -17,8 +17,17 @@ documents:
   download_document:
     title: "Download Document"
     description: "Download document content by ID."
-    python_signature: "skribble.document.download(document_id: str) -> bytes"
-    typescript_signature: "skribble.document.download(documentId: string, format?: 'blob' | 'base64'): Promise<Blob | string>"
+    python_signature: "skribble.document.download(document_id: str, content_type: str = \"blob\") -> Union[bytes, str]"
+    typescript_signature: "skribble.document.download(documentId: string, contentType?: 'blob' | 'base64'): Promise<Blob | string>"
+    parameters:
+      document_id:
+        type: "string"
+        description: "ID of the document to download"
+        required: true
+      content_type:
+        type: "string"
+        description: "Type of content to return. Either 'blob' (default) or 'base64'"
+        required: false
 
   preview_document:
     title: "Preview Document"

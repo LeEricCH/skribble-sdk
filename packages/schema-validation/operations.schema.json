@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "documents": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["title", "description", "python_signature", "typescript_signature"],
+        "properties": {
+          "title": { "type": "string" },
+          "description": { "type": "string" },
+          "python_signature": { "type": "string" },
+          "typescript_signature": { "type": "string" },
+          "request_type": { "type": "string" },
+          "response_type": { "type": "string" }
+        }
+      }
+    },
+    "signature_requests": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["title", "description", "python_signature", "typescript_signature"],
+        "properties": {
+          "title": { "type": "string" },
+          "description": { "type": "string" },
+          "python_signature": { "type": "string" },
+          "typescript_signature": { "type": "string" },
+          "request_type": { "type": "string" },
+          "response_type": { "type": "string" }
+        }
+      }
+    },
+    "seals": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["title", "description", "python_signature", "typescript_signature"],
+        "properties": {
+          "title": { "type": "string" },
+          "description": { "type": "string" },
+          "python_signature": { "type": "string" },
+          "typescript_signature": { "type": "string" },
+          "request_type": { "type": "string" },
+          "response_type": { "type": "string" }
+        }
+      }
+    }
+  }
+} 

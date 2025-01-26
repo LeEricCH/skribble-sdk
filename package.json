@@ -2,7 +2,9 @@
   "name": "skribble-sdk-monorepo",
   "private": true,
   "workspaces": [
-    "apps/*",
+    "sdks/*",
+    "docs/*",
+    "examples/*",
     "packages/*"
   ],
   "scripts": {
@@ -14,9 +16,9 @@
     "generate-models": "turbo run generate-models",
     "publish:py-sdk": "turbo run publish-py-sdk",
     "run-examples": "turbo run run-examples",
-    "build:sdk": "turbo run build --filter=@skribble/ts-sdk",
-    "build:test": "turbo run build --filter=@skribble/ts-sdk-test",
-    "test:sdk": "turbo run test --filter=@skribble/ts-sdk-test"
+    "build:sdk": "turbo run build --filter=skribble-typescript-sdk",
+    "build:test": "turbo run build --filter=skribble-typescript-test",
+    "test:sdk": "turbo run test --filter=skribble-typescript-test"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",

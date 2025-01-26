@@ -74,8 +74,9 @@ signature_requests:
   withdraw_signature_request:
     title: "Withdraw Signature Request"
     description: "Withdraw a pending signature request."
-    python_signature: "skribble.signature_request.withdraw(signature_request_id: str, message: str = None) -> None"
-    typescript_signature: "skribble.signature_request.withdraw(signatureRequestId: string, message?: string): Promise<void>"
+    python_signature: "skribble.signature_request.withdraw(signature_request_id: str, message: str = None) -> SignatureRequestResponse"
+    typescript_signature: "skribble.signature_request.withdraw(signatureRequestId: string, message?: string): Promise<Types.SignatureRequestResponse>"
+    response_type: "SignatureRequestResponse"
 
   delete_signature_request:
     title: "Delete Signature Request"
@@ -86,8 +87,9 @@ signature_requests:
   remind_signers:
     title: "Remind Signers"
     description: "Send a reminder to signers of a signature request."
-    python_signature: "skribble.signature_request.remind(signature_request_id: str) -> None"
-    typescript_signature: "skribble.signature_request.remind(signatureRequestId: string): Promise<void>"
+    python_signature: "skribble.signature_request.remind(signature_request_id: str) -> SignatureRequestResponse"
+    typescript_signature: "skribble.signature_request.remind(signatureRequestId: string): Promise<Types.SignatureRequestResponse>"
+    response_type: "SignatureRequestResponse"
 
   add_signer:
     title: "Add Signer"

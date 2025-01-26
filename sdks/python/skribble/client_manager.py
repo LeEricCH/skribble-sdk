@@ -62,3 +62,8 @@ def get_client() -> SkribbleClient:
     if _client is None:
         raise SkribbleValidationError("Skribble SDK not initialized. Call skribble.init(...) first.")
     return _client
+
+def reset_client() -> None:
+    """Reset the global client state. Useful for testing."""
+    global _client
+    _client = None

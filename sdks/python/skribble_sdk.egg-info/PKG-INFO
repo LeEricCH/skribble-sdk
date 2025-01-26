@@ -1,6 +1,6 @@
 Metadata-Version: 2.2
 Name: skribble-sdk
-Version: 0.16
+Version: 0.17
 Summary: A Python SDK for the Skribble API
 Author-email: Eric Campos <ec@webix.ch>
 License: MIT License
@@ -43,8 +43,11 @@ License-File: LICENSE
 Requires-Dist: requests
 Requires-Dist: pydantic
 Provides-Extra: test
-Requires-Dist: unittest; extra == "test"
-Requires-Dist: coverage; extra == "test"
+Requires-Dist: pytest>=7.0.0; extra == "test"
+Requires-Dist: pytest-cov>=4.0.0; extra == "test"
+Requires-Dist: pytest-mock>=3.10.0; extra == "test"
+Requires-Dist: requests-mock>=1.11.0; extra == "test"
+Requires-Dist: python-dotenv>=1.0.0; extra == "test"
 
 # Skribble SDK
 

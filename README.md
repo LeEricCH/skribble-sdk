@@ -2,6 +2,9 @@
 
 [![Documentation](https://img.shields.io/badge/documentation-mintlify-teal.svg)](https://skribblesdk.mintlify.app/)
 [![Python Version](https://img.shields.io/pypi/v/skribble-sdk.svg)](https://pypi.org/project/skribble-sdk/)
+[![Python Tests](https://github.com/LeEricCH/skribble-sdk/actions/workflows/python-tests.yml/badge.svg)](https://github.com/LeEricCH/skribble-sdk/actions/workflows/python-tests.yml)
+[![codecov](https://codecov.io/gh/LeEricCH/skribble-sdk/branch/main/graph/badge.svg)](https://codecov.io/gh/LeEricCH/skribble-sdk)
+[![Python Coverage](https://img.shields.io/badge/Python%20Coverage-84%25-green.svg)](https://codecov.io/gh/LeEricCH/skribble-sdk)
 [![npm version](https://img.shields.io/npm/v/skribble-sdk.svg)](https://www.npmjs.com/package/skribble-sdk)
 [![License](https://img.shields.io/github/license/LeEricCH/skribble-sdk.svg)](LICENSE)
 
@@ -43,6 +46,11 @@ skribble-sdk/
 │   └── typescript/ # TypeScript SDK
 └── schemas/        # API schemas and models
 ```
+
+## 🧪 Test Coverage
+
+- **Python**: Test coverage is almost complete.
+- **TypeScript**: Test coverage has not yet started. Contributions are welcome!
 
 ## 🤝 Contributing
 

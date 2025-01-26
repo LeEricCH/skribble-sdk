@@ -74,8 +74,9 @@ try:
     print(colored(create_response.model_dump(), "cyan"))
 
     # Remind signer about the signature request
-    skribble.signature_request.remind(create_response.id)
-    print(colored("Reminded signer about the signature request", "green"))
+    remind_response = skribble.signature_request.remind(create_response.id)
+    print(colored("Reminded signer about the signature request:", "green"))
+    print(colored(remind_response.model_dump(), "cyan"))
 
     signature_request_id = create_response.id
 

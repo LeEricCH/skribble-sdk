@@ -86,7 +86,15 @@ class SkribbleClient:
             if response.status_code in [401, 403]:
                 raise SkribbleAuthError(f"Invalid or expired token. {error_message}")
             elif response.status_code == 400:
-                raise SkribbleValidationError(f"Validation error: {error_message}")
+                # Only raise SkribbleValidationError if it's actually a validation error
+                try:
+                    error_detail = response.json()
+                    if error_detail.get("error") == "validation_error":
+                        raise SkribbleValidationError(f"Validation error: {error_message}")
+                except (ValueError, KeyError):
+                    pass
+                # For all other 400 errors, raise SkribbleAPIError
+                raise SkribbleAPIError(error_message, status_code=response.status_code)
             elif response.status_code == 404:
                 raise SkribbleAPIError(error_message, status_code=response.status_code)
             else:

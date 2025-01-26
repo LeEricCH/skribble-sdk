@@ -1,0 +1,267 @@
+---
+title: 'Error Handling Guide'
+description: 'Learn how to handle errors in the Skribble SDK'
+---
+
+# Error Handling Guide
+
+The Skribble SDK provides structured error handling with specific error types for different scenarios. This guide explains the error types and how to handle them effectively.
+
+## Error Types
+
+### Base Error
+The base error class that all other SDK errors inherit from:
+
+<CodeGroup>
+```python Python
+SkribbleError
+# Properties:
+# - message: str
+```
+
+```typescript TypeScript
+SkribbleError
+// Properties:
+// - message: string
+```
+</CodeGroup>
+
+### Authentication Error
+Thrown specifically for authentication failures:
+
+<CodeGroup>
+```python Python
+try:
+    skribble.init(username="api_xxxxx", api_key="xxxxx")
+except SkribbleAuthError as e:
+    print(f"Authentication failed: {e.message}")
+```
+
+```typescript TypeScript
+try {
+    await skribble.init({ username: "api_xxxxx", apiKey: "xxxxx" });
+} catch (error) {
+    if (error instanceof SkribbleAuthError) {
+        console.error("Authentication failed:", error.message);
+    }
+}
+```
+</CodeGroup>
+
+### API Error
+Thrown when the Skribble API returns an error response:
+
+<CodeGroup>
+```python Python
+try:
+    response = skribble.signature_request.create(request_data)
+except SkribbleAPIError as e:
+    print(f"API Error: {e.message}")
+    print(f"Status Code: {e.status_code}")
+```
+
+```typescript TypeScript
+try {
+    const response = await skribble.signature_request.create(requestData);
+} catch (error) {
+    if (error instanceof SkribbleAPIError) {
+        console.error(`API Error: ${error.message}`);
+        console.error(`Status Code: ${error.statusCode}`);
+        console.error(`Response Data:`, error.responseData);
+    }
+}
+```
+</CodeGroup>
+
+### Validation Error
+Thrown for input validation failures:
+
+<CodeGroup>
+```python Python
+try:
+    response = skribble.signature_request.create(invalid_data)
+except SkribbleValidationError as e:
+    print(f"Validation Error: {e.message}")
+    for error in e.errors:
+        print(f"- {error['field']}: {error['msg']}")
+```
+
+```typescript TypeScript
+try {
+    const response = await skribble.signature_request.create(invalidData);
+} catch (error) {
+    if (error instanceof SkribbleValidationError) {
+        console.error(`Validation Error: ${error.message}`);
+        error.errors.forEach(err => {
+            console.error(`- ${err.field}: ${err.msg}`);
+        });
+    }
+}
+```
+</CodeGroup>
+
+### Operation Error (Python Only)
+Provides detailed context about operation failures:
+
+```python
+try:
+    response = skribble.signature_request.create(request_data)
+except SkribbleOperationError as e:
+    print(f"Operation '{e.operation}' failed: {e.message}")
+    if e.original_error:
+        print(f"Caused by: {str(e.original_error)}")
+```
+
+## Error Handling Best Practices
+
+### Complete Error Handling
+
+<CodeGroup>
+```python Python
+try:
+    response = skribble.signature_request.create(request_data)
+except SkribbleAuthError as e:
+    # Handle authentication failures
+    print(f"Authentication failed: {e.message}")
+except SkribbleValidationError as e:
+    # Handle validation errors
+    print(f"Invalid data: {e.message}")
+    for error in e.errors:
+        print(f"- {error['field']}: {error['msg']}")
+except SkribbleAPIError as e:
+    # Handle API errors
+    print(f"API Error ({e.status_code}): {e.message}")
+except SkribbleOperationError as e:
+    # Handle operation-specific errors
+    print(f"Operation '{e.operation}' failed: {e.message}")
+except SkribbleError as e:
+    # Handle any other SDK errors
+    print(f"SDK Error: {e.message}")
+```
+
+```typescript TypeScript
+try {
+    const response = await skribble.signature_request.create(requestData);
+} catch (error) {
+    if (error instanceof SkribbleAuthError) {
+        // Handle authentication failures
+        console.error('Authentication failed:', error.message);
+    } else if (error instanceof SkribbleValidationError) {
+        // Handle validation errors
+        console.error('Validation failed:', error.message);
+        error.errors.forEach(err => console.error(`- ${err.field}: ${err.msg}`));
+    } else if (error instanceof SkribbleAPIError) {
+        // Handle API errors
+        console.error(`API Error (${error.statusCode}):`, error.message);
+        console.error('Response Data:', error.responseData);
+    } else if (error instanceof SkribbleError) {
+        // Handle any other SDK errors
+        console.error('SDK Error:', error.message);
+    } else {
+        // Handle unexpected errors
+        console.error('Unknown error:', error);
+    }
+}
+```
+</CodeGroup>
+
+### Common Error Scenarios
+
+#### Authentication Failures
+
+<CodeGroup>
+```python Python
+try:
+    skribble.init(username="api_xxxxx", api_key="xxxxx")
+except SkribbleAuthError as e:
+    # Handle authentication failure
+    print(f"Authentication failed: {e.message}")
+    # Prompt for new credentials or retry
+```
+
+```typescript TypeScript
+try {
+    await skribble.init({ username: "api_xxxxx", apiKey: "xxxxx" });
+} catch (error) {
+    if (error instanceof SkribbleAuthError) {
+        // Handle authentication failure
+        console.error("Authentication failed:", error.message);
+        // Prompt for new credentials or retry
+    }
+}
+```
+</CodeGroup>
+
+#### Invalid Request Data
+
+<CodeGroup>
+```python Python
+try:
+    response = skribble.signature_request.create({
+        "title": "",  # Invalid: empty title
+        "signatures": []  # Invalid: no signers
+    })
+except SkribbleValidationError as e:
+    print("Invalid request data:")
+    for error in e.errors:
+        print(f"- {error['field']}: {error['msg']}")
+```
+
+```typescript TypeScript
+try {
+    const response = await skribble.signature_request.create({
+        title: "",  // Invalid: empty title
+        signatures: []  // Invalid: no signers
+    });
+} catch (error) {
+    if (error instanceof SkribbleValidationError) {
+        console.error("Invalid request data:");
+        error.errors.forEach(err => {
+            console.error(`- ${err.field}: ${err.msg}`);
+        });
+    }
+}
+```
+</CodeGroup>
+
+#### API Rate Limiting
+
+<CodeGroup>
+```python Python
+try:
+    response = skribble.signature_request.create(request_data)
+except SkribbleAPIError as e:
+    if e.status_code == 429:
+        # Handle rate limiting
+        print("Rate limit exceeded. Please wait before retrying.")
+        # Implement exponential backoff
+```
+
+```typescript TypeScript
+try {
+    const response = await skribble.signature_request.create(requestData);
+} catch (error) {
+    if (error instanceof SkribbleAPIError && error.statusCode === 429) {
+        // Handle rate limiting
+        console.error("Rate limit exceeded. Please wait before retrying.");
+        // Implement exponential backoff
+    }
+}
+```
+</CodeGroup>
+
+## Error Recovery Strategies
+
+- **Authentication Errors**: Re-authenticate or refresh credentials
+- **Validation Errors**: Fix the invalid data based on the error details
+- **API Errors**: Handle based on status code (retry for 5xx, fix request for 4xx)
+- **Operation Errors**: Log details and handle based on the specific operation
+
+## API Reference
+
+For detailed API documentation, see:
+<CardGroup cols={1}>
+  <Card title="API Reference" icon="code" href="/api-reference/signature-requests">
+    Browse the complete API reference
+  </Card>
+</CardGroup>

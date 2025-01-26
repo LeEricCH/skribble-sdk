@@ -1,0 +1,196 @@
+---
+title: 'Quickstart'
+description: 'Get up and running with the Skribble SDK in minutes'
+---
+
+# Quickstart Guide
+
+Follow this guide to start using the Skribble SDK in your project. We'll walk through installation, authentication, and creating your first signature request.
+
+## Installation
+
+<CodeGroup>
+```bash Python
+pip install skribble-sdk
+```
+
+```bash TypeScript
+npm install skribble-sdk
+```
+</CodeGroup>
+
+## Authentication
+
+First, you'll need to get your API credentials from the [Skribble Dashboard](https://my.skribble.com/admin/api).
+
+<CodeGroup>
+```python Python
+import skribble
+
+# Initialize with your API credentials
+skribble.init(
+    username="api_xxxxx",
+    api_key="xxxxx"
+)
+```
+
+```typescript TypeScript
+import skribble from 'skribble-sdk';
+
+// Initialize with your API credentials
+await skribble.init(
+    "api_xxxxx",  // username
+    "xxxxx"       // api_key
+);
+```
+</CodeGroup>
+
+## Create Your First Signature Request
+
+Let's create a simple signature request for a single signer:
+
+<CodeGroup>
+```python Python
+# Prepare the signature request
+signature_request = {
+    "title": "My First Signature Request",
+    "message": "Please sign this document",
+    # You can use file_url, content (base64), or document_id
+    "file_url": "https://example.com/document.pdf",
+    "signatures": [
+        {
+            "account_email": "signer@example.com",
+            "signer_identity_data": {
+                "first_name": "John",
+                "last_name": "Doe",
+                "email_address": "signer@example.com"
+            }
+        }
+    ]
+}
+
+try:
+    # Create the signature request
+    response = skribble.signature_request.create(signature_request)
+    print(f"Created signature request: {response['id']}")
+    
+    # Get the status
+    status = skribble.signature_request.get(response['id'])
+    print(f"Status: {status['status_overall']}")
+    
+except Exception as e:
+    print(f"Error: {str(e)}")
+```
+
+```typescript TypeScript
+// Prepare the signature request
+const signatureRequest = {
+    title: "My First Signature Request",
+    message: "Please sign this document",
+    // You can use file_url, content (base64), or document_id
+    file_url: "https://example.com/document.pdf",
+    signatures: [
+        {
+            account_email: "signer@example.com",
+            signer_identity_data: {
+                first_name: "John",
+                last_name: "Doe",
+                email_address: "signer@example.com"
+            }
+        }
+    ]
+};
+
+try {
+    // Create the signature request
+    const response = await skribble.signature_request.create(signatureRequest);
+    console.log(`Created signature request: ${response.id}`);
+    
+    // Get the status
+    const status = await skribble.signature_request.get(response.id);
+    console.log(`Status: ${status.status_overall}`);
+    
+} catch (error) {
+    console.error("Error:", error);
+}
+```
+</CodeGroup>
+
+## Monitor the Signing Process
+
+You can track the status of your signature request:
+
+<CodeGroup>
+```python Python
+def check_status(signature_request_id):
+    status = skribble.signature_request.get(signature_request_id)
+    
+    print(f"Overall status: {status['status_overall']}")
+    for signature in status['signatures']:
+        print(f"Signer {signature['account_email']}: {signature['status_code']}")
+```
+
+```typescript TypeScript
+async function checkStatus(signatureRequestId: string) {
+    const status = await skribble.signature_request.get(signatureRequestId);
+    
+    console.log(`Overall status: ${status.status_overall}`);
+    status.signatures.forEach(signature => {
+        console.log(`Signer ${signature.account_email}: ${signature.status_code}`);
+    });
+}
+```
+</CodeGroup>
+
+## Download the Signed Document
+
+Once all parties have signed, you can download the signed document:
+
+<CodeGroup>
+```python Python
+def download_signed_document(signature_request_id):
+    # Get the signature request details
+    signature_request = skribble.signature_request.get(signature_request_id)
+    
+    if signature_request['status_overall'] == 'SIGNED':
+        # Download the document
+        document = skribble.document.download(signature_request['document_id'])
+        
+        # Save to file
+        with open('signed_document.pdf', 'wb') as f:
+            f.write(document)
+```
+
+```typescript TypeScript
+async function downloadSignedDocument(signatureRequestId: string) {
+    // Get the signature request details
+    const signatureRequest = await skribble.signature_request.get(signatureRequestId);
+    
+    if (signatureRequest.status_overall === 'SIGNED') {
+        // Download the document
+        const document = await skribble.document.download(signatureRequest.document_id);
+        
+        // Use appropriate method to save the document in your environment
+        // For Node.js:
+        const fs = require('fs');
+        fs.writeFileSync('signed_document.pdf', document);
+    }
+}
+```
+</CodeGroup>
+
+## Next Steps
+
+Now that you've created your first signature request, you can:
+
+<CardGroup cols={2}>
+  <Card title="Explore Core Concepts" icon="book" href="/overview/concepts/signature-requests">
+    Learn about signature requests, documents, and seals in detail
+  </Card>
+  <Card title="Read the Guides" icon="map" href="/guides/signature-requests">
+    Dive into detailed implementation guides
+  </Card>
+  <Card title="API Reference" icon="code" href="/python/api-reference/signature-requests">
+    Browse the complete API reference
+  </Card>
+</CardGroup> 

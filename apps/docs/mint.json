@@ -1,138 +1,87 @@
 {
   "$schema": "https://mintlify.com/schema.json",
-  "name": "Skribble SDK Docs",
-  "favicon": "/logos/logo.svg",
+  "name": "Skribble SDK",
   "logo": {
     "light": "/logos/logo.svg",
     "dark": "/logos/logo-light.svg"
   },
+  "favicon": "/logos/favicon-placeholder.png",
   "colors": {
-    "primary": "#7c3aed",
-    "light": "#af87ff",
-    "dark": "#1e293b",
-    "background": {
-      "dark": "#030712",
-      "light": "#ffffff"
+    "primary": "#0D9373",
+    "light": "#07C983",
+    "dark": "#0D9373",
+    "anchors": {
+      "from": "#0D9373",
+      "to": "#07C983"
     }
   },
-  "modeToggle": {
-    "default": "dark"
-  },
-  "topbarCtaButton": {
-    "name": "Skribble API Docs",
-    "url": "https://api-doc.skribble.com/"
-  },
-  "tabs": [
+  "topbarLinks": [
+    {
+      "name": "Skribble API Docs",
+      "url": "https://api-doc.skribble.com/"
+    }
   ],
+  "topbarCtaButton": {
+    "name": "Github",
+    "url": "https://github.com/LeEricCH/skribble-sdk"
+  },
   "anchors": [
     {
-      "name": "Python SDK",
-      "icon": "python",
-      "url": "python"
+      "name": "SDK Overview",
+      "icon": "book-open",
+      "url": "overview"
     },
     {
-      "name": "Typescript SDK",
-      "icon": "js",
-      "url": "typescript"
+      "name": "Guides",
+      "icon": "graduation-cap",
+      "url": "guides"
+    },
+    {
+      "name": "API Reference",
+      "icon": "code",
+      "url": "api-reference"
     }
   ],
   "navigation": [
     {
-      "group": "Getting Started",
+      "group": "Overview",
       "pages": [
-        "python/installation",
-        "python/examples"
+        "overview/introduction",
+        "overview/quickstart",
+        "overview/error-handling"
+      ]
+    },
+    {
+      "group": "Core Concepts",
+      "pages": [
+        "overview/concepts/signature-requests",
+        "overview/concepts/documents"
+      ]
+    },
+    {
+      "group": "Guides",
+      "pages": [
+        "guides/signature-requests",
+        "guides/error-handling"
       ]
     },
     {
       "group": "Operations",
       "pages": [
-        {
-          "group": "Signature Requests",
-          "pages": [
-            "python/signature-request/operations",
-            "python/signature-request/all-objects"
-          ]
-        },
-        {
-          "group": "Documents",
-          "pages": [
-            "python/document/operations",
-            "python/document/all-objects"
-          ]
-        },
-        {
-          "group": "Attachments",
-          "pages": [
-            "python/attachment/operations",
-            "python/attachment/all-objects"
-          ]
-        },
-        {
-          "group": "Seals",
-          "pages": [
-            "python/seal/operations"
-          ]
-        }
+        "api-reference/signature-requests",
+        "api-reference/documents",
+        "api-reference/seals"
       ]
     },
     {
-      "group": "Error Handling",
+      "group": "Types",
       "pages": [
-        "python/error-handling"
-      ]
-    },
-    {
-      "group": "Getting Started",
-      "pages": [
-        "typescript/installation",
-        "typescript/examples"
-      ]
-    },
-    {
-      "group": "Operations",
-      "pages": [
-        {
-          "group": "Signature Requests",
-          "pages": [
-            "typescript/signature-request/operations",
-            "typescript/signature-request/all-objects"
-          ]
-        },
-        {
-          "group": "Documents",
-          "pages": [
-            "typescript/document/operations",
-            "typescript/document/all-objects"
-          ]
-        },
-        {
-          "group": "Attachments",
-          "pages": [
-            "typescript/attachment/operations",
-            "typescript/attachment/all-objects"
-          ]
-        },
-        {
-          "group": "Seals",
-          "pages": [
-            "typescript/seal/operations"
-          ]
-        }
-      ]
-    },
-    {
-      "group": "Error Handling",
-      "pages": [
-        "typescript/error-handling"
+        "api-reference/types"
       ]
     }
   ],
-  "feedback": {
-    "thumbsRating": true
-  },
   "footerSocials": {
-    "github": "https://github.com/leericch/skribble-sdk",
-    "linkedin": "https://ch.linkedin.com/in/campos-eric"
+    "website": "https://www.skribble.com",
+    "github": "https://github.com/skribbledev"
   }
 }

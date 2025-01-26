@@ -1,0 +1,109 @@
+---
+title: 'Introduction'
+description: 'Welcome to the Skribble SDK documentation'
+---
+
+This SDK allows you to integrate Skribble's electronic signature capabilities into your applications.
+
+<Info>
+The Skribble SDK is not maintained or published by Skribble. It is a community-maintained SDK for Skribble's API.
+</Info>
+## Features
+
+<CardGroup cols={2}>
+  <Card title="Signature Requests" icon="pen-to-square">
+    Create and manage electronic signature requests with multiple signers and custom workflows
+  </Card>
+  <Card title="Document Management" icon="file-lines">
+    Upload, download, and manage documents throughout the signing process
+  </Card>
+  <Card title="Electronic Seals" icon="stamp">
+    Apply electronic seals to documents for organizational validation
+  </Card>
+  <Card title="Error Handling" icon="shield-check">
+    Comprehensive error handling with detailed error messages and recovery options
+  </Card>
+</CardGroup>
+
+## Installation
+
+Choose your preferred language to get started:
+
+<CardGroup cols={2}>
+  <Card title="Python SDK" icon="python">
+    Install via pip:
+    ```bash
+    pip install skribble-sdk
+    ```
+  </Card>
+  <Card title="TypeScript SDK" icon="js" href="/typescript/installation">
+    Install via npm:
+    ```bash
+    npm install skribble-sdk
+    ```
+  </Card>
+</CardGroup>
+
+## Quick Example
+
+Create a signature request in just a few lines of code:
+
+<CodeGroup>
+```python Python
+import skribble
+
+# Initialize the SDK
+skribble.init("YOUR_USERNAME", "YOUR_API_KEY")
+
+# Create a signature request
+signature_request = {
+    "title": "Contract Signature",
+    "message": "Please sign this contract",
+    "file_url": "https://example.com/contract.pdf",
+    "signatures": [
+        {
+            "account_email": "signer@example.com"
+        }
+    ]
+}
+
+response = skribble.signature_request.create(signature_request)
+print(f"Created signature request: {response['id']}")
+```
+
+```typescript TypeScript
+import skribble from 'skribble-sdk';
+
+// Initialize the SDK
+await skribble.init("YOUR_USERNAME", "YOUR_API_KEY");
+
+// Create a signature request
+const signatureRequest = {
+    title: "Contract Signature",
+    message: "Please sign this contract",
+    file_url: "https://example.com/contract.pdf",
+    signatures: [
+        {
+            account_email: "signer@example.com"
+        }
+    ]
+};
+
+const response = await skribble.signature_request.create(signatureRequest);
+console.log(`Created signature request: ${response.id}`);
+```
+</CodeGroup>
+
+## Next Steps
+
+<Steps>
+  <Step title="Quick Start">
+    Follow [Quick Start Guide](/overview/quickstart) to send your first signature request
+  </Step>
+  <Step title="Core Concepts">
+    Learn about [Signature Requests](/overview/concepts/signature-requests), [Documents](/overview/concepts/documents), and [Seals](/overview/concepts/seals)
+  </Step>
+  <Step title="Guides">
+    Explore our [guides](/guides) for common use cases
+  </Step>
+</Steps> 

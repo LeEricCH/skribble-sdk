@@ -1,0 +1,337 @@
+---
+title: 'Working with Signature Requests'
+description: 'Learn how to use signature requests effectively in real-world scenarios'
+---
+
+# Working with Signature Requests
+
+This guide shows you how to work with signature requests in common real-world scenarios. You'll learn best practices and see practical examples.
+
+## Common Scenarios
+
+### Sequential Signing Process
+
+When you need multiple people to sign a document in a specific order:
+
+```python
+signature_request = {
+    "title": "Board Resolution",
+    "message": "Please review and sign the board resolution",
+    "file_url": "https://example.com/board-resolution.pdf",
+    "signatures": [
+        {
+            "account_email": "secretary@company.com",
+            "sequence": 1,  # Signs first
+            "signer_identity_data": {
+                "first_name": "Jane",
+                "last_name": "Smith",
+                "email_address": "secretary@company.com"
+            }
+        },
+        {
+            "account_email": "ceo@company.com",
+            "sequence": 2,  # Signs second
+            "signer_identity_data": {
+                "first_name": "John",
+                "last_name": "Doe",
+                "email_address": "ceo@company.com"
+            }
+        }
+    ],
+    "cc_email_addresses": ["legal@company.com"]  # Notified when complete
+}
+
+response = skribble.signature_request.create(signature_request)
+```
+
+### Bulk Contract Signing
+
+When you need to send the same contract to multiple people for individual signing:
+
+```python
+def create_bulk_signature_requests(contract_url, signers):
+    """
+    Send the same contract to multiple signers.
+    
+    Args:
+        contract_url (str): URL to the contract PDF
+        signers (list): List of dicts with signer details
+    """
+    requests = []
+    
+    for signer in signers:
+        signature_request = {
+            "title": f"Service Agreement - {signer['name']}",
+            "message": "Please review and sign your service agreement",
+            "file_url": contract_url,
+            "signatures": [
+                {
+                    "account_email": signer['email'],
+                    "signer_identity_data": {
+                        "first_name": signer['first_name'],
+                        "last_name": signer['last_name'],
+                        "email_address": signer['email']
+                    }
+                }
+            ]
+        }
+        
+        try:
+            response = skribble.signature_request.create(signature_request)
+            requests.append({
+                "signer": signer['email'],
+                "request_id": response['id']
+            })
+        except Exception as e:
+            print(f"Error creating request for {signer['email']}: {str(e)}")
+    
+    return requests
+
+# Example usage
+signers = [
+    {
+        "name": "Alice Johnson",
+        "first_name": "Alice",
+        "last_name": "Johnson",
+        "email": "alice@example.com"
+    },
+    {
+        "name": "Bob Wilson",
+        "first_name": "Bob",
+        "last_name": "Wilson",
+        "email": "bob@example.com"
+    }
+]
+
+results = create_bulk_signature_requests(
+    "https://example.com/service-agreement.pdf",
+    signers
+)
+```
+
+### Visual Signature Placement
+
+When you need to specify exactly where signatures should appear on the document:
+
+```python
+signature_request = {
+    "title": "Contract with Signature Fields",
+    "message": "Please sign in the designated areas",
+    "file_url": "https://example.com/contract.pdf",
+    "signatures": [
+        {
+            "account_email": "signer@company.com",
+            "visual_signature": {
+                "position": {
+                    "x": 100,        # X coordinate in pixels
+                    "y": 200,        # Y coordinate in pixels
+                    "width": 150,    # Width in pixels
+                    "height": 50,    # Height in pixels
+                    "page": "1"      # Page number
+                }
+            }
+        }
+    ]
+}
+
+response = skribble.signature_request.create(signature_request)
+```
+
+### Status Monitoring and Notifications
+
+Monitor the progress of signature requests and handle notifications:
+
+```python
+def monitor_signature_requests(request_ids):
+    """
+    Monitor multiple signature requests and send notifications.
+    
+    Args:
+        request_ids (list): List of signature request IDs to monitor
+    """
+    for request_id in request_ids:
+        try:
+            status = skribble.signature_request.get(request_id)
+            
+            # Check overall status
+            if status['status_overall'] == 'SIGNED':
+                # Download signed document
+                document = skribble.document.download(status['document_id'])
+                save_document(document, f"signed_{request_id}.pdf")
+                send_completion_notification(status)
+                
+            elif status['status_overall'] == 'DECLINED':
+                handle_declined_signature(status)
+                
+            else:
+                # Check individual signatures
+                for signature in status['signatures']:
+                    if signature['status_code'] == 'PENDING':
+                        # Maybe send a reminder
+                        if should_send_reminder(signature):
+                            send_reminder(signature)
+                    
+        except Exception as e:
+            print(f"Error monitoring request {request_id}: {str(e)}")
+
+def should_send_reminder(signature):
+    """
+    Determine if a reminder should be sent based on business rules.
+    """
+    # Implementation depends on your business logic
+    pass
+
+def send_reminder(signature):
+    """
+    Send a reminder to the signer.
+    """
+    # Implementation depends on your notification system
+    pass
+
+def handle_declined_signature(status):
+    """
+    Handle declined signature requests.
+    """
+    # Implementation depends on your business process
+    pass
+
+def send_completion_notification(status):
+    """
+    Send notifications when a document is fully signed.
+    """
+    # Implementation depends on your notification system
+    pass
+```
+
+## Best Practices
+
+### Error Handling
+
+Implement robust error handling for your signature requests:
+
+```python
+def create_signature_request_safely(request_data):
+    """
+    Create a signature request with proper error handling.
+    """
+    try:
+        response = skribble.signature_request.create(request_data)
+        return {
+            "success": True,
+            "request_id": response['id']
+        }
+        
+    except SkribbleAPIError as e:
+        if e.status_code == 400:
+            # Handle validation errors
+            return {
+                "success": False,
+                "error": "Invalid request data",
+                "details": e.response_data
+            }
+        elif e.status_code == 401:
+            # Handle authentication errors
+            return {
+                "success": False,
+                "error": "Authentication failed"
+            }
+        else:
+            # Handle other API errors
+            return {
+                "success": False,
+                "error": f"API error: {e.message}"
+            }
+            
+    except SkribbleError as e:
+        # Handle client-side errors
+        return {
+            "success": False,
+            "error": f"Client error: {str(e)}"
+        }
+        
+    except Exception as e:
+        # Handle unexpected errors
+        return {
+            "success": False,
+            "error": f"Unexpected error: {str(e)}"
+        }
+```
+
+### Document Management
+
+Properly manage documents before creating signature requests:
+
+```python
+def prepare_document_for_signing(file_path):
+    """
+    Prepare a document for signing by uploading it first.
+    """
+    try:
+        # Read the file
+        with open(file_path, 'rb') as f:
+            content = f.read()
+        
+        # Convert to base64
+        import base64
+        content_base64 = base64.b64encode(content).decode('utf-8')
+        
+        # Create document request
+        document_request = {
+            "title": os.path.basename(file_path),
+            "content": content_base64,
+            "content_type": "application/pdf"
+        }
+        
+        # Create the document
+        document = skribble.document.create(document_request)
+        
+        return document['id']
+        
+    except Exception as e:
+        print(f"Error preparing document: {str(e)}")
+        return None
+```
+
+## Advanced Features
+
+### Webhook Integration
+
+Set up webhooks to receive real-time updates:
+
+```python
+signature_request = {
+    "title": "Contract with Webhooks",
+    "message": "Please sign the contract",
+    "file_url": "https://example.com/contract.pdf",
+    "signatures": [...],
+    # Add webhook URLs
+    "callback_success_url": "https://your-domain.com/webhooks/success",
+    "callback_error_url": "https://your-domain.com/webhooks/error",
+    "callback_update_url": "https://your-domain.com/webhooks/update"
+}
+```
+
+### Custom Metadata
+
+Add custom data to track your internal processes:
+
+```python
+signature_request = {
+    "title": "Contract with Custom Data",
+    "message": "Please sign the contract",
+    "file_url": "https://example.com/contract.pdf",
+    "signatures": [...],
+    # Add custom data
+    "custom": json.dumps({
+        "internal_id": "CONTRACT-2024-001",
+        "department": "Sales",
+        "contract_type": "Service Agreement"
+    })
+}
+```
+
+## Next Steps
+
+- Learn about [Document Management](/python/guides/documents)
+- Explore [Electronic Seals](/python/guides/seals)
+- See the complete [API Reference](/python/api-reference/signature-requests) 

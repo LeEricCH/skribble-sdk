@@ -1,0 +1,114 @@
+---
+title: 'Seals'
+description: 'API reference for seal operations'
+---
+
+## Create Seal
+
+Create a new seal for a document.
+
+<CodeGroup>
+```python Python
+skribble.seal.create(seal_data: SealRequest) -> SealResponse
+```
+
+```typescript TypeScript
+skribble.seal.create(sealData: Types.SealRequest): Promise<Types.SealResponse>
+```
+</CodeGroup>
+
+<ResponseField name="request" type="Request Object">
+  <Expandable title="SealRequest properties">
+    <ResponseField name="title" type="string" required>
+      Title of the seal document
+    </ResponseField>
+    <ResponseField name="content" type="string" required>
+      Base64 encoded bytes of document
+    </ResponseField>
+    <ResponseField name="account_name" type="string">
+      Specifies the seal to use for sealing
+    </ResponseField>
+    <ResponseField name="visual_signature" type="VisualSignature" />
+  </Expandable>
+</ResponseField>
+
+
+<ResponseField name="response" type="Response Object">
+  <Expandable title="SealResponse properties">
+    <ResponseField name="document_id" type="string" required>
+      The document ID
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Get Seal
+
+Retrieve seal metadata by ID.
+
+<CodeGroup>
+```python Python
+skribble.seal.get(seal_id: str) -> Seal
+```
+
+```typescript TypeScript
+skribble.seal.get(sealId: string): Promise<Types.Seal>
+```
+</CodeGroup>
+
+<ResponseField name="response" type="Response Object">
+  <Expandable title="Seal properties">
+    <ResponseField name="title" type="string">
+      Title of the seal document
+    </ResponseField>
+    <ResponseField name="content" type="string" required>
+      Base64 encoded bytes of document
+    </ResponseField>
+    <ResponseField name="account_name" type="string">
+      Specifies the seal to use for sealing
+    </ResponseField>
+    <ResponseField name="visual_signature" type="VisualSignature" />
+  </Expandable>
+</ResponseField>
+
+## List Seals
+
+List all seals with optional pagination.
+
+<CodeGroup>
+```python Python
+skribble.seal.list(limit: int = None) -> List[Seal]
+```
+
+```typescript TypeScript
+skribble.seal.list(options?: { limit?: number }): Promise<Types.Seal[]>
+```
+</CodeGroup>
+
+<ResponseField name="response" type="Response Object">
+  <Expandable title="Seal properties">
+    <ResponseField name="title" type="string">
+      Title of the seal document
+    </ResponseField>
+    <ResponseField name="content" type="string" required>
+      Base64 encoded bytes of document
+    </ResponseField>
+    <ResponseField name="account_name" type="string">
+      Specifies the seal to use for sealing
+    </ResponseField>
+    <ResponseField name="visual_signature" type="VisualSignature" />
+  </Expandable>
+</ResponseField>
+
+## Delete Seal
+
+Delete a seal by ID.
+
+<CodeGroup>
+```python Python
+skribble.seal.delete(seal_id: str) -> None
+```
+
+```typescript TypeScript
+skribble.seal.delete(sealId: string): Promise<void>
+```
+</CodeGroup>

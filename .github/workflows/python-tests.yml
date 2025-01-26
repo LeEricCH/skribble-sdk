@@ -12,7 +12,8 @@ on:
       - '.github/workflows/python-tests.yml'
 
 jobs:
-  test:
+  python-sdk-tests:
+    name: Python ${{ matrix.python-version }} Tests
     runs-on: ubuntu-latest
     strategy:
       matrix:

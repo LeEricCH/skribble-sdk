@@ -1,6 +1,5 @@
 import { SkribbleClient } from './client';
 import * as signatureRequest from './signature_request';
-import * as attachment from './attachment';
 import * as document from './document';
 import * as seal from './seal';
 import { SkribbleAuthError, SkribbleAPIError, SkribbleValidationError, handleSkribbleError } from './errors';
@@ -18,7 +17,6 @@ const skribble = {
     return client.init(usernameOrToken, apiKey);
   },
   signature_request: signatureRequest,
-  attachment,
   document,
   seal,
   SkribbleAuthError,

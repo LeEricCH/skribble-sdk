@@ -1,0 +1,413 @@
+---
+title: 'Signature Requests'
+description: 'Understanding signature requests and how they work'
+---
+
+A signature request is the core concept in the Skribble SDK that manages the electronic signature process for one or more documents. It defines who needs to sign, in what order, and under what conditions.
+
+## Signer Configuration
+
+There are two ways to configure signers in a signature request:
+
+### 1. Account-Based Signing (Requires Skribble Account)
+Only specify `account_email` if you want to force the signer to use or create a Skribble account:
+
+```python
+{
+    "account_email": "signer@company.com"
+}
+```
+
+### 2. No-Account Signing (Recommended)
+Specify both `account_email` and `signer_identity_data` to allow signing without requiring a Skribble account:
+
+```python
+{
+    "account_email": "signer@company.com",
+    "signer_identity_data": {
+        "email_address": "signer@company.com",
+        "first_name": "John",      # Optional
+        "last_name": "Doe",        # Optional
+        "language": "en",          # Optional
+        "mobile_number": "+1234"   # Optional
+    }
+}
+```
+
+When using `signer_identity_data`, Skribble generates a unique signing URL that allows direct access without account creation. This is the recommended approach for most use cases.
+
+## Callback Integration
+
+Skribble provides three types of callbacks to track the signature request lifecycle:
+
+### Callback Types
+
+1. **Success Callback** (`callback_success_url`)
+   - Triggered when all signatures are completed
+   - Receives the final document ID
+   - Use this to download the signed document
+
+2. **Error Callback** (`callback_error_url`)
+   - Triggered when an error occurs
+   - Provides error details
+
+3. **Update Callback** (`callback_update_url`)
+   - Triggered after each individual signature
+   - Includes the signature ID that was just completed
+
+### Dynamic URL Parameters
+
+Skribble automatically replaces these placeholders in your callback URLs:
+
+- `{SKRIBBLE_SIGNATURE_REQUEST_ID}`: The ID of the signature request
+- `{SKRIBBLE_DOCUMENT_ID}`: The ID of the final signed document
+- `{SKRIBBLE_SIGNATURE_ID}`: The ID of the completed signature (only for update callbacks)
+
+### Example Implementation
+
+<CodeGroup>
+```python Python
+# Create signature request with callbacks
+signature_request = {
+    "title": "Contract Signature",
+    "message": "Please sign this contract",
+    "file_url": "https://example.com/contract.pdf",
+    "signatures": [...],
+    # Callbacks with dynamic parameters
+    "callback_success_url": "https://api.your-domain.com/webhooks/signature-success/{SKRIBBLE_SIGNATURE_REQUEST_ID}/{SKRIBBLE_DOCUMENT_ID}",
+    "callback_error_url": "https://api.your-domain.com/webhooks/signature-error/{SKRIBBLE_SIGNATURE_REQUEST_ID}",
+    "callback_update_url": "https://api.your-domain.com/webhooks/signature-update/{SKRIBBLE_SIGNATURE_REQUEST_ID}/{SKRIBBLE_SIGNATURE_ID}"
+}
+
+# Webhook endpoint example (using Flask)
+@app.route('/webhooks/signature-success/<request_id>/<document_id>', methods=['POST'])
+def handle_signature_success(request_id, document_id):
+    # Download the signed document
+    document = skribble.document.download(document_id)
+    
+    # Save the document
+    with open(f'signed_{request_id}.pdf', 'wb') as f:
+        f.write(document)
+    
+    return {'status': 'success'}
+
+@app.route('/webhooks/signature-update/<request_id>/<signature_id>', methods=['POST'])
+def handle_signature_update(request_id, signature_id):
+    # Get signature request status
+    status = skribble.signature_request.get(request_id)
+    
+    # Process the update
+    print(f"Signature {signature_id} completed")
+    print(f"Overall status: {status['status_overall']}")
+    
+    return {'status': 'success'}
+```
+
+```typescript TypeScript
+// Create signature request with callbacks
+const signatureRequest = {
+    title: "Contract Signature",
+    message: "Please sign this contract",
+    file_url: "https://example.com/contract.pdf",
+    signatures: [...],
+    // Callbacks with dynamic parameters
+    callback_success_url: "https://api.your-domain.com/webhooks/signature-success/{SKRIBBLE_SIGNATURE_REQUEST_ID}/{SKRIBBLE_DOCUMENT_ID}",
+    callback_error_url: "https://api.your-domain.com/webhooks/signature-error/{SKRIBBLE_SIGNATURE_REQUEST_ID}",
+    callback_update_url: "https://api.your-domain.com/webhooks/signature-update/{SKRIBBLE_SIGNATURE_REQUEST_ID}/{SKRIBBLE_SIGNATURE_ID}"
+};
+
+// Express webhook endpoints example
+app.post('/webhooks/signature-success/:requestId/:documentId', async (req, res) => {
+    const { requestId, documentId } = req.params;
+    
+    try {
+        // Download the signed document
+        const document = await skribble.document.download(documentId);
+        
+        // Save the document (Node.js environment)
+        await fs.writeFile(`signed_${requestId}.pdf`, document);
+        
+        res.json({ status: 'success' });
+    } catch (error) {
+        console.error('Error handling signature success:', error);
+        res.status(500).json({ error: 'Failed to process callback' });
+    }
+});
+
+app.post('/webhooks/signature-update/:requestId/:signatureId', async (req, res) => {
+    const { requestId, signatureId } = req.params;
+    
+    try {
+        // Get signature request status
+        const status = await skribble.signature_request.get(requestId);
+        
+        // Process the update
+        console.log(`Signature ${signatureId} completed`);
+        console.log(`Overall status: ${status.status_overall}`);
+        
+        res.json({ status: 'success' });
+    } catch (error) {
+        console.error('Error handling signature update:', error);
+        res.status(500).json({ error: 'Failed to process callback' });
+    }
+});
+```
+</CodeGroup>
+
+### Best Practices for Callbacks
+
+<AccordionGroup>
+  <Accordion title="URL Configuration">
+    - Use HTTPS endpoints for security
+    - Include request/document IDs in the URL for easy routing
+    - Keep URLs under 2048 characters
+    - Handle URL encoding properly
+  </Accordion>
+  
+  <Accordion title="Error Handling">
+    - Implement proper error handling in your webhook endpoints
+    - Return appropriate HTTP status codes
+    - Log webhook events for debugging
+    - Set up retry logic for failed webhook deliveries
+  </Accordion>
+  
+  <Accordion title="Document Handling">
+    - Download and store signed documents promptly
+    - Implement proper file storage security
+    - Update your database with document status
+    - Clean up temporary files
+  </Accordion>
+</AccordionGroup>
+
+## Key Components
+
+<CardGroup cols={2}>
+  <Card title="Document" icon="file">
+    The PDF file that needs to be signed. Can be provided as a URL, base64 content, or existing document ID.
+  </Card>
+  <Card title="Signers" icon="users">
+    One or more people who need to sign the document, with optional signing sequence.
+  </Card>
+  <Card title="Visual Signature" icon="signature">
+    The appearance and position of signatures on the document.
+  </Card>
+  <Card title="Workflow" icon="diagram-project">
+    The signing process including notifications, reminders, and completion handling.
+  </Card>
+</CardGroup>
+
+## Signature Request Lifecycle
+
+<Steps>
+  <Step title="Creation">
+    Create a signature request by specifying the document and signers
+  </Step>
+  <Step title="Notification">
+    Signers receive email notifications with signing instructions or direct signing URLs
+  </Step>
+  <Step title="Signing">
+    Signers review and sign the document in sequence (if specified)
+  </Step>
+  <Step title="Completion">
+    All parties receive the final signed document
+  </Step>
+</Steps>
+
+## Example Structure
+
+Here's what a typical signature request looks like:
+
+<CodeGroup>
+```python Python
+signature_request = {
+    "title": "Employment Contract",
+    "message": "Please review and sign your contract",
+    "file_url": "https://example.com/contract.pdf",
+    "signatures": [
+        {
+            "account_email": "employee@company.com",
+            "signer_identity_data": {
+                "email_address": "employee@company.com",
+                "first_name": "John",
+                "last_name": "Doe",
+                "language": "en"
+            },
+            "sequence": 1
+        },
+        {
+            "account_email": "hr@company.com",
+            "signer_identity_data": {
+                "email_address": "hr@company.com"
+            },
+            "sequence": 2
+        }
+    ],
+    "cc_email_addresses": ["manager@company.com"],
+    "callback_success_url": "https://your-domain.com/webhook/success/{SKRIBBLE_SIGNATURE_REQUEST_ID}/{SKRIBBLE_DOCUMENT_ID}",
+    "callback_update_url": "https://your-domain.com/webhook/update/{SKRIBBLE_SIGNATURE_REQUEST_ID}/{SKRIBBLE_SIGNATURE_ID}"
+}
+```
+
+```typescript TypeScript
+const signatureRequest = {
+    title: "Employment Contract",
+    message: "Please review and sign your contract",
+    file_url: "https://example.com/contract.pdf",
+    signatures: [
+        {
+            account_email: "employee@company.com",
+            signer_identity_data: {
+                email_address: "employee@company.com",
+                first_name: "John",
+                last_name: "Doe",
+                language: "en"
+            },
+            sequence: 1
+        },
+        {
+            account_email: "hr@company.com",
+            signer_identity_data: {
+                email_address: "hr@company.com"
+            },
+            sequence: 2
+        }
+    ],
+    cc_email_addresses: ["manager@company.com"],
+    callback_success_url: "https://your-domain.com/webhook/success/{SKRIBBLE_SIGNATURE_REQUEST_ID}/{SKRIBBLE_DOCUMENT_ID}",
+    callback_update_url: "https://your-domain.com/webhook/update/{SKRIBBLE_SIGNATURE_REQUEST_ID}/{SKRIBBLE_SIGNATURE_ID}"
+};
+```
+</CodeGroup>
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Document Preparation">
+    - Verify base64 content is valid if applicable
+    - Ensure document is not password protected and/or URL is public
+    - Optimize file size (recommended max: 40MB)
+  </Accordion>
+  
+  <Accordion title="Signer Configuration">
+    - Always provide both `account_email` and `signer_identity_data` unless you specifically need to force account creation
+    - Use the same email address in both `account_email` and `signer_identity_data.email_address`
+    - Add optional signer details (name, language) in `signer_identity_data` for better user experience
+    - Consider using `sequence` for ordered signing when document order matters
+  </Accordion>
+  
+  <Accordion title="Webhook Integration">
+    - Use webhook URLs with placeholders for dynamic data:
+      - `{SKRIBBLE_SIGNATURE_REQUEST_ID}`: The signature request ID
+      - `{SKRIBBLE_DOCUMENT_ID}`: The final document ID
+      - `{SKRIBBLE_SIGNATURE_ID}`: The signature ID (only for update callbacks)
+    - Implement a webhook endpoint to handle the success callback and download the signed document using the provided document ID
+    - Use update callbacks to track individual signature completions
+  </Accordion>
+</AccordionGroup>
+
+## Status Handling
+
+A signature request can have the following overall statuses:
+
+- `OPEN`: The signature request is active and waiting for signatures
+- `SIGNED`: All required signatures have been completed
+- `WITHDRAWN`: The signature request was cancelled
+
+### Webhook Placeholders
+
+When configuring callback URLs, you can include the following placeholders that Skribble will automatically replace:
+
+| Placeholder | Description |
+|------------|-------------|
+| `{SKRIBBLE_SIGNATURE_REQUEST_ID}` | Will be replaced with the SignatureRequest ID that triggers the callback |
+| `{SKRIBBLE_DOCUMENT_ID}` | Will be replaced with the most recent or final document ID belonging to the triggering SignatureRequest |
+| `{SKRIBBLE_SIGNATURE_ID}` | Only for `callback_update_url`: Will be replaced with the Signature ID (SID) of the signature just made |
+
+### Best Practice for Document Handling
+
+The recommended workflow for handling signed documents is:
+
+1. Configure a success callback endpoint that receives the document ID
+2. When the callback is triggered, use the provided document ID to retrieve the signed document
+3. Process and store the document as needed
+
+Example success callback handling:
+
+<CodeGroup>
+```python Python
+@app.route('/webhooks/signature-success/<request_id>/<document_id>', methods=['POST'])
+def handle_signature_success(request_id, document_id):
+    # Use the document_id from the callback URL to download the signed document
+    document = skribble.document.download(document_id)
+    
+    # Process and store the document
+    save_document(document, request_id)
+    
+    return {'status': 'success'}
+```
+
+```typescript TypeScript
+app.post('/webhooks/signature-success/:requestId/:documentId', async (req, res) => {
+    const { requestId, documentId } = req.params;
+    
+    try {
+        // Use the documentId from the callback URL to download the signed document
+        const document = await skribble.document.download(documentId);
+        
+        // Process and store the document
+        await saveDocument(document, requestId);
+        
+        res.json({ status: 'success' });
+    } catch (error) {
+        console.error('Error handling signature success:', error);
+        res.status(500).json({ error: 'Failed to process callback' });
+    }
+});
+```
+</CodeGroup>
+
+## Error Handling
+
+For detailed error handling guidance, please refer to our [Error Handling Guide](/error-handling). Here's a basic example of handling common signature request errors:
+
+<CodeGroup>
+```python Python
+try:
+    response = skribble.signature_request.create(request_data)
+except SkribbleValidationError as e:
+    print(f"Invalid request data: {e.message}")
+except SkribbleAPIError as e:
+    print(f"API error ({e.status_code}): {e.message}")
+```
+
+```typescript TypeScript
+try {
+    const response = await skribble.signature_request.create(requestData);
+} catch (error) {
+    if (error instanceof SkribbleValidationError) {
+        console.error('Invalid request data:', error.message);
+    } else if (error instanceof SkribbleAPIError) {
+        console.error(`API error (${error.statusCode}):`, error.message);
+    }
+}
+```
+</CodeGroup>
+
+## Implementation
+
+Choose your preferred SDK to see detailed implementation guides:
+
+<CardGroup cols={1}>
+  <Card title="Signature Requests Guide" icon="python" href="/guides/signature-requests">
+    Learn how to implement signature requests
+  </Card>
+</CardGroup>
+
+## API Reference
+
+For detailed API documentation, see:
+<CardGroup cols={1}>
+  <Card title="API Reference" icon="code" href="/api-reference/signature-requests">
+    Browse the complete API reference
+  </Card>
+</CardGroup>

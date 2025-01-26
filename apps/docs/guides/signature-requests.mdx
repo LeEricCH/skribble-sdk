@@ -1,0 +1,306 @@
+---
+title: 'Signature Requests Guide'
+description: 'Learn how to work with signature requests'
+---
+
+# Signature Requests Guide
+
+This guide explains how to create and manage signature requests using the Skribble SDK.
+
+## Creating a Signature Request
+
+<CodeGroup>
+```python Python
+# Create a signature request with a document URL
+signature_request = {
+    "title": "Test Signature Request",
+    "message": "Please sign this document",
+    "file_url": "https://example.com/document.pdf",
+    "signatures": [
+        {
+            "account_email": "signer@company.com",
+            "signer_identity_data": {
+                "email_address": "signer@company.com",
+                "first_name": "John",
+                "last_name": "Doe",
+                "language": "en"
+            },
+            "sequence": 1
+        }
+    ]
+}
+
+response = skribble.signature_request.create(signature_request)
+```
+
+```typescript TypeScript
+// Create a signature request with a document URL
+const signatureRequest = {
+    title: "Test Signature Request",
+    message: "Please sign this document",
+    file_url: "https://example.com/document.pdf",
+    signatures: [
+        {
+            account_email: "signer@company.com",
+            signer_identity_data: {
+                email_address: "signer@company.com",
+                first_name: "John",
+                last_name: "Doe",
+                language: "en"
+            },
+            sequence: 1
+        }
+    ]
+};
+
+const response = await skribble.signature_request.create(signatureRequest);
+```
+</CodeGroup>
+
+## Managing Signers
+
+### Adding a Signer
+
+<CodeGroup>
+```python Python
+new_signer = {
+    "account_email": "new.signer@company.com",
+    "signer_identity_data": {
+        "email_address": "new.signer@company.com",
+        "first_name": "Jane",
+        "last_name": "Smith",
+        "language": "en"
+    }
+}
+
+response = skribble.signature_request.signer.add(signature_request_id, new_signer)
+```
+
+```typescript TypeScript
+const newSigner = {
+    account_email: "new.signer@company.com",
+    signer_identity_data: {
+        email_address: "new.signer@company.com",
+        first_name: "Jane",
+        last_name: "Smith",
+        language: "en"
+    }
+};
+
+const response = await skribble.signature_request.signer.add(signatureRequestId, newSigner);
+```
+</CodeGroup>
+
+### Removing a Signer
+
+<CodeGroup>
+```python Python
+skribble.signature_request.signer.remove(signature_request_id, signer_id)
+```
+
+```typescript TypeScript
+await skribble.signature_request.signer.remove(signatureRequestId, signerId);
+```
+</CodeGroup>
+
+### Replacing All Signers
+
+<CodeGroup>
+```python Python
+new_signers = [
+    {
+        "account_email": "signer1@company.com",
+        "signer_identity_data": {
+            "email_address": "signer1@company.com",
+            "first_name": "John",
+            "last_name": "Doe",
+            "language": "en"
+        }
+    },
+    {
+        "account_email": "signer2@company.com",
+        "signer_identity_data": {
+            "email_address": "signer2@company.com",
+            "first_name": "Jane",
+            "last_name": "Smith",
+            "language": "en"
+        }
+    }
+]
+
+response = skribble.signature_request.signer.replace(signature_request_id, new_signers)
+```
+
+```typescript TypeScript
+const newSigners = [
+    {
+        account_email: "signer1@company.com",
+        signer_identity_data: {
+            email_address: "signer1@company.com",
+            first_name: "John",
+            last_name: "Doe",
+            language: "en"
+        }
+    },
+    {
+        account_email: "signer2@company.com",
+        signer_identity_data: {
+            email_address: "signer2@company.com",
+            first_name: "Jane",
+            last_name: "Smith",
+            language: "en"
+        }
+    }
+];
+
+const response = await skribble.signature_request.signer.replace(signatureRequestId, newSigners);
+```
+</CodeGroup>
+
+## Managing Attachments
+
+### Adding an Attachment
+
+<CodeGroup>
+```python Python
+attachment = {
+    "filename": "terms.txt",
+    "content_type": "text/plain",
+    "content": base64.b64encode(b"Terms and conditions").decode()
+}
+
+response = skribble.signature_request.attachment.add(signature_request_id, attachment)
+```
+
+```typescript TypeScript
+const attachment = {
+    filename: "terms.txt",
+    content_type: "text/plain",
+    content: Buffer.from("Terms and conditions").toString('base64')
+};
+
+const response = await skribble.signature_request.attachment.add(signatureRequestId, attachment);
+```
+</CodeGroup>
+
+### Listing Attachments
+
+<CodeGroup>
+```python Python
+attachments = skribble.signature_request.attachment.list(signature_request_id)
+```
+
+```typescript TypeScript
+const attachments = await skribble.signature_request.attachment.list(signatureRequestId);
+```
+</CodeGroup>
+
+### Downloading an Attachment
+
+<CodeGroup>
+```python Python
+content = skribble.signature_request.attachment.download(signature_request_id, attachment_id)
+```
+
+```typescript TypeScript
+const content = await skribble.signature_request.attachment.download(signatureRequestId, attachmentId);
+```
+</CodeGroup>
+
+### Deleting an Attachment
+
+<CodeGroup>
+```python Python
+skribble.signature_request.attachment.delete(signature_request_id, attachment_id)
+```
+
+```typescript TypeScript
+await skribble.signature_request.attachment.delete(signatureRequestId, attachmentId);
+```
+</CodeGroup>
+
+## Managing Signature Requests
+
+### Getting a Signature Request
+
+<CodeGroup>
+```python Python
+request = skribble.signature_request.get(signature_request_id)
+```
+
+```typescript TypeScript
+const request = await skribble.signature_request.get(signatureRequestId);
+```
+</CodeGroup>
+
+### Listing Signature Requests
+
+<CodeGroup>
+```python Python
+requests = skribble.signature_request.list(page_size=10)
+```
+
+```typescript TypeScript
+const requests = await skribble.signature_request.list({ pageSize: 10 });
+```
+</CodeGroup>
+
+### Withdrawing a Signature Request
+
+<CodeGroup>
+```python Python
+skribble.signature_request.withdraw(signature_request_id, message="Request withdrawn")
+```
+
+```typescript TypeScript
+await skribble.signature_request.withdraw(signatureRequestId, { message: "Request withdrawn" });
+```
+</CodeGroup>
+
+### Deleting a Signature Request
+
+<CodeGroup>
+```python Python
+skribble.signature_request.delete(signature_request_id)
+```
+
+```typescript TypeScript
+await skribble.signature_request.delete(signatureRequestId);
+```
+</CodeGroup>
+
+## Error Handling
+
+For detailed error handling guidance, please refer to our [Error Handling Guide](/guides/error-handling).
+
+<CodeGroup>
+```python Python
+try:
+    response = skribble.signature_request.create(signature_request)
+except SkribbleValidationError as e:
+    print(f"Invalid request data: {e.message}")
+except SkribbleAPIError as e:
+    print(f"API error ({e.status_code}): {e.message}")
+```
+
+```typescript TypeScript
+try {
+    const response = await skribble.signature_request.create(signatureRequest);
+} catch (error) {
+    if (error instanceof SkribbleValidationError) {
+        console.error('Invalid request data:', error.message);
+    } else if (error instanceof SkribbleAPIError) {
+        console.error(`API error (${error.statusCode}):`, error.message);
+    }
+}
+```
+</CodeGroup>
+
+## API Reference
+
+For detailed API documentation, see:
+<CardGroup cols={1}>
+  <Card title="API Reference" icon="code" href="/api-reference/signature-requests">
+    Browse the complete API reference
+  </Card>
+</CardGroup>

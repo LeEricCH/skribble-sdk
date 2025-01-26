@@ -1,0 +1,241 @@
+---
+title: 'Documents'
+description: 'API reference for document operations'
+---
+
+## Add Document
+
+Add a new document to Skribble.
+
+<CodeGroup>
+```python Python
+skribble.document.add(document_data: DocumentRequest) -> DocumentResponse
+```
+
+```typescript TypeScript
+skribble.document.add(documentData: Types.DocumentRequest): Promise<Types.DocumentResponse>
+```
+</CodeGroup>
+
+<ResponseField name="request" type="Request Object">
+  <Expandable title="DocumentRequest properties">
+    <ResponseField name="title" type="string" required>
+      Title of the document
+    </ResponseField>
+    <ResponseField name="content_type" type="string">
+      Content type of bytes sent in content
+    </ResponseField>
+    <ResponseField name="content" type="string">
+      Base64 encoded bytes of document
+    </ResponseField>
+    <ResponseField name="file_url" type="string">
+      Publicly accessible URL for document download
+    </ResponseField>
+    <ResponseField name="write_access" type="string[]">
+      E-mail addresses with write access to the object
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+
+<ResponseField name="response" type="Response Object">
+  <Expandable title="DocumentResponse properties">
+    <ResponseField name="id" type="string" required>
+      ID of the Document object
+    </ResponseField>
+    <ResponseField name="parent_id" type="string">
+      ID of the previous version of the Document object
+    </ResponseField>
+    <ResponseField name="title" type="string" required>
+      Given title of the document
+    </ResponseField>
+    <ResponseField name="content_type" type="string" required>
+      Content type of the document (always application/pdf)
+    </ResponseField>
+    <ResponseField name="size" type="number" required>
+      Size in bytes of the document
+    </ResponseField>
+    <ResponseField name="page_count" type="number">
+      Number of pages of the document
+    </ResponseField>
+    <ResponseField name="page_width" type="number">
+      Width of the document in pixel
+    </ResponseField>
+    <ResponseField name="page_height" type="number">
+      Height of the document in pixel
+    </ResponseField>
+    <ResponseField name="signature_fields" type="{ name?: string; status?: string; position?: Position }[]">
+      PDF AcroForm signature fields found in the document
+    </ResponseField>
+    <ResponseField name="read_access" type="string[]" required>
+      Array of users with read access
+    </ResponseField>
+    <ResponseField name="write_access" type="string[]" required>
+      Array of users with write access
+    </ResponseField>
+    <ResponseField name="created_at" type="string" required>
+      Timestamp at which the document was created
+    </ResponseField>
+    <ResponseField name="updated_at" type="string">
+      Timestamp at which the document was last updated
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Get Document
+
+Retrieve document metadata by ID.
+
+<CodeGroup>
+```python Python
+skribble.document.get(document_id: str) -> DocumentResponse
+```
+
+```typescript TypeScript
+skribble.document.get(documentId: string): Promise<Types.DocumentResponse>
+```
+</CodeGroup>
+
+<ResponseField name="response" type="Response Object">
+  <Expandable title="DocumentResponse properties">
+    <ResponseField name="id" type="string" required>
+      ID of the Document object
+    </ResponseField>
+    <ResponseField name="parent_id" type="string">
+      ID of the previous version of the Document object
+    </ResponseField>
+    <ResponseField name="title" type="string" required>
+      Given title of the document
+    </ResponseField>
+    <ResponseField name="content_type" type="string" required>
+      Content type of the document (always application/pdf)
+    </ResponseField>
+    <ResponseField name="size" type="number" required>
+      Size in bytes of the document
+    </ResponseField>
+    <ResponseField name="page_count" type="number">
+      Number of pages of the document
+    </ResponseField>
+    <ResponseField name="page_width" type="number">
+      Width of the document in pixel
+    </ResponseField>
+    <ResponseField name="page_height" type="number">
+      Height of the document in pixel
+    </ResponseField>
+    <ResponseField name="signature_fields" type="{ name?: string; status?: string; position?: Position }[]">
+      PDF AcroForm signature fields found in the document
+    </ResponseField>
+    <ResponseField name="read_access" type="string[]" required>
+      Array of users with read access
+    </ResponseField>
+    <ResponseField name="write_access" type="string[]" required>
+      Array of users with write access
+    </ResponseField>
+    <ResponseField name="created_at" type="string" required>
+      Timestamp at which the document was created
+    </ResponseField>
+    <ResponseField name="updated_at" type="string">
+      Timestamp at which the document was last updated
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Download Document
+
+Download document content by ID.
+
+<CodeGroup>
+```python Python
+skribble.document.download(document_id: str) -> bytes
+```
+
+```typescript TypeScript
+skribble.document.download(documentId: string, format?: 'blob' | 'base64'): Promise<Blob | string>
+```
+</CodeGroup>
+
+## Preview Document
+
+Get a preview image of a document page.
+
+<CodeGroup>
+```python Python
+skribble.document.preview(document_id: str, page_id: int, scale: int = 20, max_retries: int = 10, retry_delay: int = 2) -> bytes
+```
+
+```typescript TypeScript
+skribble.document.preview(documentId: string, pageId: number, scale?: number, maxRetries?: number, retryDelay?: number): Promise<Blob>
+```
+</CodeGroup>
+
+## List Documents
+
+List all documents with optional pagination.
+
+<CodeGroup>
+```python Python
+skribble.document.list(limit: int = None) -> List[DocumentResponse]
+```
+
+```typescript TypeScript
+skribble.document.list(limit?: number): Promise<Types.DocumentResponse[]>
+```
+</CodeGroup>
+
+<ResponseField name="response" type="Response Object">
+  <Expandable title="DocumentResponse properties">
+    <ResponseField name="id" type="string" required>
+      ID of the Document object
+    </ResponseField>
+    <ResponseField name="parent_id" type="string">
+      ID of the previous version of the Document object
+    </ResponseField>
+    <ResponseField name="title" type="string" required>
+      Given title of the document
+    </ResponseField>
+    <ResponseField name="content_type" type="string" required>
+      Content type of the document (always application/pdf)
+    </ResponseField>
+    <ResponseField name="size" type="number" required>
+      Size in bytes of the document
+    </ResponseField>
+    <ResponseField name="page_count" type="number">
+      Number of pages of the document
+    </ResponseField>
+    <ResponseField name="page_width" type="number">
+      Width of the document in pixel
+    </ResponseField>
+    <ResponseField name="page_height" type="number">
+      Height of the document in pixel
+    </ResponseField>
+    <ResponseField name="signature_fields" type="{ name?: string; status?: string; position?: Position }[]">
+      PDF AcroForm signature fields found in the document
+    </ResponseField>
+    <ResponseField name="read_access" type="string[]" required>
+      Array of users with read access
+    </ResponseField>
+    <ResponseField name="write_access" type="string[]" required>
+      Array of users with write access
+    </ResponseField>
+    <ResponseField name="created_at" type="string" required>
+      Timestamp at which the document was created
+    </ResponseField>
+    <ResponseField name="updated_at" type="string">
+      Timestamp at which the document was last updated
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Delete Document
+
+Delete a document by ID.
+
+<CodeGroup>
+```python Python
+skribble.document.delete(document_id: str) -> None
+```
+
+```typescript TypeScript
+skribble.document.delete(documentId: string): Promise<void>
+```
+</CodeGroup>

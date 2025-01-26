@@ -1,0 +1,159 @@
+documents:
+  add_document:
+    title: "Add Document"
+    description: "Add a new document to Skribble."
+    python_signature: "skribble.document.add(document_data: DocumentRequest) -> DocumentResponse"
+    typescript_signature: "skribble.document.add(documentData: Types.DocumentRequest): Promise<Types.DocumentResponse>"
+    request_type: "DocumentRequest"
+    response_type: "DocumentResponse"
+
+  get_document:
+    title: "Get Document"
+    description: "Retrieve document metadata by ID."
+    python_signature: "skribble.document.get(document_id: str) -> DocumentResponse"
+    typescript_signature: "skribble.document.get(documentId: string): Promise<Types.DocumentResponse>"
+    response_type: "DocumentResponse"
+
+  download_document:
+    title: "Download Document"
+    description: "Download document content by ID."
+    python_signature: "skribble.document.download(document_id: str) -> bytes"
+    typescript_signature: "skribble.document.download(documentId: string, format?: 'blob' | 'base64'): Promise<Blob | string>"
+
+  preview_document:
+    title: "Preview Document"
+    description: "Get a preview image of a document page."
+    python_signature: "skribble.document.preview(document_id: str, page_id: int, scale: int = 20, max_retries: int = 10, retry_delay: int = 2) -> bytes"
+    typescript_signature: "skribble.document.preview(documentId: string, pageId: number, scale?: number, maxRetries?: number, retryDelay?: number): Promise<Blob>"
+
+  list_documents:
+    title: "List Documents"
+    description: "List all documents with optional pagination."
+    python_signature: "skribble.document.list(limit: int = None) -> List[DocumentResponse]"
+    typescript_signature: "skribble.document.list(limit?: number): Promise<Types.DocumentResponse[]>"
+    response_type: "DocumentResponse"
+
+  delete_document:
+    title: "Delete Document"
+    description: "Delete a document by ID."
+    python_signature: "skribble.document.delete(document_id: str) -> None"
+    typescript_signature: "skribble.document.delete(documentId: string): Promise<void>"
+
+signature_requests:
+  create_signature_request:
+    title: "Create Signature Request"
+    description: "Create a new signature request."
+    python_signature: "skribble.signature_request.create(signature_request: SignatureRequest) -> SignatureRequestResponse"
+    typescript_signature: "skribble.signature_request.create(signatureRequest: Types.SignatureRequest): Promise<Types.SignatureRequestResponse>"
+    request_type: "SignatureRequest"
+    response_type: "SignatureRequestResponse"
+
+  get_signature_request:
+    title: "Get Signature Request"
+    description: "Retrieve a signature request by ID."
+    python_signature: "skribble.signature_request.get(signature_request_id: str) -> SignatureRequestResponse"
+    typescript_signature: "skribble.signature_request.get(signatureRequestId: string): Promise<Types.SignatureRequestResponse>"
+    response_type: "SignatureRequestResponse"
+
+  list_signature_requests:
+    title: "List Signature Requests"
+    description: "List all signature requests with optional pagination."
+    python_signature: "skribble.signature_request.list(page_size: int = None) -> List[SignatureRequestResponse]"
+    typescript_signature: "skribble.signature_request.list({ page_size?: number }): Promise<Types.SignatureRequestResponse[]>"
+    response_type: "SignatureRequestResponse"
+
+  withdraw_signature_request:
+    title: "Withdraw Signature Request"
+    description: "Withdraw a pending signature request."
+    python_signature: "skribble.signature_request.withdraw(signature_request_id: str, message: str = None) -> None"
+    typescript_signature: "skribble.signature_request.withdraw(signatureRequestId: string, message?: string): Promise<void>"
+
+  delete_signature_request:
+    title: "Delete Signature Request"
+    description: "Delete a signature request."
+    python_signature: "skribble.signature_request.delete(signature_request_id: str) -> None"
+    typescript_signature: "skribble.signature_request.delete(signatureRequestId: string): Promise<void>"
+
+  remind_signers:
+    title: "Remind Signers"
+    description: "Send a reminder to signers of a signature request."
+    python_signature: "skribble.signature_request.remind(signature_request_id: str) -> None"
+    typescript_signature: "skribble.signature_request.remind(signatureRequestId: string): Promise<void>"
+
+  add_signer:
+    title: "Add Signer"
+    description: "Add a new signer to an existing signature request."
+    python_signature: "skribble.signature_request.signer.add(signature_request_id: str, signer: SignerRequest) -> SignatureRequestResponse"
+    typescript_signature: "skribble.signature_request.signer.add(signatureRequestId: string, signer: Types.SignerRequest): Promise<Types.SignatureRequestResponse>"
+    request_type: "SignerRequest"
+    response_type: "SignatureRequestResponse"
+
+  remove_signer:
+    title: "Remove Signer"
+    description: "Remove a signer from a signature request."
+    python_signature: "skribble.signature_request.signer.remove(signature_request_id: str, signer_id: str) -> None"
+    typescript_signature: "skribble.signature_request.signer.remove(signatureRequestId: string, signerId: string): Promise<void>"
+
+  replace_signers:
+    title: "Replace Signers"
+    description: "Replace all signers in a signature request."
+    python_signature: "skribble.signature_request.signer.replace(signature_request_id: str, signers: List[SignerRequest]) -> SignatureRequestResponse"
+    typescript_signature: "skribble.signature_request.signer.replace(signatureRequestId: string, signers: Types.SignerRequest[]): Promise<Types.SignatureRequestResponse>"
+    request_type: "SignerRequest"
+    response_type: "SignatureRequestResponse"
+
+  add_attachment:
+    title: "Add Attachment"
+    description: "Add an attachment to a signature request."
+    python_signature: "skribble.signature_request.attachment.add(signature_request_id: str, attachment: AttachmentRequest) -> List[AttachmentResponse]"
+    typescript_signature: "skribble.signature_request.attachment.add(signatureRequestId: string, attachment: Types.AttachmentRequest): Promise<Types.AttachmentResponse[]>"
+    request_type: "AttachmentRequest"
+    response_type: "AttachmentResponse"
+
+  list_attachments:
+    title: "List Attachments"
+    description: "List all attachments for a signature request."
+    python_signature: "skribble.signature_request.attachment.list(signature_request_id: str) -> List[AttachmentResponse]"
+    typescript_signature: "skribble.signature_request.attachment.list(signatureRequestId: string): Promise<Types.AttachmentResponse[]>"
+    response_type: "AttachmentResponse"
+
+  download_attachment:
+    title: "Download Attachment"
+    description: "Download an attachment's content."
+    python_signature: "skribble.signature_request.attachment.download(signature_request_id: str, attachment_id: str) -> bytes"
+    typescript_signature: "skribble.signature_request.attachment.download(signatureRequestId: string, attachmentId: string): Promise<Buffer>"
+
+  delete_attachment:
+    title: "Delete Attachment"
+    description: "Delete an attachment from a signature request."
+    python_signature: "skribble.signature_request.attachment.delete(signature_request_id: str, attachment_id: str) -> None"
+    typescript_signature: "skribble.signature_request.attachment.delete(signatureRequestId: string, attachmentId: string): Promise<void>"
+
+seals:
+  create_seal:
+    title: "Create Seal"
+    description: "Create a new seal for a document."
+    python_signature: "skribble.seal.create(seal_data: SealRequest) -> SealResponse"
+    typescript_signature: "skribble.seal.create(sealData: Types.SealRequest): Promise<Types.SealResponse>"
+    request_type: "SealRequest"
+    response_type: "SealResponse"
+
+  get_seal:
+    title: "Get Seal"
+    description: "Retrieve seal metadata by ID."
+    python_signature: "skribble.seal.get(seal_id: str) -> Seal"
+    typescript_signature: "skribble.seal.get(sealId: string): Promise<Types.Seal>"
+    response_type: "Seal"
+
+  list_seals:
+    title: "List Seals"
+    description: "List all seals with optional pagination."
+    python_signature: "skribble.seal.list(limit: int = None) -> List[Seal]"
+    typescript_signature: "skribble.seal.list(options?: { limit?: number }): Promise<Types.Seal[]>"
+    response_type: "Seal"
+
+  delete_seal:
+    title: "Delete Seal"
+    description: "Delete a seal by ID."
+    python_signature: "skribble.seal.delete(seal_id: str) -> None"
+    typescript_signature: "skribble.seal.delete(sealId: string): Promise<void>" 

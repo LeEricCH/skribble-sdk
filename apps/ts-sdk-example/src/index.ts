@@ -4,8 +4,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 // Replace with your actual API credentials
-const USERNAME = 'api_xxx';
-const API_KEY = 'xxxxx';
+const USERNAME = 'api_';
+const API_KEY = '';
 
 async function fetchPDF(url: string): Promise<Buffer> {
   const response = await axios.get(url, { responseType: 'arraybuffer' });
@@ -62,6 +62,10 @@ async function main() {
     const createResponse = await skribble.signature_request.create(signatureRequest);
     console.log("Signature request created successfully:", createResponse);
 
+    if (!createResponse.id) {
+      throw new Error("Failed to get signature request ID from create response");
+    }
+
     // Remind signer about the signature request
     await skribble.signature_request.remind(createResponse.id);
     console.log("Reminded signer about the signature request");
@@ -69,7 +73,7 @@ async function main() {
     const signatureRequestId = createResponse.id;
 
     // Add signer to the signature request
-    const addSignerResponse = await skribble.signature_request.add_signer(createResponse.id, {
+    const addSignerResponse = await skribble.signature_request.signer.add(signatureRequestId, {
       account_email: "test@test.com",
       signer_identity_data: {
         email_address: "test@test.com",
@@ -83,14 +87,18 @@ async function main() {
 
     // Get the created signature request to find the signer ID
     const getResponse = await skribble.signature_request.get(signatureRequestId);
+    if (!getResponse.signatures) {
+      throw new Error("No signatures found in response");
+    }
+
     const signerToRemove = getResponse.signatures.find((signer: Types.Signature) => 
       signer.signer_identity_data?.email_address === "signer2@example.com" ||
       signer.account_email === "signer2@example.com"
     );
     
-    if (signerToRemove) {
+    if (signerToRemove && signerToRemove.sid) {
       // Remove a signer
-      const removeSignerResponse = await skribble.signature_request.remove_signer(signatureRequestId, signerToRemove.sid);
+      const removeSignerResponse = await skribble.signature_request.signer.remove(signatureRequestId, signerToRemove.sid);
       console.log("Signer removed successfully:", removeSignerResponse);
     } else {
       console.log("Signer to remove not found");
@@ -118,7 +126,7 @@ async function main() {
       }
     ];
 
-    const replaceSignersResponse = await skribble.signature_request.replace_signers(signatureRequestId, newSigners);
+    const replaceSignersResponse = await skribble.signature_request.signer.replace(signatureRequestId, newSigners);
     console.log("Signers replaced successfully:", replaceSignersResponse);
 
     // Get the updated signature request
@@ -136,14 +144,16 @@ async function main() {
         filename: `attachment-${index + 1}.pdf`,
         content_type: "application/pdf",
         content: attachmentContent.toString('base64')
-      };
+      } as Types.AttachmentRequest;
     }));
     try {
-      const attachmentResponse = await skribble.attachment.add(signatureRequestId, attachments);
-      console.log("Attachments added successfully:", attachmentResponse);
+      for (const attachment of attachments) {
+        const attachmentResponse = await skribble.signature_request.attachment.add(signatureRequestId, attachment);
+        console.log("Attachment added successfully:", attachmentResponse);
+      }
 
       // List attachments
-      const attachmentList = await skribble.attachment.list(signatureRequestId);
+      const attachmentList = await skribble.signature_request.attachment.list(signatureRequestId);
       console.log("Attachments in the signature request:", attachmentList);
     } catch (error) {
       const skribbleError = handleSkribbleError(error);
@@ -159,7 +169,7 @@ async function main() {
     if (latestGetResponse.attachments && latestGetResponse.attachments.length > 0) {
       for (const attachment of latestGetResponse.attachments) {
         try {
-          await skribble.attachment.deleteAttachment(signatureRequestId, attachment.attachment_id);
+          await skribble.signature_request.attachment.delete(signatureRequestId, attachment.attachment_id);
           console.log(`Attachment ${attachment.attachment_id} deleted successfully`);
         } catch (error) {
           console.error(`Failed to delete attachment ${attachment.attachment_id}:`, error);

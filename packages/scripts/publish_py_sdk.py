@@ -17,7 +17,7 @@ def publish_sdk():
     """Build and publish the Python SDK to PyPI."""
     # Get the absolute path to the py-sdk directory
     script_dir = Path(__file__).resolve().parent
-    sdk_dir = script_dir.parent.parent / "apps" / "py-sdk"
+    sdk_dir = script_dir.parent.parent / "sdks" / "python"
     
     if not sdk_dir.exists():
         print(f"Error: SDK directory not found at {sdk_dir}")

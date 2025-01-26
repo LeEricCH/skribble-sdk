@@ -1,0 +1,28 @@
+{
+  "name": "skribble-typescript-sdk",
+  "version": "0.2.4",
+  "description": "TypeScript SDK for Skribble API",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "publishConfig": {
+    "name": "skribble-sdk"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": ["skribble", "api", "sdk", "typescript"],
+  "author": "Eric Campos",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^14.14.31",
+    "typescript": "^5.3.3",
+    "jest": "^26.6.3",
+    "@types/jest": "^26.0.20",
+    "ts-jest": "^26.5.3"
+  },
+  "dependencies": {
+    "axios": "^1.6.5"
+  }
+}

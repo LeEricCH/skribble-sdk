@@ -2,7 +2,7 @@
 import os
 import yaml
 from pathlib import Path
-from typing import Dict, Any, List, Set
+from typing import Dict, Any, List, Set, Union
 from collections import defaultdict
 import sys
 
@@ -130,7 +130,7 @@ def generate_typescript_type(model_name: str, model_def: Dict[str, Any]) -> str:
     # Handle union types
     if model_def.get("type") == "union":
         types = model_def.get("types", [])
-        lines[-1] += " | ".join(types)
+        lines[-1] += types[0] + " | " + types[1]
         return "\n".join(lines)
 
     # Handle array types
@@ -211,10 +211,42 @@ def generate_pydantic_model(model_name: str, model_data: Dict[str, Any], models:
     else:
         lines.append('    """Generated model."""')
         
+    # Handle union types
+    if model_data.get("type") == "union":
+        types = model_data.get("types", [])
+        # Map types to Python types
+        type_map = {"string": "str", "Blob": "bytes"}
+        python_types = [type_map.get(t, t) for t in types]
+        type_str = ", ".join(python_types)
+        if model_name == "DocumentContent":
+            # Special case for DocumentContent to match SDK usage
+            lines.append(f"    content: Union[{type_str}]")
+            lines.append("    def __init__(self, content: Union[bytes, str]):")
+            lines.append("        super().__init__(content=content)")
+            lines.append("")
+            lines.append("    @property")
+            lines.append("    def raw_bytes(self) -> bytes:")
+            lines.append('        """Get content as raw bytes."""')
+            lines.append("        if isinstance(self.content, bytes):")
+            lines.append("            return self.content")
+            lines.append("        import base64")
+            lines.append("        return base64.b64decode(self.content)")
+            lines.append("")
+            lines.append("    @property")
+            lines.append("    def base64(self) -> str:")
+            lines.append('        """Get content as base64 string."""')
+            lines.append("        if isinstance(self.content, str):")
+            lines.append("            return self.content")
+            lines.append("        import base64")
+            lines.append("        return base64.b64encode(self.content).decode()")
+            lines.append("")
+        else:
+            lines.append(f"    value: Union[{type_str}]")
+
     # Handle array types
     if model_data.get("type") == "array":
-        item_type = model_data["items"]["type"]
-        if item_type == "object":
+        item_def = model_data["items"]["type"]
+        if item_def == "object":
             # For array of objects, just create the item model
             nested_props = model_data["items"].get("properties", {})
             nested_required = model_data["items"].get("required", [])
@@ -584,11 +616,20 @@ def generate_models(schema_path: str, ts_output_path: str, py_output_path: str, 
     # Generate Python models
     print("\nGenerating Python models...")
     py_lines = [
-        "from typing import List, Optional, Any",
+        "# ----------------------------------------",
+        "# THIS FILE IS GENERATED - DO NOT EDIT",
+        "# Run generator via: pnpm generate-models",
+        "# Source: schemas/models.yaml",
+        "# ----------------------------------------",
+        "",
+        "from typing import List, Optional, Any, Union",
         "from pydantic import BaseModel, Field",
         "from enum import Enum",
         "from difflib import get_close_matches",
         "from .exceptions import SkribbleValidationError",
+        "",
+        "# Type aliases",
+        "Blob = bytes",
         "",
     ]
     
@@ -605,7 +646,14 @@ def generate_models(schema_path: str, ts_output_path: str, py_output_path: str, 
     
     # Generate TypeScript models
     print("\nGenerating TypeScript models...")
-    ts_lines = []
+    ts_lines = [
+        "// ----------------------------------------",
+        "// THIS FILE IS GENERATED - DO NOT EDIT",
+        "// Run generator via: pnpm generate-models",
+        "// Source: schemas/models.yaml",
+        "// ----------------------------------------",
+        "",
+    ]
     for model_name, model_data in models.items():
         print(f"  - Generating {model_name}")
         ts_lines.append(generate_typescript_type(model_name, model_data))
@@ -641,7 +689,7 @@ def generate_models(schema_path: str, ts_output_path: str, py_output_path: str, 
         with open(doc_path, "w") as f:
             f.write(content)
 
-    print("\nDone! 🎉")
+    print("\nDone!")
 
 def main():
     # Get the absolute path of the script directory
@@ -650,10 +698,10 @@ def main():
     # Construct paths
     schema_path = os.path.abspath(os.path.join(script_dir, "..", "..", "schemas", "models.yaml"))
     operations_path = os.path.abspath(os.path.join(script_dir, "..", "..", "schemas", "operations.yaml"))
-    ts_output_path = os.path.abspath(os.path.join(script_dir, "..", "..", "apps", "ts-sdk", "src", "types.ts"))
-    py_output_path = os.path.abspath(os.path.join(script_dir, "..", "..", "apps", "py-sdk", "skribble", "models.py"))
-    mdx_output_path = os.path.abspath(os.path.join(script_dir, "..", "..", "apps", "docs", "api-reference", "types.mdx"))
-    docs_dir = os.path.abspath(os.path.join(script_dir, "..", "..", "apps", "docs", "api-reference"))
+    ts_output_path = os.path.abspath(os.path.join(script_dir, "..", "..", "sdks", "typescript", "src", "types.ts"))
+    py_output_path = os.path.abspath(os.path.join(script_dir, "..", "..", "sdks", "python", "skribble", "models.py"))
+    mdx_output_path = os.path.abspath(os.path.join(script_dir, "..", "..", "docs", "api-reference", "types.mdx"))
+    docs_dir = os.path.abspath(os.path.join(script_dir, "..", "..", "docs", "api-reference"))
 
     generate_models(schema_path, ts_output_path, py_output_path, mdx_output_path, operations_path, docs_dir)
 

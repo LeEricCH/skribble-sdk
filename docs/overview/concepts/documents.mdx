@@ -1,0 +1,199 @@
+---
+title: 'Documents'
+description: 'Understanding documents and how they work'
+---
+
+Documents are the files that get signed in Skribble. There are two ways to handle documents in the signing process:
+
+1. **Direct in Signature Request**: Provide the document directly when creating a signature request
+2. **Pre-upload**: Upload the document first and use its ID in the signature request
+
+## Document Handling Methods
+
+### 1. Direct in Signature Request
+When creating a signature request, you can provide the document directly using either:
+
+- A publicly accessible URL to your PDF:
+```python
+signature_request = {
+    "title": "Test Signature Request",
+    "file_url": "https://example.com/document.pdf",
+    "signatures": [...]
+}
+response = skribble.signature_request.create(signature_request)
+```
+
+- Base64 encoded PDF content:
+```python
+with open("document.pdf", "rb") as f:
+    content = base64.b64encode(f.read()).decode('utf-8')
+    
+signature_request = {
+    "title": "Test Signature Request",
+    "content": content,
+    "signatures": [...]
+}
+response = skribble.signature_request.create(signature_request)
+```
+
+In both cases, Skribble will automatically create and manage the document as part of the signature request.
+
+### 2. Pre-upload Document
+Alternatively, you can upload a document first and then use its ID in signature requests:
+
+1. Upload the document:
+```python
+# Read and encode PDF content
+with open("document.pdf", "rb") as f:
+    content = base64.b64encode(f.read()).decode('utf-8')
+    
+document = skribble.document.add({
+    "content": content
+})
+document_id = document.id
+```
+
+2. Use the document ID in signature requests:
+```python
+signature_request = {
+    "title": "Test Signature Request",
+    "document_id": document_id,
+    "signatures": [...]
+}
+response = skribble.signature_request.create(signature_request)
+```
+
+This approach is useful when you need to:
+- Reuse the same document in multiple signature requests
+- Verify the document is properly processed before creating signature requests
+- Manage documents separately from signature requests
+
+## Document Management
+
+### Get Document Metadata
+Retrieve document information:
+
+<CodeGroup>
+```python Python
+document = skribble.document.get(document_id)
+print(f"Document ID: {document.id}")
+```
+
+```typescript TypeScript
+const document = await skribble.document.get(documentId);
+console.log(`Document ID: ${document.id}`);
+```
+</CodeGroup>
+
+### Download Document
+Download document content in either blob or base64 format:
+
+<CodeGroup>
+```python Python
+# Download as blob (bytes)
+content = skribble.document.download(document_id, content_type="blob")
+with open("document.pdf", "wb") as f:
+    f.write(content)
+
+# Download as base64
+base64_content = skribble.document.download(document_id, content_type="base64")
+print(f"Base64 encoded content: {base64_content[:50]}...")
+```
+
+```typescript TypeScript
+// Download as blob
+const content = await skribble.document.download(documentId, "blob");
+await fs.writeFile("document.pdf", content);
+
+// Download as base64
+const base64Content = await skribble.document.download(documentId, "base64");
+console.log(`Base64 encoded content: ${base64Content.substring(0, 50)}...`);
+```
+</CodeGroup>
+
+### List Documents
+List all documents with optional limit:
+
+<CodeGroup>
+```python Python
+# List documents with limit
+documents = skribble.document.list(limit=5)
+for doc in documents:
+    print(f"Document ID: {doc.id}")
+```
+
+```typescript TypeScript
+// List documents with limit
+const documents = await skribble.document.list({ limit: 5 });
+documents.forEach(doc => {
+    console.log(`Document ID: ${doc.id}`);
+});
+```
+</CodeGroup>
+
+### Delete Document
+Remove a document:
+
+<CodeGroup>
+```python Python
+skribble.document.delete(document_id)
+```
+
+```typescript TypeScript
+await skribble.document.delete(documentId);
+```
+</CodeGroup>
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="File Preparation">
+    - Only PDF files are supported
+    - Ensure PDFs are not password protected
+    - Keep file size reasonable
+    - Verify PDF is valid and not corrupted
+  </Accordion>
+  
+  <Accordion title="Document Handling">
+    - Use direct signature request upload for simple, one-time signing flows
+    - Pre-upload documents when you need to reuse them or manage them separately
+    - Keep track of document IDs when pre-uploading
+    - Clean up unused documents
+  </Accordion>
+</AccordionGroup>
+
+## Error Handling
+
+For detailed error handling guidance, please refer to our [Error Handling Guide](/error-handling). Here's a basic example:
+
+<CodeGroup>
+```python Python
+try:
+    document = skribble.document.add({"content": pdf_content})
+except SkribbleValidationError as e:
+    print(f"Invalid document data: {e.message}")
+except SkribbleAPIError as e:
+    print(f"API error ({e.status_code}): {e.message}")
+```
+
+```typescript TypeScript
+try {
+    const document = await skribble.document.add({ content: pdfContent });
+} catch (error) {
+    if (error instanceof SkribbleValidationError) {
+        console.error('Invalid document data:', error.message);
+    } else if (error instanceof SkribbleAPIError) {
+        console.error(`API error (${error.statusCode}):`, error.message);
+    }
+}
+```
+</CodeGroup>
+
+## API Reference
+
+For detailed API documentation, see:
+<CardGroup cols={1}>
+  <Card title="API Reference" icon="code" href="/api-reference/documents">
+    Browse the complete API reference
+  </Card>
+</CardGroup>

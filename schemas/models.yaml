@@ -382,7 +382,6 @@ models:
       sid:
         type: string
         description: ID of the SignatureRequest object
-        required: true
       account_email:
         type: string
         description: Email address of the signer
@@ -398,7 +397,6 @@ models:
       status_code:
         type: string
         description: Status of the signature
-        required: true
       notify:
         type: boolean
         description: Given identifier, if the signer will be notified about changes on this signature request
@@ -419,6 +417,7 @@ models:
         type: string
         description: Timestamp UTC at which the signer opened/viewed the document the last time
         optional: true
+    required: [sid, status_code]
 
   SignatureRequestResponse:
     description: Response object for a signature request

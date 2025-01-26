@@ -8,28 +8,30 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "turbo build",
+    "build": "turbo run build",
     "dev": "turbo dev",
-    "lint": "turbo lint",
-    "test": "turbo test",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "generate-models": "turbo run generate-models",
     "publish:py-sdk": "turbo run publish-py-sdk",
     "run-examples": "turbo run run-examples",
     "build:sdk": "turbo run build --filter=skribble-typescript-sdk",
     "build:test": "turbo run build --filter=skribble-typescript-test",
-    "test:sdk": "turbo run test --filter=skribble-typescript-test"
+    "test:sdk": "turbo run test --filter=skribble-typescript-test",
+    "docs:dev": "mintlify dev docs"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
+    "@types/node": "^20.10.0",
     "prettier": "^3.1.1",
-    "turbo": "latest",
-    "typescript": "^5.4.5"
+    "turbo": "^1.11.3",
+    "typescript": "^5.3.3"
   },
   "packageManager": "pnpm@8.9.0",
   "engines": {
-    "node": ">=18"
+    "node": ">=18.0.0"
   },
   "dependencies": {
     "@repo/scripts": "workspace:*",

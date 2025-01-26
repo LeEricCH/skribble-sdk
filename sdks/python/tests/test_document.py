@@ -182,7 +182,7 @@ def test_preview_document(requests_mock, mock_skribble_client):
 
 def test_document_error_handling(requests_mock, mock_skribble_client):
     """Test error handling for document operations."""
-    # Test Pydantic validation error - empty data
+    # Test Pydantic validation error - empty data 
     with pytest.raises(SkribbleValidationError) as exc_info:
         document.add({})
     assert "title" in str(exc_info.value)

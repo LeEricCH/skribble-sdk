@@ -36,6 +36,9 @@ export class SkribbleClient {
    * @throws {SkribbleAPIError} If there's an API error during initialization.
    */
   public async init(usernameOrToken: string, apiKey?: string): Promise<string> {
+    if (!usernameOrToken) {
+      throw new SkribbleAuthError('No authentication credentials provided');
+    }
     if (apiKey) {
       // Initialize with username and API key
       return this.authenticateWithCredentials(usernameOrToken, apiKey);
@@ -56,13 +59,23 @@ export class SkribbleClient {
         if (error.response?.status === 401 || error.response?.status === 403) {
           throw new SkribbleAuthError('Invalid credentials');
         }
-        throw new SkribbleAPIError(error.response?.data as string, error.response?.status || 500);
+        throw new SkribbleAPIError(
+          error.response?.data?.message || 'An API error occurred',
+          error.response?.status || 500,
+          error.response?.data
+        );
       }
-      throw error;
+      if (error instanceof Error) {
+        throw new SkribbleAuthError(error.message);
+      }
+      throw new SkribbleAuthError('An unknown error occurred during authentication');
     }
   }
 
   private async validateAccessToken(token: string): Promise<string> {
+    if (!token) {
+      throw new SkribbleAuthError('No authentication credentials provided');
+    }
     this.accessToken = token;
     try {
       // Perform a test request to verify the token
@@ -102,17 +115,30 @@ export class SkribbleClient {
 
       return response.data;
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        if (error.response?.status === 401 || error.response?.status === 403) {
+      // Check if error is an Axios error by checking both isAxiosError and response property
+      if (error && typeof error === 'object' && 'isAxiosError' in error && 'response' in error) {
+        const axiosError = error as AxiosError<{ message?: string }>;
+        if (axiosError.response?.status === 401 || axiosError.response?.status === 403) {
           throw new SkribbleAuthError('Invalid or expired token');
         }
+        // Pass through 202 status with the status code
+        if (axiosError.response?.status === 202) {
+          throw new SkribbleAPIError(
+            axiosError.response.data?.message || 'Resource not ready',
+            202,
+            axiosError.response.data
+          );
+        }
         throw new SkribbleAPIError(
-          error.response?.data?.message || 'An API error occurred',
-          error.response?.status || 500,
-          error.response?.data
+          axiosError.response?.data?.message || 'An API error occurred',
+          axiosError.response?.status || 500,
+          axiosError.response?.data
         );
       }
-      throw handleSkribbleError(error);
+      if (error instanceof Error) {
+        throw new SkribbleAPIError(error.message, 500);
+      }
+      throw new SkribbleAPIError('An unknown error occurred', 500);
     }
   }
 }

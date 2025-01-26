@@ -1,0 +1,54 @@
+name: TypeScript SDK Tests
+
+on:
+  pull_request:
+    paths:
+      - 'sdks/typescript/**'
+      - '.github/workflows/typescript-tests.yml'
+  push:
+    branches: [ main ]
+    paths:
+      - 'sdks/typescript/**'
+      - '.github/workflows/typescript-tests.yml'
+
+jobs:
+  typescript-sdk-tests:
+    name: Node ${{ matrix.node-version }} Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x, 20.x]
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        
+    - name: Install dependencies
+      working-directory: ./sdks/typescript
+      run: |
+        npm ci
+        
+    - name: Run tests with coverage
+      working-directory: ./sdks/typescript
+      run: |
+        npm test -- --coverage
+        
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./sdks/typescript/coverage/coverage-final.json
+        flags: typescript-sdk
+        name: TypeScript SDK Coverage
+        fail_ci_if_error: true
+        token: ${{ secrets.CODECOV_TOKEN }}
+
+    - name: Upload coverage HTML report
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-report
+        path: ./sdks/typescript/coverage/
+        if-no-files-found: error 

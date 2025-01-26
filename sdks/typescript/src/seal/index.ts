@@ -1,5 +1,5 @@
 import { SkribbleClient } from '../client';
-import { Seal } from '../types';
+import { Seal, SealResponse } from '../types';
 import { SkribbleValidationError, SkribbleAPIError } from '../errors';
 
 /**
@@ -22,15 +22,26 @@ import { SkribbleValidationError, SkribbleAPIError } from '../errors';
  * console.log(result.document_id);
  * ```
  */
-export async function create(sealData: Seal): Promise<{ document_id: string; status: string }> {
+export async function create(sealData: Seal): Promise<SealResponse> {
+  if (!sealData?.content) {
+    throw new SkribbleValidationError('Seal content is required');
+  }
+
   const client = SkribbleClient.getInstance();
   try {
-    return client.makeRequest('POST', '/seal', sealData);
+    const response = await client.makeRequest('POST', '/seal', sealData);
+    if (!response || typeof response !== 'object' || !('document_id' in response)) {
+      throw new SkribbleAPIError('Invalid response from server', 500);
+    }
+    return response;
   } catch (error) {
     if (error instanceof SkribbleAPIError) {
-      throw new SkribbleAPIError(`Failed to create seal: ${error.message}`, error.statusCode);
+      throw error;
     }
-    throw error;
+    if (error instanceof Error) {
+      throw new SkribbleAPIError(error.message, 500);
+    }
+    throw new SkribbleAPIError('Failed to create seal', 500);
   }
 }
 
@@ -50,19 +61,28 @@ export async function create(sealData: Seal): Promise<{ document_id: string; sta
  * console.log(result.document_id);
  * ```
  */
-export async function createSpecific(content: string, accountName?: string): Promise<{ document_id: string; status: string }> {
-  const sealData: Seal = {
-    content,
-    account_name: accountName
-  };
+export async function createSpecific(content: string, accountName?: string): Promise<SealResponse> {
+  if (!content) {
+    throw new SkribbleValidationError('Seal content is required');
+  }
 
   const client = SkribbleClient.getInstance();
   try {
-    return client.makeRequest('POST', '/seal', sealData);
+    const response = await client.makeRequest('POST', '/seal', {
+      content,
+      account_name: accountName
+    });
+    if (!response || typeof response !== 'object' || !('document_id' in response)) {
+      throw new SkribbleAPIError('Invalid response from server', 500);
+    }
+    return response;
   } catch (error) {
     if (error instanceof SkribbleAPIError) {
-      throw new SkribbleAPIError(`Failed to create specific seal: ${error.message}`, error.statusCode);
+      throw error;
     }
-    throw error;
+    if (error instanceof Error) {
+      throw new SkribbleAPIError(error.message, 500);
+    }
+    throw new SkribbleAPIError('Failed to create specific seal', 500);
   }
 }

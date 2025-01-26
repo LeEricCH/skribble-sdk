@@ -155,9 +155,8 @@ export async function preview(
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
       const response = await client.makeRequest('GET', url, null, null, 'blob');
-      const blob = response as Blob;
-      if (blob.size > 0) {
-        return blob;
+      if (response instanceof Blob && response.size > 0) {
+        return response;
       }
       // If the response is empty, wait and retry
       await new Promise(resolve => setTimeout(resolve, retryDelay));
@@ -165,9 +164,9 @@ export async function preview(
       if (error instanceof SkribbleAPIError && error.statusCode === 202) {
         // If the status is 202, it means the preview is still generating
         await new Promise(resolve => setTimeout(resolve, retryDelay));
-      } else {
-        throw error;
+        continue;
       }
+      throw error;
     }
   }
 

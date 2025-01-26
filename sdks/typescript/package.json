@@ -1,6 +1,6 @@
 {
   "name": "skribble-typescript-sdk",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "TypeScript SDK for Skribble API",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -16,11 +16,11 @@
   "author": "Eric Campos",
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "^14.14.31",
+    "@types/node": "^20.10.0",
     "typescript": "^5.3.3",
-    "jest": "^26.6.3",
-    "@types/jest": "^26.0.20",
-    "ts-jest": "^26.5.3"
+    "jest": "^29.7.0",
+    "@types/jest": "^29.5.0",
+    "ts-jest": "^29.1.1"
   },
   "dependencies": {
     "axios": "^1.6.5"

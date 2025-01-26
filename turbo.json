@@ -9,7 +9,7 @@
     "SKRIBBLE_USERNAME",
     "SKRIBBLE_API_KEY"
   ],
-  "tasks": {
+  "pipeline": {
     "build": {
       "dependsOn": [
         "^build",

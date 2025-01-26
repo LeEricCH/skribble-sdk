@@ -87,9 +87,8 @@ signature_requests:
   remind_signers:
     title: "Remind Signers"
     description: "Send a reminder to signers of a signature request."
-    python_signature: "skribble.signature_request.remind(signature_request_id: str) -> SignatureRequestResponse"
-    typescript_signature: "skribble.signature_request.remind(signatureRequestId: string): Promise<Types.SignatureRequestResponse>"
-    response_type: "SignatureRequestResponse"
+    python_signature: "skribble.signature_request.remind(signature_request_id: str) -> Dict[str, str]"
+    typescript_signature: "skribble.signature_request.remind(signatureRequestId: string): Promise<{ status: string, message: string }>"
 
   add_signer:
     title: "Add Signer"

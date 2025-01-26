@@ -164,18 +164,17 @@ def test_remind_signature_request(requests_mock, mock_skribble_client, mock_resp
     """Test reminding about a signature request."""
     signature_request_id = mock_response_base["id"]
     mock_response = {
-        **mock_response_base,
-        "status_overall": "OPEN",
+        "status": "success",
         "message": "Reminder sent successfully"
     }
     requests_mock.post(
-        f'https://api.skribble.com/v2/signature-requests/{signature_request_id}/remind',
+        f'https://api.skribble.com/v2/signature-requests/{signature_request_id}/remind',    
         json=mock_response
     )
-    
+
     response = signature_request.remind(signature_request_id)
-    assert response.id == signature_request_id
-    assert response.status_overall == "OPEN"
+    assert response["status"] == "success"
+    assert "sent successfully" in response["message"]
 
 def test_error_handling(requests_mock, mock_skribble_client):
     """Test error handling for signature request operations."""

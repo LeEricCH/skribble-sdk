@@ -255,26 +255,22 @@ def replace_signers(signature_request_id: str, new_signers: List[Dict[str, Any]]
     except Exception as e:
         raise SkribbleOperationError("replace_signers", f"Unexpected error: {str(e)}", e)
 
-def remind(signature_request_id: str) -> SignatureRequestResponse:
-    """
-    Send a reminder to signers of a signature request.
+def remind(signature_request_id: str) -> Dict[str, str]:
+    """Send a reminder to signers of a signature request.
 
-    :param signature_request_id: The ID of the signature request.
-    :type signature_request_id: str
-    :return: The updated signature request details.
-    :rtype: SignatureRequestResponse
+    Args:
+        signature_request_id: ID of the signature request
 
-    Example:
-        >>> result = skribble.signature_request.remind("5c33d0cb-84...")
-        >>> print(result.status_overall)
-        'OPEN'
+    Returns:
+        Dict containing status and success message
     """
     client = get_client()
     # Send the reminder - this endpoint returns no content
     client._make_request("POST", f"/signature-requests/{signature_request_id}/remind")
-    # Fetch and return the updated signature request
-    response = client._make_request("GET", f"/signature-requests/{signature_request_id}")
-    return SignatureRequestResponse(**response)
+    return {
+        "status": "success",
+        "message": f"Reminder sent successfully for signature request {signature_request_id}"
+    }
 
 def withdraw(signature_request_id: str, message: Optional[str] = None) -> SignatureRequestResponse:
     """

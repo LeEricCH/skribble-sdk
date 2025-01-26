@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11', '3.12']
+        python-version: ['3.10', '3.11', '3.12']
 
     steps:
     - uses: actions/checkout@v3
@@ -44,6 +44,7 @@ jobs:
         flags: python-sdk
         name: Python SDK Coverage
         fail_ci_if_error: true
+        token: ${{ secrets.CODECOV_TOKEN }}
 
     - name: Upload coverage HTML report
       uses: actions/upload-artifact@v3

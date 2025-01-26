@@ -44,6 +44,7 @@ jobs:
         flags: python-sdk
         name: Python SDK Coverage
         fail_ci_if_error: true
+        token: ${{ secrets.CODECOV_TOKEN }}
 
     - name: Upload coverage HTML report
       uses: actions/upload-artifact@v3

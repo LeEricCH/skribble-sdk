@@ -1,20 +1,23 @@
-from ..client_manager import get_client
+from typing import Optional
+from ..client_manager import init
 from ..exceptions import SkribbleAuthError
-from ..models import AuthResponse
 
-def login() -> AuthResponse:
+def login(username: str, api_key: str) -> str:
     """
-    Authenticate with the Skribble API and return the access token.
+    Login to Skribble API and get an access token.
+
+    Args:
+        username (str): The API username
+        api_key (str): The API key
 
     Returns:
-        AuthResponse: The authentication response containing the access token.
+        str: The access token
 
     Raises:
-        SkribbleAuthError: If authentication fails.
+        SkribbleAuthError: If login fails due to invalid credentials
+        SkribbleAPIError: If login fails due to API error
     """
-    try:
-        client = get_client()
-        token = client._authenticate()
-        return AuthResponse(access_token=token)
-    except Exception as e:
-        raise SkribbleAuthError(f"Authentication failed: {str(e)}")
+    if not username or not api_key:
+        raise ValueError("Username and API key are required")
+    
+    return init(username=username, api_key=api_key)

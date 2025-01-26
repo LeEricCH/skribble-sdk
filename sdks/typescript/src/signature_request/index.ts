@@ -109,18 +109,18 @@ export async function update(signatureRequestId: string, updatedData: Partial<Si
  * 
  * @param signatureRequestId - The ID of the signature request to withdraw.
  * @param message - Optional message to include with the withdrawal.
- * @returns A promise that resolves to the response of the withdrawal operation.
+ * @returns A promise that resolves to the updated signature request after withdrawal.
  * 
  * @example
  * ```typescript
  * const result = await skribble.signature_request.withdraw("5c33d0cb-84...", "Request no longer needed");
- * console.log(result);
+ * console.log(result.status_overall); // 'WITHDRAWN'
  * ```
  */
-export async function withdraw(signatureRequestId: string, message?: string): Promise<{ status: string; message: string }> {
+export async function withdraw(signatureRequestId: string, message?: string): Promise<SignatureRequestResponse> {
   const client = SkribbleClient.getInstance();
   const response = await client.makeRequest('POST', `/signature-requests/${signatureRequestId}/withdraw`, { message });
-  return response || { status: 'success', message: 'Signature request withdrawn successfully' };
+  return response;
 }
 
 /**

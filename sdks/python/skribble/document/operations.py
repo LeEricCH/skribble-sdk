@@ -82,7 +82,11 @@ def add(document_data: Dict[str, Any]) -> DocumentResponse:
         >>> print(result['id'])
         'doc_789'
     """
-    validated_request = DocumentRequest(**document_data)
+    try:
+        validated_request = DocumentRequest(**document_data)
+    except Exception as e:
+        raise SkribbleValidationError(f"Invalid document data: {str(e)}")
+    
     response = get_client()._make_request("POST", "/documents", data=validated_request.model_dump(exclude_none=True))
     return DocumentResponse(**response)
 

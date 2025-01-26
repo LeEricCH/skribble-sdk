@@ -19,7 +19,9 @@ skribble_sdk.egg-info/SOURCES.txt
 skribble_sdk.egg-info/dependency_links.txt
 skribble_sdk.egg-info/requires.txt
 skribble_sdk.egg-info/top_level.txt
-tests/test_attachment.py
+tests/test_auth.py
+tests/test_client_manager.py
 tests/test_document.py
+tests/test_exceptions.py
 tests/test_seal.py
 tests/test_signature_request.py

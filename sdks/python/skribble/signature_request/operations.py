@@ -255,19 +255,28 @@ def replace_signers(signature_request_id: str, new_signers: List[Dict[str, Any]]
     except Exception as e:
         raise SkribbleOperationError("replace_signers", f"Unexpected error: {str(e)}", e)
 
-def remind(signature_request_id: str) -> None:
+def remind(signature_request_id: str) -> SignatureRequestResponse:
     """
-    Send a reminder to open signers of a signature request.
+    Send a reminder to signers of a signature request.
 
-    Args:
-        signature_request_id (str): The ID of the signature request.
+    :param signature_request_id: The ID of the signature request.
+    :type signature_request_id: str
+    :return: The updated signature request details.
+    :rtype: SignatureRequestResponse
 
-    Returns:
-        None
+    Example:
+        >>> result = skribble.signature_request.remind("5c33d0cb-84...")
+        >>> print(result.status_overall)
+        'OPEN'
     """
-    get_client()._make_request("POST", f"/signature-requests/{signature_request_id}/remind")
+    client = get_client()
+    # Send the reminder - this endpoint returns no content
+    client._make_request("POST", f"/signature-requests/{signature_request_id}/remind")
+    # Fetch and return the updated signature request
+    response = client._make_request("GET", f"/signature-requests/{signature_request_id}")
+    return SignatureRequestResponse(**response)
 
-def withdraw(signature_request_id: str, message: Optional[str] = None) -> Dict[str, Any]:
+def withdraw(signature_request_id: str, message: Optional[str] = None) -> SignatureRequestResponse:
     """
     Withdraw a signature request.
 
@@ -275,20 +284,18 @@ def withdraw(signature_request_id: str, message: Optional[str] = None) -> Dict[s
     :type signature_request_id: str
     :param message: An optional message explaining the reason for withdrawal.
     :type message: Optional[str]
-    :return: A dictionary containing the status of the withdrawal operation.
-    :rtype: Dict[str, Any]
+    :return: The updated signature request after withdrawal.
+    :rtype: SignatureRequestResponse
 
     Example:
         >>> result = skribble.signature_request.withdraw("5c33d0cb-84...", message="Document updated")
-        >>> print(result['status'])
-        'success'
+        >>> print(result.status_overall)
+        'WITHDRAWN'
     """
     client = get_client()
     data = {"message": message} if message else None
     response = client._make_request("POST", f"/signature-requests/{signature_request_id}/withdraw", data=data)
-    if response is None:
-        return {"status": "success", "message": "Signature request withdrawn successfully"}
-    return response
+    return SignatureRequestResponse(**response)
 
 def add_attachment(signature_request_id: str, attachment: AttachmentRequest) -> List[Dict[str, str]]:
     """Add an attachment to a signature request.

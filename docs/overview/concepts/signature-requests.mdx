@@ -59,9 +59,9 @@ Skribble provides three types of callbacks to track the signature request lifecy
 
 Skribble automatically replaces these placeholders in your callback URLs:
 
-- `{SKRIBBLE_SIGNATURE_REQUEST_ID}`: The ID of the signature request
-- `{SKRIBBLE_DOCUMENT_ID}`: The ID of the final signed document
-- `{SKRIBBLE_SIGNATURE_ID}`: The ID of the completed signature (only for update callbacks)
+- `SKRIBBLE_SIGNATURE_REQUEST_ID`: The ID of the signature request
+- `SKRIBBLE_DOCUMENT_ID`: The ID of the final signed document
+- `SKRIBBLE_SIGNATURE_ID`: The ID of the completed signature (only for update callbacks)
 
 ### Example Implementation
 
@@ -74,9 +74,9 @@ signature_request = {
     "file_url": "https://example.com/contract.pdf",
     "signatures": [...],
     # Callbacks with dynamic parameters
-    "callback_success_url": "https://api.your-domain.com/webhooks/signature-success/{SKRIBBLE_SIGNATURE_REQUEST_ID}/{SKRIBBLE_DOCUMENT_ID}",
-    "callback_error_url": "https://api.your-domain.com/webhooks/signature-error/{SKRIBBLE_SIGNATURE_REQUEST_ID}",
-    "callback_update_url": "https://api.your-domain.com/webhooks/signature-update/{SKRIBBLE_SIGNATURE_REQUEST_ID}/{SKRIBBLE_SIGNATURE_ID}"
+    "callback_success_url": "https://api.your-domain.com/webhooks/signature-success/SKRIBBLE_SIGNATURE_REQUEST_ID/SKRIBBLE_DOCUMENT_ID",
+    "callback_error_url": "https://api.your-domain.com/webhooks/signature-error/SKRIBBLE_SIGNATURE_REQUEST_ID",
+    "callback_update_url": "https://api.your-domain.com/webhooks/signature-update/SKRIBBLE_SIGNATURE_REQUEST_ID/SKRIBBLE_SIGNATURE_ID"
 }
 
 # Webhook endpoint example (using Flask)
@@ -111,9 +111,9 @@ const signatureRequest = {
     file_url: "https://example.com/contract.pdf",
     signatures: [...],
     // Callbacks with dynamic parameters
-    callback_success_url: "https://api.your-domain.com/webhooks/signature-success/{SKRIBBLE_SIGNATURE_REQUEST_ID}/{SKRIBBLE_DOCUMENT_ID}",
-    callback_error_url: "https://api.your-domain.com/webhooks/signature-error/{SKRIBBLE_SIGNATURE_REQUEST_ID}",
-    callback_update_url: "https://api.your-domain.com/webhooks/signature-update/{SKRIBBLE_SIGNATURE_REQUEST_ID}/{SKRIBBLE_SIGNATURE_ID}"
+    callback_success_url: "https://api.your-domain.com/webhooks/signature-success/SKRIBBLE_SIGNATURE_REQUEST_ID/SKRIBBLE_DOCUMENT_ID",
+    callback_error_url: "https://api.your-domain.com/webhooks/signature-error/SKRIBBLE_SIGNATURE_REQUEST_ID",
+    callback_update_url: "https://api.your-domain.com/webhooks/signature-update/SKRIBBLE_SIGNATURE_REQUEST_ID/SKRIBBLE_SIGNATURE_ID"
 };
 
 // Express webhook endpoints example
@@ -243,8 +243,8 @@ signature_request = {
         }
     ],
     "cc_email_addresses": ["manager@company.com"],
-    "callback_success_url": "https://your-domain.com/webhook/success/{SKRIBBLE_SIGNATURE_REQUEST_ID}/{SKRIBBLE_DOCUMENT_ID}",
-    "callback_update_url": "https://your-domain.com/webhook/update/{SKRIBBLE_SIGNATURE_REQUEST_ID}/{SKRIBBLE_SIGNATURE_ID}"
+    "callback_success_url": "https://your-domain.com/webhook/success/SKRIBBLE_SIGNATURE_REQUEST_ID/SKRIBBLE_DOCUMENT_ID",
+    "callback_update_url": "https://your-domain.com/webhook/update/SKRIBBLE_SIGNATURE_REQUEST_ID/SKRIBBLE_SIGNATURE_ID"
 }
 ```
 
@@ -273,8 +273,8 @@ const signatureRequest = {
         }
     ],
     cc_email_addresses: ["manager@company.com"],
-    callback_success_url: "https://your-domain.com/webhook/success/{SKRIBBLE_SIGNATURE_REQUEST_ID}/{SKRIBBLE_DOCUMENT_ID}",
-    callback_update_url: "https://your-domain.com/webhook/update/{SKRIBBLE_SIGNATURE_REQUEST_ID}/{SKRIBBLE_SIGNATURE_ID}"
+    callback_success_url: "https://your-domain.com/webhook/success/SKRIBBLE_SIGNATURE_REQUEST_ID/SKRIBBLE_DOCUMENT_ID",
+    callback_update_url: "https://your-domain.com/webhook/update/SKRIBBLE_SIGNATURE_REQUEST_ID/SKRIBBLE_SIGNATURE_ID"
 };
 ```
 </CodeGroup>
@@ -294,15 +294,6 @@ const signatureRequest = {
     - Add optional signer details (name, language) in `signer_identity_data` for better user experience
     - Consider using `sequence` for ordered signing when document order matters
   </Accordion>
-  
-  <Accordion title="Webhook Integration">
-    - Use webhook URLs with placeholders for dynamic data:
-      - `{SKRIBBLE_SIGNATURE_REQUEST_ID}`: The signature request ID
-      - `{SKRIBBLE_DOCUMENT_ID}`: The final document ID
-      - `{SKRIBBLE_SIGNATURE_ID}`: The signature ID (only for update callbacks)
-    - Implement a webhook endpoint to handle the success callback and download the signed document using the provided document ID
-    - Use update callbacks to track individual signature completions
-  </Accordion>
 </AccordionGroup>
 
 ## Status Handling
@@ -312,16 +303,6 @@ A signature request can have the following overall statuses:
 - `OPEN`: The signature request is active and waiting for signatures
 - `SIGNED`: All required signatures have been completed
 - `WITHDRAWN`: The signature request was cancelled
-
-### Webhook Placeholders
-
-When configuring callback URLs, you can include the following placeholders that Skribble will automatically replace:
-
-| Placeholder | Description |
-|------------|-------------|
-| `{SKRIBBLE_SIGNATURE_REQUEST_ID}` | Will be replaced with the SignatureRequest ID that triggers the callback |
-| `{SKRIBBLE_DOCUMENT_ID}` | Will be replaced with the most recent or final document ID belonging to the triggering SignatureRequest |
-| `{SKRIBBLE_SIGNATURE_ID}` | Only for `callback_update_url`: Will be replaced with the Signature ID (SID) of the signature just made |
 
 ### Best Practice for Document Handling
 

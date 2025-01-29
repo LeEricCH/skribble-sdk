@@ -81,7 +81,7 @@
     }
   ],
   "footerSocials": {
-    "website": "https://www.skribble.com",
-    "github": "https://github.com/skribbledev"
+    "website": "https://api-doc.skribble.com/",
+    "github": "https://github.com/LeEricCH/skribble-sdk"
   }
 }
